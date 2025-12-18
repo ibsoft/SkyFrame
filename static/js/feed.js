@@ -129,6 +129,7 @@
         isFetching = false;
     };
 
+    const isAuthenticated = document.body?.dataset?.authenticated === "true";
     const observer = sentinel
         ? new IntersectionObserver(
               (entries) => {
@@ -148,9 +149,8 @@
         const card = document.createElement("article");
         card.className = "feed-card";
         card.dataset.imageId = image.id;
-        card.innerHTML = `
-            <div class="image-wrap">
-                <img class="feed-image" src="${image.thumb_url}" alt="${image.object_name}" loading="lazy" data-image-id="${image.id}">
+        const actionButtons = isAuthenticated
+            ? `
                 <button type="button" class="toggle-actions-btn" data-action="toggle-buttons">
                     <span class="toggle-text">Hide controls</span>
                 </button>
@@ -182,6 +182,12 @@
                             : ""
                     }
                 </div>
+            `
+            : "";
+        card.innerHTML = `
+            <div class="image-wrap">
+                <img class="feed-image" src="${image.thumb_url}" alt="${image.object_name}" loading="lazy" data-image-id="${image.id}">
+                ${actionButtons}
             </div>
             <div class="metadata-card px-3 py-3">
                 <div class="d-flex justify-content-between align-items-start">
