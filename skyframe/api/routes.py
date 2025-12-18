@@ -1,3 +1,4 @@
+import hashlib
 import mimetypes
 import re
 from datetime import datetime
