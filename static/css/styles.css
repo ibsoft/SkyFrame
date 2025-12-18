@@ -328,9 +328,9 @@ body {
 }
 
 .shared-image-wrapper {
-    border-radius: 1.5rem;
-    padding: 0.5rem;
-    background: linear-gradient(135deg, rgba(67, 56, 202, 0.7), rgba(37, 99, 235, 0.7));
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
 }
 
 .shared-image {

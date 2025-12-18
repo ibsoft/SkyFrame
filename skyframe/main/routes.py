@@ -106,18 +106,21 @@ def _list_user_archives(user: User) -> list[Path]:
 
 
 @bp.route("/")
-@login_required
 def feed():
     form = SearchForm()
     comment_form = CommentForm()
     per_page = current_app.config["FEED_PAGE_SIZE"]
-    liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
-    favorited_ids = {
-        row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()
-    }
-    following_ids = {
-        row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
-    }
+    liked_ids: set[int] = set()
+    favorited_ids: set[int] = set()
+    following_ids: set[int] = set()
+    if current_user.is_authenticated:
+        liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
+        favorited_ids = {
+            row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()
+        }
+        following_ids = {
+            row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
+        }
     prioritized_filter = _prioritized_filter(liked_ids, following_ids)
     prioritized_images = []
     if prioritized_filter is not None:
@@ -145,7 +148,9 @@ def feed():
             next_cursor = "random"
     elif not images:
         next_cursor = ""
-    owned_ids = {image.id for image in images if image.user_id == current_user.id}
+    owned_ids: set[int] = set()
+    if current_user.is_authenticated:
+        owned_ids = {image.id for image in images if image.user_id == current_user.id}
     for img in images:
         img.download_name = f"{winjupos_label_from_metadata(img.object_name, img.observed_at, img.filter, img.uploader.username)}.jpg"
     return render_template(
@@ -256,6 +261,7 @@ def shared_image(token):
         owned=owned,
         share_url=url_for("main.shared_image", token=token, _external=True),
         share_image_url=url_for("main.shared_image_image", token=token, _external=True),
+        share_download_url=url_for("main.shared_image_download", token=token, _external=True),
     )
 
 
@@ -271,6 +277,29 @@ def shared_image_image(token):
     if not file_path.exists():
         abort(404)
     return send_from_directory(str(base_path), str(image.file_path))
+
+
+@bp.route("/share/<token>/download")
+def shared_image_download(token):
+    try:
+        record = read_share_token(token)
+    except FileNotFoundError:
+        abort(404)
+    image = Image.query.get_or_404(record["image_id"])
+    base_path = Path(Config.UPLOAD_PATH)
+    file_path = base_path / image.file_path
+    if not file_path.exists():
+        abort(404)
+    label = winjupos_label_from_metadata(
+        image.object_name, image.observed_at, image.filter, image.uploader.username
+    )
+    safe_name = f"{label}.jpg"
+    return send_from_directory(
+        str(base_path),
+        str(image.file_path),
+        as_attachment=True,
+        download_name=safe_name,
+    )
 
 
 @bp.route("/upload", methods=["GET", "POST"])

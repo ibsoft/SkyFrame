@@ -31,6 +31,9 @@
                 Telescope: {{ image.telescope or 'Telescope TBD' }} · Camera: {{ image.camera or 'Camera TBD' }}<br>
                 Filter: {{ image.filter or 'n/a' }} · Location: {{ image.location or 'Unknown' }}
             </p>
+            <a class="btn btn-outline-light mt-3" href="{{ share_download_url }}">
+                Download
+            </a>
             <p class="small text-white-50 mb-0">
                 © {{ image.observed_at.strftime('%Y') if image.observed_at else '2025' }} {{ image.uploader.username }} · {{ image.category }} · {{ image.filter or 'RGB' }}
             </p>

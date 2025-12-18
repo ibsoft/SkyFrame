@@ -81,7 +81,13 @@ def _prioritized_filter(liked_ids: set[int], following_ids: set[int]):
     return or_(*conditions)
 
 
-def _serialize_image(image: Image, liked_ids: set[int], favorited_ids: set[int], following_ids: set[int]) -> dict:
+def _serialize_image(
+    image: Image,
+    liked_ids: set[int],
+    favorited_ids: set[int],
+    following_ids: set[int],
+    current_user_id: int | None,
+) -> dict:
     return {
         "id": image.id,
         "category": image.category,
@@ -96,7 +102,7 @@ def _serialize_image(image: Image, liked_ids: set[int], favorited_ids: set[int],
         "created_at": image.created_at.isoformat(),
         "uploader": image.uploader.username,
         "uploader_id": image.uploader.id,
-        "owned_by_current_user": image.user_id == current_user.id,
+        "owned_by_current_user": current_user_id is not None and image.user_id == current_user_id,
         "like_count": image.likes.count(),
         "favorite_count": image.favorites.count(),
         "comment_count": image.comments.count(),
@@ -123,17 +129,20 @@ def share_image(image_id):
 
 
 @bp.route("/feed", methods=["GET"])
-@login_required
 def feed():
     cursor = request.args.get("cursor")
     per_page = current_app.config["FEED_PAGE_SIZE"]
-    liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
-    favorited_ids = {
-        row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()
-    }
-    following_ids = {
-        row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
-    }
+    liked_ids: set[int] = set()
+    favorited_ids: set[int] = set()
+    following_ids: set[int] = set()
+    if current_user.is_authenticated:
+        liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
+        favorited_ids = {
+            row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()
+        }
+        following_ids = {
+            row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
+        }
 
     cursor_point = None
     cursor_image_id = None
@@ -194,8 +203,12 @@ def feed():
     if not images:
         next_cursor = ""
 
+    current_user_id = getattr(current_user, "id", None)
     payload = [
-        _serialize_image(image, liked_ids, favorited_ids, following_ids) for image in images
+        _serialize_image(
+            image, liked_ids, favorited_ids, following_ids, current_user_id=current_user_id
+        )
+        for image in images
     ]
     return jsonify({"images": payload, "next_cursor": next_cursor}), 200
 
@@ -422,11 +435,12 @@ def delete_image(image_id):
 
 
 @bp.route("/images/<int:image_id>/download", methods=["GET"])
-@login_required
 def download_image(image_id):
     image = Image.query.get_or_404(image_id)
     base_path = Path(Config.UPLOAD_PATH)
     thumb_requested = request.args.get("thumb", "").lower() in {"1", "true", "yes"}
+    if not thumb_requested and not current_user.is_authenticated:
+        return current_app.login_manager.unauthorized()
     target = image.thumb_path if thumb_requested else image.file_path
     file_path = base_path / target
     if not file_path.exists():
