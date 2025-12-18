@@ -11,4 +11,4 @@ login_manager.login_view = "auth.login"
 login_manager.session_protection = "strong"
 migrate = Migrate()
 csrf_protect = CSRFProtect()
-limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+limiter = Limiter(key_func=get_remote_address, default_limits=["2000 per day", "600 per hour"])

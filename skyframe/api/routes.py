@@ -125,7 +125,7 @@ def _serialize_image(
 
 @bp.route("/images/<int:image_id>/share", methods=["POST"])
 @login_required
-@limiter.limit("6 per minute")
+@limiter.limit("20 per minute")
 @json_csrf_protected
 def share_image(image_id):
     image = Image.query.get_or_404(image_id)
@@ -317,7 +317,7 @@ def unfollow_user(user_id):
 
 @bp.route("/images/<int:image_id>/comments", methods=["POST"])
 @login_required
-@limiter.limit("10 per minute")
+@limiter.limit("50 per minute")
 @json_csrf_protected
 def add_comment(image_id):
     payload = request.get_json(force=True, silent=True) or {}
