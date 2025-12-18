@@ -107,20 +107,21 @@ def _list_user_archives(user: User) -> list[Path]:
 
 @bp.route("/")
 def feed():
+    if not current_user.is_authenticated:
+        return redirect(url_for("auth.login"))
     form = SearchForm()
     comment_form = CommentForm()
     per_page = current_app.config["FEED_PAGE_SIZE"]
     liked_ids: set[int] = set()
     favorited_ids: set[int] = set()
     following_ids: set[int] = set()
-    if current_user.is_authenticated:
-        liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
-        favorited_ids = {
-            row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()
-        }
-        following_ids = {
-            row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
-        }
+    liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
+    favorited_ids = {
+        row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()
+    }
+    following_ids = {
+        row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
+    }
     prioritized_filter = _prioritized_filter(liked_ids, following_ids)
     prioritized_images = []
     if prioritized_filter is not None:
