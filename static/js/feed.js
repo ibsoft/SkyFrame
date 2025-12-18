@@ -26,6 +26,10 @@
     };
 
     const toastContainer = document.querySelector(".toast-container");
+    const observerInput = document.querySelector(".observer-input");
+    const observerList = document.querySelector("[data-observer-list]");
+    let observerDebounce;
+
     const showToast = (message) => {
         if (!toastContainer) return;
         const toastEl = document.createElement("div");
@@ -142,6 +146,59 @@
         }
     };
 
+    const renderObserverSuggestions = (items = []) => {
+        if (!observerList) return;
+        if (!items.length) {
+            observerList.classList.add("d-none");
+            observerList.innerHTML = "";
+            return;
+        }
+        observerList.innerHTML = items
+            .map(
+                (name) => `
+                <button type="button" data-observer-suggestion>${name}</button>
+            `
+            )
+            .join("");
+        observerList.classList.remove("d-none");
+    };
+
+    const fetchObservers = async (query) => {
+        if (!query) {
+            renderObserverSuggestions([]);
+            return;
+        }
+        try {
+            const resp = await fetch(`/api/observers?q=${encodeURIComponent(query)}`);
+            if (!resp.ok) {
+                throw new Error("Observer lookup failed");
+            }
+            const data = await resp.json();
+            renderObserverSuggestions(data.observers || []);
+        } catch (error) {
+            console.warn(error);
+            renderObserverSuggestions([]);
+        }
+    };
+
+    observerInput?.addEventListener("input", (ev) => {
+        const text = ev.target.value.trim();
+        clearTimeout(observerDebounce);
+        observerDebounce = setTimeout(() => {
+            fetchObservers(text);
+        }, 350);
+    });
+
+    document.addEventListener("click", (ev) => {
+        if (observerList && !observerList.contains(ev.target) && ev.target !== observerInput) {
+            observerList.classList.add("d-none");
+        }
+        if (observerList?.contains(ev.target) && ev.target.matches("[data-observer-suggestion]")) {
+            observerInput.value = ev.target.textContent.trim();
+            observerList.classList.add("d-none");
+        }
+    });
+
     const isAuthenticated = document.body?.dataset?.authenticated === "true";
     const observer = sentinel
         ? new IntersectionObserver(
@@ -191,7 +248,17 @@
                     </button>
                     ${
                         image.owned_by_current_user
-                            ? `<a class="action-icon" href="/images/${image.id}/edit"><span>Edit</span></a>`
+                            ? `<a class="action-icon" href="/images/${image.id}/edit"><span>Edit</span></a>
+                               <div class="action-avatar mt-2">
+                                 ${
+                                     image.uploader_avatar
+                                         ? `<img src="${image.uploader_avatar}" alt="${image.uploader} avatar">`
+                                         : `<span class="fa-stack fa-lg text-white">
+                                          <i class="fas fa-circle fa-stack-2x"></i>
+                                          <i class="fas fa-user fa-stack-1x fa-inverse"></i>
+                                         </span>`
+                                 }
+                               </div>`
                             : ""
                     }
                 </div>
@@ -213,19 +280,48 @@
                 <p class="meta-info small mb-0">${image.telescope || "Telescope TBD"} · ${image.camera || "Camera TBD"}<br>Filter: ${
             image.filter || "n/a"
         }<br>Location: ${image.location || "Unknown"}</p>
+                ${
+                    image.notes
+                        ? `<p class="meta-info small mb-0"><strong>Notes:</strong> ${escapeHtml(
+                              image.notes
+                          )}</p>`
+                        : ""
+                }
+                ${
+                    image.tags?.length
+                        ? `<div class="metadata-tags small">${image.tags
+                              .map((tag) => `<span class="tag-pill">#${escapeHtml(tag)}</span>`)
+                              .join("")}</div>`
+                        : ""
+                }
             </div>
         `;
         return card;
     };
 
-    const toggleControls = (button) => {
-        const card = button.closest(".feed-card");
-        if (!card) return;
-        const hidden = card.classList.toggle("feed-card--hide-controls");
+    const updateToggleText = (button, text) => {
         const label = button.querySelector(".toggle-text");
         if (label) {
-            label.textContent = hidden ? "Show controls" : "Hide controls";
+            label.textContent = text;
         }
+    };
+
+    const toggleControls = (button) => {
+        if (!document.body) return;
+        const isActive = button.classList.contains("controls-active");
+        const toggles = document.querySelectorAll(".toggle-actions-btn");
+        if (isActive) {
+            document.body.classList.remove("controls-hidden");
+            button.classList.remove("controls-active");
+            toggles.forEach((btn) => updateToggleText(btn, "Hide controls"));
+            return;
+        }
+        document.body.classList.add("controls-hidden");
+        toggles.forEach((btn) => {
+            const active = btn === button;
+            btn.classList.toggle("controls-active", active);
+            updateToggleText(btn, active ? "Show controls" : "Hide controls");
+        });
     };
 
     const animateHeart = (container) => {

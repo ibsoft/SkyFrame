@@ -73,6 +73,31 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+.observer-suggestions {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    right: 0;
+    background: rgba(3, 3, 9, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 20;
+}
+.observer-suggestions button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+.observer-suggestions button:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
 .feed-loading-overlay {
     position: absolute;
     inset: 0;
@@ -97,6 +122,47 @@ body {
         transform: rotate(360deg);
     }
 }
+
+.uploader-avatar {
+    margin-bottom: 0.5rem;
+}
+.uploader-avatar img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.action-avatar img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: block;
+    margin: 0 auto;
+}
+.metadata-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+.tag-pill {
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+}
+.action-avatar .fa-stack {
+    line-height: 0;
+    width: 48px;
+    margin: 0 auto;
+}
+
 
 .upload-spinner-overlay {
     position: fixed;
@@ -170,7 +236,7 @@ body {
     display: block;
 }
 
-.feed-card--hide-controls .action-column {
+body.controls-hidden .action-column {
     opacity: 0;
     pointer-events: none;
     transform: translateX(10px);
@@ -195,6 +261,7 @@ body {
 .toggle-actions-btn:hover {
     transform: translateY(-1px);
 }
+
 
 .floating-heart {
     position: absolute;
