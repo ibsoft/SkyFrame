@@ -1,6 +1,8 @@
+import hashlib
 from datetime import datetime
 
 from argon2 import PasswordHasher
+from flask import url_for
 from flask_login import UserMixin
 
 from .extensions import db
@@ -63,6 +65,15 @@ class User(UserMixin, db.Model):
 
     def followers_count(self):
         return self.followers.count()
+
+    @property
+    def avatar_url(self) -> str:
+        if self.avatar_type == "upload" and self.avatar_path:
+            return url_for("main.uploads", filename=self.avatar_path)
+        if self.email:
+            digest = hashlib.md5(self.email.strip().lower().encode()).hexdigest()
+            return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s=96"
+        return url_for("static", filename="icons/icon.svg")
 
 
 class Image(db.Model):

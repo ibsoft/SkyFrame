@@ -54,17 +54,6 @@ def _extract_tags(notes: str | None) -> list[str]:
     return re.findall(r"#([A-Za-z0-9_\\-]+)", notes)
 
 
-def _avatar_url(user: User) -> str:
-    default = url_for("static", filename="icons/icon.svg")
-    if not user:
-        return default
-    if user.avatar_type == "upload" and user.avatar_path:
-        return url_for("main.uploads", filename=user.avatar_path)
-    if user.email:
-        digest = hashlib.md5(user.email.strip().lower().encode()).hexdigest()
-        return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s=96"
-    return default
-
 
 ARCHIVE_MAX_BYTES = 100 * 1024 * 1024
 
@@ -180,7 +169,7 @@ def feed():
     for img in images:
         img.download_name = f"{winjupos_label_from_metadata(img.object_name, img.observed_at, img.filter, img.uploader.username)}.jpg"
         img.display_tags = _extract_tags(img.notes)
-        img.avatar_url = _avatar_url(img.uploader)
+        img.avatar_url = img.uploader.avatar_url
     return render_template(
         "feed.html",
         feed_images=images,
