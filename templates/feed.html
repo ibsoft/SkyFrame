@@ -16,6 +16,13 @@
             </form>
         </div>
     {% endif %}
+    {% if not current_user.is_authenticated %}
+        <div class="install-callout d-flex flex-column align-items-center justify-content-center text-center text-white px-3">
+            <p class="mb-3 fw-semibold">Install the SkyFrame experience</p>
+            <button class="btn btn-outline-light text-uppercase" data-install-pwa>Install App</button>
+            <small class="text-white-50 mt-2">Save the feed, go full screen, and enjoy a smoother swipe.</small>
+        </div>
+    {% endif %}
     <div class="feed-stack">
         {% for image in feed_images %}
             <article class="feed-card" data-image-id="{{ image.id }}">

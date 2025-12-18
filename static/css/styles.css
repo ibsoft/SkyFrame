@@ -61,6 +61,19 @@ body {
     flex-direction: column;
 }
 
+.install-callout {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.8), rgba(3, 3, 9, 0.95));
+    border-radius: 1.25rem;
+    margin: 1rem;
+    pointer-events: none;
+}
+.install-callout button {
+    pointer-events: auto;
+}
+
 .feed-stack {
     flex: 1;
     min-height: 0;
