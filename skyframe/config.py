@@ -31,7 +31,7 @@ class Config:
     IMAGE_PROCESS_SIZE = (1920, 1920)
     THUMB_SIZE = (640, 640)
     AVATAR_SIZE = (400, 400)
-    FEED_PAGE_SIZE = 6
+    FEED_PAGE_SIZE = 50
     PREFERRED_URL_SCHEME = "https"
     CACHE_TYPE = "simple"
     REPORT_EMAIL = None

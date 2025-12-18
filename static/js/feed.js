@@ -101,32 +101,45 @@
         });
     };
 
+    const spinner = document.getElementById("feed-loading-overlay");
+    const showSpinner = () => {
+        spinner?.classList.remove("d-none");
+    };
+    const hideSpinner = () => {
+        spinner?.classList.add("d-none");
+    };
+
     const fetchFeed = async () => {
         if (isFetching || !sentinel) {
             return;
         }
         isFetching = true;
-        const params = new URLSearchParams();
-        if (cursor) {
-            params.set("cursor", cursor);
+        showSpinner();
+        try {
+            const params = new URLSearchParams();
+            if (cursor) {
+                params.set("cursor", cursor);
+            }
+            const resp = await fetch(`/api/feed?${params.toString()}`);
+            const data = await resp.json();
+            if (data.images?.length && feedContainer) {
+                data.images.forEach((entry) => {
+                    const card = buildCard(entry);
+                    feedContainer.appendChild(card);
+                });
+            }
+            cursor = data.next_cursor;
+            if (sentinel) {
+                sentinel.dataset.nextCursor = data.next_cursor || "";
+            }
+            if (!cursor) {
+                sentinel.textContent = "You're caught up for now.";
+                observer?.disconnect();
+            }
+        } finally {
+            isFetching = false;
+            hideSpinner();
         }
-        const resp = await fetch(`/api/feed?${params.toString()}`);
-        const data = await resp.json();
-        if (data.images?.length && feedContainer) {
-            data.images.forEach((entry) => {
-                const card = buildCard(entry);
-                feedContainer.appendChild(card);
-            });
-        }
-        cursor = data.next_cursor;
-        if (sentinel) {
-            sentinel.dataset.nextCursor = data.next_cursor || "";
-        }
-        if (!cursor) {
-            sentinel.textContent = "You're caught up for now.";
-            observer?.disconnect();
-        }
-        isFetching = false;
     };
 
     const isAuthenticated = document.body?.dataset?.authenticated === "true";
