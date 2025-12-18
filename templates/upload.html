@@ -4,6 +4,10 @@
 
 {% block content %}
 <div class="container py-4">
+    <div id="upload-spinner-overlay" class="upload-spinner-overlay d-none">
+        <div class="upload-spinner-border"></div>
+        <p class="mt-3 text-white small">Uploading your frame…</p>
+    </div>
     <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
             <div class="card bg-black border-secondary text-light">
@@ -67,4 +71,7 @@
         </div>
     </div>
 </div>
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/upload.js') }}" nonce="{{ g.csp_nonce }}"></script>
+{% endblock %}
 {% endblock %}
