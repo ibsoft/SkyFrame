@@ -4,6 +4,9 @@
 
 {% block content %}
 <section class="feed-shell" data-feed>
+    <div id="feed-loading-overlay" class="feed-loading-overlay d-none">
+        <div class="feed-spinner-border"></div>
+    </div>
     {% if current_user.is_authenticated %}
         <div class="feed-header px-3 py-2">
             <form method="post" action="{{ url_for('main.search') }}" class="d-flex gap-2" aria-label="Search filters">

@@ -73,6 +73,31 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+.feed-loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feed-spinner-border {
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 0.4rem solid rgba(255, 255, 255, 0.15);
+    border-top-color: #f472b6;
+    border-radius: 50%;
+    animation: spin-fast 0.8s linear infinite;
+}
+
+@keyframes spin-fast {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .upload-spinner-overlay {
     position: fixed;
     inset: 0;
