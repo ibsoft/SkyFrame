@@ -81,6 +81,24 @@ def _prioritized_filter(liked_ids: set[int], following_ids: set[int]):
     return or_(*conditions)
 
 
+def _observer_avatar(uploader: User) -> str:
+    default = url_for("static", filename="icons/icon.svg")
+    if not uploader:
+        return default
+    if uploader.avatar_type == "upload" and uploader.avatar_path:
+        return url_for("main.uploads", filename=uploader.avatar_path)
+    if uploader.email:
+        digest = hashlib.md5(uploader.email.strip().lower().encode()).hexdigest()
+        return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s=96"
+    return default
+
+
+def _extract_tags(notes: str | None) -> list[str]:
+    if not notes:
+        return []
+    return re.findall(r"#([A-Za-z0-9_\-]+)", notes)
+
+
 def _serialize_image(
     image: Image,
     liked_ids: set[int],
@@ -98,7 +116,7 @@ def _serialize_image(
         "telescope": image.telescope,
         "camera": image.camera,
         "filter": image.filter,
-        "notes": image.notes,
+        "notes": image.notes or "",
         "created_at": image.created_at.isoformat(),
         "uploader": image.uploader.username,
         "uploader_id": image.uploader.id,
@@ -112,6 +130,8 @@ def _serialize_image(
         "thumb_url": url_for("api.download_image", image_id=image.id, thumb=1),
         "download_url": url_for("api.download_image", image_id=image.id),
         "download_name": f"{winjupos_label_from_metadata(image.object_name, image.observed_at, image.filter, image.uploader.username)}.jpg",
+        "uploader_avatar": _observer_avatar(image.uploader),
+        "tags": _extract_tags(image.notes),
     }
 
 
@@ -211,6 +231,23 @@ def feed():
         for image in images
     ]
     return jsonify({"images": payload, "next_cursor": next_cursor}), 200
+
+
+@bp.route("/observers", methods=["GET"])
+def observer_suggestions():
+    query = request.args.get("q", "").strip()
+    if not query:
+        return jsonify({"observers": []})
+    matches = (
+        Image.query.with_entities(Image.observer_name)
+        .filter(Image.observer_name.ilike(f"%{query}%"))
+        .distinct()
+        .order_by(Image.observer_name.asc())
+        .limit(10)
+        .all()
+    )
+    observers = [name for (name,) in matches if name]
+    return jsonify({"observers": observers})
 
 
 @bp.route("/images/<int:image_id>/like", methods=["POST"])

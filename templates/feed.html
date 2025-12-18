@@ -11,9 +11,10 @@
         <div class="feed-header px-3 py-2">
             <form method="post" action="{{ url_for('main.search') }}" class="d-flex gap-2" aria-label="Search filters">
                 {{ search_form.hidden_tag() }}
-                <div class="form-floating flex-fill">
-                    {{ search_form.query(class="form-control form-control-sm bg-black border-secondary text-white", placeholder="Search notes, observer, object") }}
+                <div class="form-floating flex-fill position-relative">
+                    {{ search_form.query(class="form-control form-control-sm bg-black border-secondary text-white observer-input", placeholder="Search notes, observer, object", autofocus="") }}
                     <label>Search tags & notes</label>
+                    <div class="observer-suggestions d-none" data-observer-list></div>
                 </div>
                 <button class="btn btn-outline-light btn-sm" type="submit">Filter</button>
             </form>
@@ -54,6 +55,16 @@
                                 <a class="action-icon" href="{{ url_for('main.edit_image', image_id=image.id) }}">
                                     <span>Edit</span>
                                 </a>
+                                <div class="action-avatar mt-2">
+                                    {% if image.avatar_url %}
+                                        <img src="{{ image.avatar_url }}" alt="{{ image.uploader.username }} avatar">
+                                    {% else %}
+                                        <span class="fa-stack fa-lg text-white">
+                                            <i class="fas fa-circle fa-stack-2x"></i>
+                                            <i class="fas fa-user fa-stack-1x fa-inverse"></i>
+                                        </span>
+                                    {% endif %}
+                                </div>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -71,6 +82,18 @@
                         Filter: {{ image.filter or 'n/a' }}<br>
                         Location: {{ image.location or 'Unknown' }}
                     </p>
+                    {% if image.notes %}
+                        <p class="meta-info small mb-0">
+                            <strong>Notes:</strong> {{ image.notes }}
+                        </p>
+                    {% endif %}
+                    {% if image.display_tags %}
+                        <div class="metadata-tags small">
+                            {% for tag in image.display_tags %}
+                                <span class="tag-pill">#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             </article>
         {% endfor %}
