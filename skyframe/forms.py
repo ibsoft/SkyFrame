@@ -134,7 +134,7 @@ class SearchForm(FlaskForm):
 class ProfileForm(FlaskForm):
     avatar_type = SelectField(
         "Avatar Source",
-        choices=[("gravatar", "Gravatar"), ("upload", "Upload")],
+        choices=[("default", "Default icon"), ("gravatar", "Gravatar"), ("upload", "Upload")],
         validators=[DataRequired()],
     )
     avatar_upload = FileField("Upload Avatar", validators=[Optional()])

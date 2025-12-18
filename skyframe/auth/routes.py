@@ -8,7 +8,7 @@ from . import bp
 
 
 @bp.route("/register", methods=["GET", "POST"])
-@limiter.limit("4 per minute")
+@limiter.limit("5 per minute")
 def register():
     if current_user.is_authenticated:
         return redirect(url_for("main.feed"))
@@ -17,6 +17,7 @@ def register():
         user = User(
             email=form.email.data.lower(),
             username=form.username.data.lower(),
+            avatar_type="default",
         )
         user.set_password(form.password.data)
         db.session.add(user)

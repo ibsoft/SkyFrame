@@ -70,10 +70,10 @@ class User(UserMixin, db.Model):
     def avatar_url(self) -> str:
         if self.avatar_type == "upload" and self.avatar_path:
             return url_for("main.uploads", filename=self.avatar_path)
-        if self.email:
+        if self.avatar_type == "gravatar" and self.email:
             digest = hashlib.md5(self.email.strip().lower().encode()).hexdigest()
             return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s=96"
-        return url_for("static", filename="icons/icon.svg")
+        return url_for("static", filename="icons/user.png")
 
 
 class Image(db.Model):

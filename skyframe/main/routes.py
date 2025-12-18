@@ -1,4 +1,3 @@
-import hashlib
 import re
 from datetime import datetime
 from pathlib import Path
@@ -389,8 +388,18 @@ def edit_image(image_id):
 @login_required
 def profile():
     form = ProfileForm(obj=current_user)
-    gravatar_hash = hashlib.md5(current_user.email.strip().lower().encode()).hexdigest()
-    return render_template("profile.html", profile_user=current_user, form=form, gravatar_hash=gravatar_hash)
+    return render_template("profile.html", profile_user=current_user, form=form)
+
+
+@bp.route("/profile/avatar/reset", methods=["POST"])
+@login_required
+@limiter.limit("4 per minute")
+def reset_avatar():
+    current_user.avatar_type = "default"
+    current_user.avatar_path = None
+    db.session.commit()
+    flash("Avatar reset to default", "success")
+    return redirect(url_for("main.profile"))
 
 
 @bp.route("/profile", methods=["POST"])
@@ -408,14 +417,13 @@ def update_profile():
         ):
             avatar_path = save_avatar_upload(form.avatar_upload.data)
             current_user.avatar_path = avatar_path
+        else:
+            current_user.avatar_path = None
         db.session.commit()
         flash("Profile updated", "success")
         return redirect(url_for("main.profile"))
     flash("Unable to update profile", "danger")
-    gravatar_hash = hashlib.md5(current_user.email.strip().lower().encode()).hexdigest()
-    return render_template(
-        "profile.html", form=form, profile_user=current_user, gravatar_hash=gravatar_hash
-    )
+    return render_template("profile.html", form=form, profile_user=current_user)
 
 
 @bp.route("/search", methods=["GET", "POST"])
