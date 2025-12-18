@@ -1,4 +1,3 @@
-import hashlib
 import mimetypes
 import re
 from datetime import datetime
@@ -82,17 +81,6 @@ def _prioritized_filter(liked_ids: set[int], following_ids: set[int]):
     return or_(*conditions)
 
 
-def _observer_avatar(uploader: User) -> str:
-    default = url_for("static", filename="icons/icon.svg")
-    if not uploader:
-        return default
-    if uploader.avatar_type == "upload" and uploader.avatar_path:
-        return url_for("main.uploads", filename=uploader.avatar_path)
-    if uploader.email:
-        digest = hashlib.md5(uploader.email.strip().lower().encode()).hexdigest()
-        return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s=96"
-    return default
-
 
 def _extract_tags(notes: str | None) -> list[str]:
     if not notes:
@@ -131,7 +119,6 @@ def _serialize_image(
         "thumb_url": url_for("api.download_image", image_id=image.id, thumb=1),
         "download_url": url_for("api.download_image", image_id=image.id),
         "download_name": f"{winjupos_label_from_metadata(image.object_name, image.observed_at, image.filter, image.uploader.username)}.jpg",
-        "uploader_avatar": _observer_avatar(image.uploader),
         "tags": _extract_tags(image.notes),
     }
 

@@ -27,6 +27,11 @@
                     </span>
                     <span class="text-uppercase fs-6 letter-spacing">SkyFrame</span>
                 </div>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.profile') }}" class="header-profile-link" aria-label="Open profile">
+                        <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }} avatar" class="header-profile-avatar">
+                    </a>
+                {% endif %}
             </div>
         </header>
         <main class="flex-fill position-relative">

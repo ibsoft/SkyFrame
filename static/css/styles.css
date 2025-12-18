@@ -41,6 +41,31 @@ body {
     font-size: 0.9rem;
 }
 
+.header-profile-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.03);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.header-profile-link:hover,
+.header-profile-link:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.header-profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
 @keyframes header-gradient {
     0% {
         background-position: 0% 50%;
