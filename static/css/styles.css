@@ -135,13 +135,16 @@ body {
 }
 
 .action-avatar img {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(255, 255, 255, 0.4);
     display: block;
     margin: 0 auto;
+.action-avatar {
+    width: 36px;
+    height: 36px;
 }
 .metadata-tags {
     display: flex;
@@ -159,7 +162,8 @@ body {
 }
 .action-avatar .fa-stack {
     line-height: 0;
-    width: 48px;
+    width: 36px;
+    height: 36px;
     margin: 0 auto;
 }
 
