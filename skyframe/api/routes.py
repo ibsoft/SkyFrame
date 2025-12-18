@@ -119,7 +119,6 @@ def _serialize_image(
         "thumb_url": url_for("api.download_image", image_id=image.id, thumb=1),
         "download_url": url_for("api.download_image", image_id=image.id),
         "download_name": f"{winjupos_label_from_metadata(image.object_name, image.observed_at, image.filter, image.uploader.username)}.jpg",
-        "uploader_avatar": image.uploader.avatar_url,
         "tags": _extract_tags(image.notes),
     }
 

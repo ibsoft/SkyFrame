@@ -55,16 +55,6 @@
                                 <a class="action-icon" href="{{ url_for('main.edit_image', image_id=image.id) }}">
                                     <span>Edit</span>
                                 </a>
-                                <div class="action-avatar mt-2">
-                                    {% if image.avatar_url %}
-                                        <img src="{{ image.avatar_url }}" alt="{{ image.uploader.username }} avatar">
-                                    {% else %}
-                                        <span class="fa-stack fa-lg text-white">
-                                            <i class="fas fa-circle fa-stack-2x"></i>
-                                            <i class="fas fa-user fa-stack-1x fa-inverse"></i>
-                                        </span>
-                                    {% endif %}
-                                </div>
                             {% endif %}
                         </div>
                     {% endif %}

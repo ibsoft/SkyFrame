@@ -248,17 +248,7 @@
                     </button>
                     ${
                         image.owned_by_current_user
-                            ? `<a class="action-icon" href="/images/${image.id}/edit"><span>Edit</span></a>
-                               <div class="action-avatar mt-2">
-                                 ${
-                                     image.uploader_avatar
-                                         ? `<img src="${image.uploader_avatar}" alt="${image.uploader} avatar">`
-                                         : `<span class="fa-stack fa-lg text-white">
-                                          <i class="fas fa-circle fa-stack-2x"></i>
-                                          <i class="fas fa-user fa-stack-1x fa-inverse"></i>
-                                         </span>`
-                                 }
-                               </div>`
+                            ? `<a class="action-icon" href="/images/${image.id}/edit"><span>Edit</span></a>`
                             : ""
                     }
                 </div>
