@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Image – SkyFrame{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card bg-black border-secondary text-light">
+                <div class="card-body">
+                    <h4 class="card-title">Edit {{ image.object_name }}</h4>
+                    <p class="text-muted small">Adjust any metadata fields below and save.</p>
+                    <form method="post">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-select bg-black border-secondary text-white") }}
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                {{ form.object_name.label(class="form-label") }}
+                                {{ form.object_name(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.observer_name.label(class="form-label") }}
+                                {{ form.observer_name(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                {{ form.observed_at.label(class="form-label") }}
+                                {{ form.observed_at(class="form-control bg-black border-secondary text-white", type="datetime-local") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.location.label(class="form-label") }}
+                                {{ form.location(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                {{ form.filter.label(class="form-label") }}
+                                {{ form.filter(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.telescope.label(class="form-label") }}
+                                {{ form.telescope(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                {{ form.camera.label(class="form-label") }}
+                                {{ form.camera(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.notes.label(class="form-label") }}
+                                {{ form.notes(class="form-control bg-black border-secondary text-white", rows="2") }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">{{ form.submit.label.text }}</button>
+                    </form>
+                    <button type="button" class="btn btn-outline-danger w-100 mt-3" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Delete this frame
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-black border-secondary text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete frame</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small mb-0">This action cannot be undone. Deleting the frame removes the image and all related interactions.</p>
+                <p class="small text-danger mt-3" id="delete-error"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete" data-image-id="{{ image.id }}" data-redirect-url="{{ url_for('main.feed') }}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/edit-image.js') }}" nonce="{{ csp_nonce }}"></script>
+{% endblock %}

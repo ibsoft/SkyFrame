@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Search – SkyFrame{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card bg-black border-secondary text-light">
+        <div class="card-body">
+            <h4 class="mb-3">Search frames</h4>
+            <form method="post" class="row g-3">
+                {{ form.hidden_tag() }}
+                <div class="col-md-6">
+                    {{ form.observer.label(class="form-label") }}
+                    {{ form.observer(class="form-control bg-black border-secondary text-white") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.object_name.label(class="form-label") }}
+                    {{ form.object_name(class="form-control bg-black border-secondary text-white") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.category.label(class="form-label") }}
+                    {{ form.category(class="form-select bg-black border-secondary text-white") }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.date_from.label(class="form-label") }}
+                    {{ form.date_from(class="form-control bg-black border-secondary text-white", type="datetime-local") }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.date_to.label(class="form-label") }}
+                    {{ form.date_to(class="form-control bg-black border-secondary text-white", type="datetime-local") }}
+                </div>
+                <div class="col-12">
+                    {{ form.query.label(class="form-label") }}
+                    {{ form.query(class="form-control bg-black border-secondary text-white") }}
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-outline-light">{{ form.submit.label.text }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="mt-4 feed-stack">
+        {% if feed_images %}
+            {% for image in feed_images %}
+                <article class="feed-card">
+                    <img class="feed-image" src="{{ url_for('api.download_image', image_id=image.id, thumb=1) }}" alt="{{ image.object_name }}" loading="lazy">
+                    <div class="card-overlay px-3 py-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">{{ image.category }}</p>
+                                <h5 class="mb-0">{{ image.object_name }}</h5>
+                            </div>
+                            <span class="text-muted small">{{ image.observed_at.strftime('%Y-%m-%d') if image.observed_at else '' }}</span>
+                        </div>
+                        <p class="text-muted small mb-0">{{ image.notes }}</p>
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p class="text-white text-center mt-3">No matches yet. Try different filters.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

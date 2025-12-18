@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Upload – SkyFrame{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card bg-black border-secondary text-light">
+                <div class="card-body">
+                    <h4 class="card-title">Submit your frame</h4>
+                    <p class="text-muted small">All metadata fields are required except where marked optional.</p>
+                    <form method="post" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-select bg-black border-secondary text-white") }}
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                {{ form.object_name.label(class="form-label") }}
+                                {{ form.object_name(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.observer_name.label(class="form-label") }}
+                                {{ form.observer_name(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                {{ form.observed_at.label(class="form-label") }}
+                                {{ form.observed_at(class="form-control bg-black border-secondary text-white", type="datetime-local") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.location.label(class="form-label") }}
+                                {{ form.location(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                {{ form.filter.label(class="form-label") }}
+                                {{ form.filter(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.telescope.label(class="form-label") }}
+                                {{ form.telescope(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                {{ form.camera.label(class="form-label") }}
+                                {{ form.camera(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.notes.label(class="form-label") }}
+                                {{ form.notes(class="form-control bg-black border-secondary text-white", rows="2") }}
+                            </div>
+                        </div>
+                        <div class="mb-3 mt-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control bg-black border-secondary text-white") }}
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">{{ form.submit.label.text }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

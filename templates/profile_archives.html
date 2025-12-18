@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Download Archives – SkyFrame{% endblock %}
+
+{% block content %}
+<section class="container py-4">
+    <div class="card bg-black border-secondary text-white">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <h5 class="mb-0">Download your uploads</h5>
+                    <p class="small text-white-50 mb-0">We package your uploads into zip archives capped at 100 MB each.</p>
+                </div>
+                <form method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-outline-light btn-sm" type="submit">Generate archives</button>
+                </form>
+            </div>
+            {% if parts %}
+                <div class="list-group">
+                    {% for part in parts %}
+                        <div class="list-group-item bg-dark border-secondary text-white">
+                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                <div>
+                                    <span class="text-white fw-semibold">{{ part.name }}</span>
+                                    <p class="small text-muted mb-0">{{ (part.size / (1024*1024))|round(2) }} MB</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a class="btn btn-outline-light btn-sm" href="{{ url_for('main.download_archive_part', filename=part.name) }}">
+                                        Download
+                                    </a>
+                                    <form method="post" action="{{ url_for('main.delete_archive_part', filename=part.name) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-white-50 small">No archived packages are available yet. Click “Generate archives” to start packaging your uploads.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

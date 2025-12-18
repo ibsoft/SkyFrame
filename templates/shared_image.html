@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <meta property="og:title" content="{{ image.object_name }} – SkyFrame">
+    <meta property="og:description" content="Observation shared by {{ image.uploader.username }}">
+    <meta property="og:image" content="{{ share_image_url }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ share_url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ image.object_name }} – SkyFrame">
+    <meta name="twitter:description" content="Observation shared by {{ image.uploader.username }}">
+    <meta name="twitter:image" content="{{ share_image_url }}">
+{% endblock %}
+
+{% block title %}{{ image.object_name }} – Shared – SkyFrame{% endblock %}
+
+{% block content %}
+<section class="shared-page">
+    <div class="shared-card">
+        <p class="text-white-50 mb-2">Shared by {{ image.uploader.username }}</p>
+        <div class="shared-image-wrapper">
+            <img class="shared-image" src="{{ share_image_url }}" alt="{{ image.object_name }}">
+        </div>
+        <div class="shared-metadata mt-4 text-start">
+            <h5>{{ image.object_name }}</h5>
+            <p class="small text-white-50 mb-1">
+                {{ image.category }} · {{ image.observer_name }} ·
+                {{ image.observed_at.strftime('%Y-%m-%d %H:%M UTC') if image.observed_at else '—' }}
+            </p>
+            <p class="meta-info small mb-1">
+                Telescope: {{ image.telescope or 'Telescope TBD' }} · Camera: {{ image.camera or 'Camera TBD' }}<br>
+                Filter: {{ image.filter or 'n/a' }} · Location: {{ image.location or 'Unknown' }}
+            </p>
+            <p class="small text-white-50 mb-0">
+                © {{ image.observed_at.strftime('%Y') if image.observed_at else '2025' }} {{ image.uploader.username }} · {{ image.category }} · {{ image.filter or 'RGB' }}
+            </p>
+            <p class="small text-white-50 mt-2">
+                Explore more at <a href="https://skyframe.pyworld.org" target="_blank" rel="noopener noreferrer">skyframe.pyworld.org</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

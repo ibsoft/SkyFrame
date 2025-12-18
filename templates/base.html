@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <title>{% block title %}SkyFrame{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100 bg-black text-white">
+    <div class="app-shell">
+        <header class="py-2 px-3 border-bottom border-secondary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="header-icon" aria-hidden="true">
+                        <i class="fas fa-meteor"></i>
+                    </span>
+                    <span class="text-uppercase fs-6 letter-spacing">SkyFrame</span>
+                </div>
+            </div>
+        </header>
+        <main class="flex-fill position-relative">
+            <div class="toast-container position-fixed top-0 end-0 p-3">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% for category, message in messages %}
+                        <div class="toast toast-blue align-items-center" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+                            <div class="toast-progress" aria-hidden="true"></div>
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    {{ message }}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endwith %}
+            </div>
+            {% block content %}{% endblock %}
+        </main>
+        <nav class="bottom-nav border-top border-secondary">
+            <a href="{{ url_for('main.feed') }}" class="bottom-nav-link nav-label">Feed</a>
+            <a href="{{ url_for('main.search') }}" class="bottom-nav-link nav-label">Search</a>
+            <a href="{{ url_for('main.upload') }}" class="bottom-nav-link nav-label">Upload</a>
+            <a href="{{ url_for('main.profile') }}" class="bottom-nav-link nav-label">Profile</a>
+        </nav>
+        <div class="pwa-prompt d-none position-fixed bottom-5 start-50 translate-middle-x px-3 py-2 rounded-3 border shadow">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-semibold">Install SkyFrame</span>
+                <span class="small text-muted">for a smoother experience</span>
+                <button class="btn btn-sm btn-outline-dark" data-install-pwa>Install</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous" nonce="{{ g.csp_nonce }}"></script>
+    <script nonce="{{ g.csp_nonce }}">
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const pwaPromptBar = document.querySelector(".pwa-prompt");
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            if (pwaPromptBar) {
+                pwaPromptBar.classList.remove("d-none");
+            }
+        });
+        const installApp = async () => {
+            const promptEvent = window.deferredPrompt;
+            if (!promptEvent) return;
+            promptEvent.prompt();
+            const choice = await promptEvent.userChoice;
+            window.deferredPrompt = null;
+            if (pwaPromptBar) {
+                pwaPromptBar.classList.add("d-none");
+            }
+        };
+        document.addEventListener("click", (ev) => {
+            if (ev.target.matches("[data-install-pwa]")) {
+                installApp();
+            }
+        });
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("{{ url_for('static', filename='js/service-worker.js') }}").catch(() => {});
+        }
+    </script>
+    <script nonce="{{ g.csp_nonce }}">
+        document.addEventListener("DOMContentLoaded", () => {
+            const toasts = document.querySelectorAll(".toast");
+            toasts.forEach((toastEl) => {
+                const delay = Number(toastEl.dataset.bsDelay) || 4000;
+                const toast = new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay,
+                });
+                const progress = toastEl.querySelector(".toast-progress");
+                if (progress) {
+                    requestAnimationFrame(() => {
+                        progress.style.width = "0%";
+                        progress.style.transition = `width ${delay}ms linear`;
+                    });
+                }
+                toast.show();
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/feed.js') }}" nonce="{{ g.csp_nonce }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Login – SkyFrame{% endblock %}
+
+{% block content %}
+<div class="auth-shell auth-space">
+    <div class="auth-grid single-grid">
+        <form method="post" class="auth-panel auth-card auth-form text-white">
+            <div class="text-center mb-4">
+                <div class="header-icon large mx-auto mb-3">
+                    <img src="{{ url_for('static', filename='icons/icon.svg') }}" alt="SkyFrame icon" />
+                </div>
+                <h3 class="mb-1">Log in</h3>
+                <p class="text-white-50 mb-0">Tap into the cosmic feed</p>
+            </div>
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.username(class="form-control form-control-lg auth-input", placeholder="Username") }}
+            </div>
+            <div class="mb-3">
+                {{ form.password(class="form-control form-control-lg auth-input", placeholder="Password") }}
+            </div>
+            <button type="submit" class="btn btn-gradient w-100 mt-2">{{ form.submit.label.text }}</button>
+            <p class="mt-3 text-center small text-white-50">
+                Need an account?
+                <a class="text-white fw-bold" href="{{ url_for('auth.register') }}">Register</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}
