@@ -296,21 +296,14 @@
         }
     };
 
-    const toggleControls = (button) => {
+    const toggleControls = () => {
         if (!document.body) return;
-        const isActive = button.classList.contains("controls-active");
         const toggles = document.querySelectorAll(".toggle-actions-btn");
-        if (isActive) {
-            document.body.classList.remove("controls-hidden");
-            button.classList.remove("controls-active");
-            toggles.forEach((btn) => updateToggleText(btn, "Hide controls"));
-            return;
-        }
-        document.body.classList.add("controls-hidden");
+        const shouldHide = !document.body.classList.contains("controls-hidden");
+        document.body.classList.toggle("controls-hidden", shouldHide);
         toggles.forEach((btn) => {
-            const active = btn === button;
-            btn.classList.toggle("controls-active", active);
-            updateToggleText(btn, active ? "Show controls" : "Hide controls");
+            btn.classList.toggle("controls-active", shouldHide);
+            updateToggleText(btn, shouldHide ? "Show controls" : "Hide controls");
         });
     };
 
@@ -434,7 +427,7 @@
                 return;
             }
             if (action === "toggle-buttons") {
-                toggleControls(actionTarget);
+                toggleControls();
                 return;
             }
             handleAction(actionTarget);
