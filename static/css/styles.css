@@ -669,6 +669,16 @@ body.controls-hidden .action-column {
     width: 140px;
     height: 140px;
     object-fit: cover;
+    display: block;
+    margin: 0 auto 1rem;
+}
+
+.profile-bio-helper {
+    color: #fff;
+}
+
+.profile-bio-helper.text-muted {
+    color: #fff !important;
 }
 
 .auth-shell {
