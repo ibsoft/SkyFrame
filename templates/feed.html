@@ -16,13 +16,6 @@
             </form>
         </div>
     {% endif %}
-    {% if not current_user.is_authenticated %}
-        <div class="install-callout d-flex flex-column align-items-center justify-content-center text-center text-white px-3">
-            <p class="mb-3 fw-semibold">Install the SkyFrame experience</p>
-            <button class="btn btn-outline-light text-uppercase" data-install-pwa>Install App</button>
-            <small class="text-white-50 mt-2">Save the feed, go full screen, and enjoy a smoother swipe.</small>
-        </div>
-    {% endif %}
     <div class="feed-stack">
         {% for image in feed_images %}
             <article class="feed-card" data-image-id="{{ image.id }}">
@@ -81,6 +74,11 @@
     </div>
     <div class="feed-sentinel" data-feed-sentinel data-next-cursor="{{ next_cursor or '' }}"></div>
 </section>
+{% if not current_user.is_authenticated %}
+<div class="guest-login-link text-center py-3">
+    <a class="text-decoration-none text-white fw-semibold" href="{{ url_for('auth.login') }}">Log in to unlock controls</a>
+</div>
+{% endif %}
 
 {% if current_user.is_authenticated %}
 <section class="comments-sheet d-none" id="comments-sheet">

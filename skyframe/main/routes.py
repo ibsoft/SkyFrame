@@ -106,6 +106,13 @@ def _list_user_archives(user: User) -> list[Path]:
 
 
 @bp.route("/")
+def root():
+    if not current_user.is_authenticated:
+        return redirect(url_for("auth.login"))
+    return redirect(url_for("main.feed"))
+
+
+@bp.route("/feed")
 def feed():
     form = SearchForm()
     comment_form = CommentForm()
