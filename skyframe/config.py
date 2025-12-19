@@ -1,5 +1,7 @@
+import logging
 import os
 import secrets
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -45,10 +47,30 @@ class Config:
     APP_VERSION = os.getenv("APP_VERSION", "v_2.0.6")
     WATERMARK_OPACITY = int(os.getenv("WATERMARK_OPACITY", "12"))
     WATERMARK_PADDING = int(os.getenv("WATERMARK_PADDING", "12"))
+    LOG_DIR = PROJECT_ROOT / "logs"
+    LOG_FILE = "skyframe.log"
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+    LOG_MAX_BYTES = int(os.getenv("LOG_MAX_BYTES", "10485760"))
+    LOG_BACKUP_COUNT = int(os.getenv("LOG_BACKUP_COUNT", "5"))
 
     @classmethod
     def init_app(cls, app):
-        pass
+        log_dir = cls.LOG_DIR
+        log_dir.mkdir(parents=True, exist_ok=True)
+        handler = RotatingFileHandler(
+            log_dir / cls.LOG_FILE,
+            maxBytes=cls.LOG_MAX_BYTES,
+            backupCount=cls.LOG_BACKUP_COUNT,
+        )
+        level = getattr(logging, cls.LOG_LEVEL, logging.INFO)
+        handler.setLevel(level)
+        handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s %(levelname)s [%(name)s] %(message)s", "%Y-%m-%d %H:%M:%S"
+            )
+        )
+        app.logger.setLevel(level)
+        app.logger.addHandler(handler)
 
 
 class DevelopmentConfig(Config):

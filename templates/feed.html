@@ -152,6 +152,21 @@
     </form>
 </section>
 {% endif %}
+<div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-black border-secondary text-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="signatureModalLabel">Frame verification</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small mb-2">This signature proves the frame is digitally signed and owned by <span class="signature-owner text-white fw-semibold">SkyFrame</span>.</p>
+                <p class="fw-semibold text-white signature-id mb-0"></p>
+                <p class="text-white-50 small mt-2">Timestamp and owner metadata are embedded invisibly in the published file.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% block scripts %}{% endblock %}
 {% endblock %}
