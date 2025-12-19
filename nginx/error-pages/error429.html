@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>429 - Too Many Requests</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #fff7ed;
+      --ink: #1f2933;
+      --accent: #f97316;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", Tahoma, Arial, sans-serif;
+      background: radial-gradient(circle at top left, #ffe6c7, var(--bg));
+      color: var(--ink);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+    }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--accent);
+      border-radius: 18px;
+      padding: 28px 32px;
+      max-width: 720px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 36px;
+      letter-spacing: 0.5px;
+    }
+    p {
+      margin: 8px 0 0;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .silly {
+      margin-top: 16px;
+      font-family: "Courier New", Courier, monospace;
+      background: #fff3e0;
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <div class="badge">429 Too Many Requests</div>
+    <h1>Whoa, speed racer.</h1>
+    <p>You have pressed the button enough times to power a small spaceship.</p>
+    <p>Give us a tiny breather, then try again.</p>
+    <div class="silly">Hint: Our rocket has only so many (click) boosters before it needs a refuel.</div>
+  </main>
+</body>
+</html>
