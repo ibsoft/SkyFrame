@@ -11,7 +11,7 @@
         <div class="feed-header px-3 py-2">
             <form method="post" action="{{ url_for('main.search') }}" class="d-flex gap-2" aria-label="Search filters">
                 {{ search_form.hidden_tag() }}
-                <div class="form-floating flex-fill position-relative">
+                <div class="form-floating flex-fill observer-field position-relative">
                     {{ search_form.query(class="form-control form-control-sm bg-black border-secondary text-white observer-input", placeholder="Search notes, observer, object", autofocus="") }}
                     <label>Search tags & notes</label>
                     <div class="observer-suggestions d-none" data-observer-list></div>
@@ -94,20 +94,22 @@
                 </div>
                 {% if image.planetary_data %}
                     <div class="post-metadata px-3 py-3">
-                        <div class="small mb-1">
+                        <p class="meta-info small mb-0">
                             RA: {{ image.planetary_data.ra }}° · Dec: {{ image.planetary_data.dec }}°
-                        </div>
-                        <div class="small mb-1">Distance: {{ image.planetary_data.distance_au }} AU</div>
+                        </p>
+                        <p class="meta-info small mb-0">Distance: {{ image.planetary_data.distance_au }} AU</p>
                         {% if image.planetary_data.altitude is defined and image.planetary_data.azimuth is defined %}
-                            <div class="small">Altitude: {{ image.planetary_data.altitude }}° · Azimuth: {{ image.planetary_data.azimuth }}°</div>
+                            <p class="meta-info small mb-0">
+                                Altitude: {{ image.planetary_data.altitude }}° · Azimuth: {{ image.planetary_data.azimuth }}°
+                            </p>
                         {% endif %}
                         {% if image.planetary_data.jupiter_systems %}
-                            <div class="small mt-1">
+                            <p class="meta-info small mb-0 mt-1">
                                 <strong>Jupiter System</strong>
                                 I: {{ image.planetary_data.jupiter_systems.system_i }}° ·
                                 II: {{ image.planetary_data.jupiter_systems.system_ii }}° ·
                                 III: {{ image.planetary_data.jupiter_systems.system_iii }}°
-                            </div>
+                            </p>
                         {% endif %}
                     </div>
                 {% endif %}

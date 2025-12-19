@@ -398,7 +398,12 @@ def edit_image(image_id):
 @login_required
 def profile():
     form = ProfileForm(obj=current_user)
-    return render_template("profile.html", profile_user=current_user, form=form)
+    return render_template(
+        "profile.html",
+        profile_user=current_user,
+        form=form,
+        app_version=current_app.config.get("APP_VERSION"),
+    )
 
 
 @bp.route("/profile/avatar/reset", methods=["POST"])

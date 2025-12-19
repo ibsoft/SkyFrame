@@ -9,9 +9,10 @@
             <h4 class="mb-3">Search frames</h4>
             <form method="post" class="row g-3">
                 {{ form.hidden_tag() }}
-                <div class="col-md-6">
+                <div class="col-md-6 observer-field position-relative">
                     {{ form.observer.label(class="form-label") }}
-                    {{ form.observer(class="form-control bg-black border-secondary text-white") }}
+                    {{ form.observer(class="form-control bg-black border-secondary text-white observer-input") }}
+                    <div class="observer-suggestions d-none" data-observer-list></div>
                 </div>
                 <div class="col-md-6">
                     {{ form.object_name.label(class="form-label") }}
