@@ -236,6 +236,15 @@
                     <button class="action-icon" data-action="download" data-image-id="${image.id}" data-download-url="${image.download_url}" data-download-name="${image.download_name}">
                         <span>Download</span>
                     </button>
+                    ${
+                        image.watermark_hash
+                            ? `<button class="action-icon" data-action="verify" data-watermark="${image.watermark_hash}" data-uploader="${escapeHtml(
+                                  image.uploader || "SkyFrame"
+                              )}" data-image-id="${image.id}">
+                                 <span>Verify</span>
+                               </button>`
+                            : ""
+                    }
                     <button class="action-icon ${image.following_uploader ? "active" : ""}" data-action="follow" data-target-id="${image.uploader_id}">
                         <span>${image.following_uploader ? "Following" : "Follow"}</span>
                     </button>
@@ -438,6 +447,21 @@
             } catch (err) {
                 console.error(err);
             }
+        } else if (action === "verify") {
+            const watermark = element.dataset.watermark;
+            const owner = element.dataset.uploader || "SkyFrame";
+            if (!watermark) return;
+            const modal = document.getElementById("signatureModal");
+            if (!modal) return;
+            const idElement = modal.querySelector(".signature-id");
+            const ownerElement = modal.querySelector(".signature-owner");
+            if (idElement) {
+                idElement.textContent = watermark;
+            }
+            if (ownerElement) {
+                ownerElement.textContent = owner;
+            }
+            bootstrap.Modal.getOrCreateInstance(modal).show();
         } else if (action === "share") {
             shareImage(imageId);
         } else if (action === "comment") {
