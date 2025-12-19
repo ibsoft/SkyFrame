@@ -1,73 +1,31 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>429 - Too Many Requests</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #fff7ed;
-      --ink: #1f2933;
-      --accent: #f97316;
-      --card: #ffffff;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Trebuchet MS", "Segoe UI", Tahoma, Arial, sans-serif;
-      background: radial-gradient(circle at top left, #ffe6c7, var(--bg));
-      color: var(--ink);
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 32px;
-    }
-    .card {
-      background: var(--card);
-      border: 2px solid var(--accent);
-      border-radius: 18px;
-      padding: 28px 32px;
-      max-width: 720px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    }
-    h1 {
-      margin: 0 0 10px;
-      font-size: 36px;
-      letter-spacing: 0.5px;
-    }
-    p {
-      margin: 8px 0 0;
-      font-size: 18px;
-      line-height: 1.5;
-    }
-    .badge {
-      display: inline-block;
-      background: var(--accent);
-      color: white;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 12px;
-      margin-bottom: 12px;
-    }
-    .silly {
-      margin-top: 16px;
-      font-family: "Courier New", Courier, monospace;
-      background: #fff3e0;
-      border-left: 4px solid var(--accent);
-      padding: 10px 12px;
-      border-radius: 10px;
-    }
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>429 – SkyFrame</title>
+    <style>
+        body{margin:0;background:#020617;color:#fff;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;}
+        .card{background:#111827;border-radius:1.5rem;padding:2.5rem;max-width:540px;width:100%;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 50px rgba(0,0,0,.7);}
+        .label{letter-spacing:.45em;font-size:.75rem;color:#94a3b8;}
+        h1{font-size:clamp(2.2rem,3.2vw,2.8rem);margin:1rem 0 .3rem;}
+        p{color:#cbd5f5;line-height:1.6;margin-bottom:1.2rem;}
+        .scene{width:70px;height:70px;margin:0 auto 1rem;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.6),transparent 65%);display:flex;align-items:center;justify-content:center;}
+        .scene svg{width:36px;height:36px;fill:#fff;}
+        .btn{margin-top:1rem;padding:.85rem 1.6rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);color:#fff;text-decoration:none;font-weight:600;transition:background .2s;}
+        .btn:hover{background:rgba(255,255,255,.1);}
+    </style>
 </head>
 <body>
-  <main class="card" role="main">
-    <div class="badge">429 Too Many Requests</div>
-    <h1>Whoa, speed racer.</h1>
-    <p>You have pressed the button enough times to power a small spaceship.</p>
-    <p>Give us a tiny breather, then try again.</p>
-    <div class="silly">Hint: Our rocket has only so many (click) boosters before it needs a refuel.</div>
-  </main>
+    <div class="card">
+        <div class="label">SkyFrame</div>
+        <div class="scene" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M20 10h24v6H20zm-6 34h36v6H14zm6-20h24v16H20z"/></svg>
+        </div>
+        <h1>Whoa, speed racer.</h1>
+        <p>Too many requests are docking at once. Hold position for a moment, then try again.</p>
+        <div class="silly">Hint: Our rocket has only 7 (click) boosters before it needs a refuel. ;) </div>
+        <a class="btn" href="https://skyframe.pyworld.org">Return to SkyFrame</a>
+    </div>
 </body>
 </html>
