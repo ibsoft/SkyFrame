@@ -421,15 +421,8 @@ body.controls-hidden .action-column {
 }
 
 .action-icon.share {
-    display: none;
     border-color: rgba(59, 130, 246, 0.4);
     background: rgba(59, 130, 246, 0.1);
-}
-
-@media (max-width: 992px) {
-    .action-icon.share {
-        display: flex;
-    }
 }
 
 .action-icon.active {
@@ -691,6 +684,51 @@ body.controls-hidden .action-column {
     padding: 0.75rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     color: #fff;
+}
+
+.feed-header .form-control-sm {
+    height: 38px;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+    line-height: 1.2;
+    border-radius: 0.75rem;
+}
+.feed-header .form-floating {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+}
+.feed-header .form-floating label {
+    top: -7px;
+    font-size: 0.78rem;
+}
+.feed-header .search-btn {
+    width: 56px;
+    min-height: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    border-radius: 0.6rem;
+    padding: 0.4rem 0.4rem;
+    margin: 0;
+    align-self: center;
+    color: #fff;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.45));
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.feed-header .search-btn i {
+    font-size: 1rem;
+}
+.feed-header .search-btn .btn-label {
+    font-size: 0.6rem;
+    line-height: 1;
+}
+.feed-header form {
+    align-items: center;
 }
 
 .comment-row strong,

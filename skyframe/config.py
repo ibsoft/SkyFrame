@@ -44,7 +44,7 @@ class Config:
     CSP_SCRIPT_SRC = "'self' https://cdn.jsdelivr.net"
     SHARE_PATH = PROJECT_ROOT / "instance" / "shares"
     ARCHIVE_SUBDIR = "archives"
-    APP_VERSION = os.getenv("APP_VERSION", "v_2.0.6")
+    APP_VERSION = os.getenv("APP_VERSION", "v_2.0.9")
     WATERMARK_OPACITY = int(os.getenv("WATERMARK_OPACITY", "12"))
     WATERMARK_PADDING = int(os.getenv("WATERMARK_PADDING", "12"))
     LOG_DIR = PROJECT_ROOT / "logs"
