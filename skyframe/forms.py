@@ -104,12 +104,12 @@ class UploadForm(FlaskForm):
         format="%Y-%m-%dT%H:%M",
         validators=[DataRequired()],
     )
-    location = StringField("Location / Observatory", validators=[Optional(), Length(max=128)])
-    filter = StringField("Filter", validators=[Optional(), Length(max=64)])
-    telescope = StringField("Telescope", validators=[Optional(), Length(max=128)])
-    camera = StringField("Camera", validators=[Optional(), Length(max=128)])
-    notes = TextAreaField("Notes / Tags", validators=[Optional(), Length(max=512)])
-    derotation_time = FloatField("Derotation time (minutes)", validators=[Optional()])
+    location = StringField("Location / Observatory", validators=[DataRequired(), Length(max=128)])
+    filter = StringField("Filter", validators=[DataRequired(), Length(max=64)])
+    telescope = StringField("Telescope", validators=[DataRequired(), Length(max=128)])
+    camera = StringField("Camera", validators=[DataRequired(), Length(max=128)])
+    notes = TextAreaField("Notes / Tags", validators=[DataRequired(), Length(max=512)])
+    derotation_time = FloatField("Derotation time (minutes)", validators=[DataRequired()])
     file = FileField("Image File", validators=[DataRequired()])
     submit = SubmitField("Upload")
 
@@ -159,10 +159,10 @@ class ImageEditForm(FlaskForm):
         format="%Y-%m-%dT%H:%M",
         validators=[DataRequired()],
     )
-    location = StringField("Location / Observatory", validators=[Optional(), Length(max=128)])
-    filter = StringField("Filter", validators=[Optional(), Length(max=64)])
-    telescope = StringField("Telescope", validators=[Optional(), Length(max=128)])
-    camera = StringField("Camera", validators=[Optional(), Length(max=128)])
-    notes = TextAreaField("Notes / Tags", validators=[Optional(), Length(max=512)])
-    derotation_time = FloatField("Derotation time (minutes)", validators=[Optional()])
+    location = StringField("Location / Observatory", validators=[DataRequired(), Length(max=128)])
+    filter = StringField("Filter", validators=[DataRequired(), Length(max=64)])
+    telescope = StringField("Telescope", validators=[DataRequired(), Length(max=128)])
+    camera = StringField("Camera", validators=[DataRequired(), Length(max=128)])
+    notes = TextAreaField("Notes / Tags", validators=[DataRequired(), Length(max=512)])
+    derotation_time = FloatField("Derotation time (minutes)", validators=[DataRequired()])
     submit = SubmitField("Save changes")

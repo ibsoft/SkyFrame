@@ -42,6 +42,7 @@ class Config:
     CSP_SCRIPT_SRC = "'self' https://cdn.jsdelivr.net"
     SHARE_PATH = PROJECT_ROOT / "instance" / "shares"
     ARCHIVE_SUBDIR = "archives"
+    APP_VERSION = os.getenv("APP_VERSION", "v_2.0.2")
 
     @classmethod
     def init_app(cls, app):
