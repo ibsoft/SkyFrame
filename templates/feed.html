@@ -28,114 +28,119 @@
             <article class="feed-card" data-image-id="{{ image.id }}">
                 <div class="image-wrap">
                     <img class="feed-image" src="{{ url_for('api.download_image', image_id=image.id, thumb=1) }}" alt="{{ image.object_name }}" loading="lazy" data-image-id="{{ image.id }}">
-                    {% if current_user.is_authenticated %}
-                        <button type="button" class="toggle-actions-btn" data-action="toggle-buttons">
-                            <span class="toggle-text">Hide controls</span>
+                </div>
+                {% if current_user.is_authenticated %}
+                    <button type="button" class="toggle-actions-btn" data-action="toggle-buttons">
+                        <span class="toggle-text">Hide controls</span>
+                    </button>
+                    <div class="action-column" data-image-id="{{ image.id }}">
+                        <button class="action-icon action-like {% if image.id in liked %}active{% endif %}" data-action="like" data-image-id="{{ image.id }}">
+                            <i class="fa-solid fa-heart"></i>
+                            <span>Like</span>
+                            <span class="action-count">{{ image.likes.count() }}</span>
                         </button>
-                        <div class="action-column" data-image-id="{{ image.id }}">
-                            <button class="action-icon action-like {% if image.id in liked %}active{% endif %}" data-action="like" data-image-id="{{ image.id }}">
-                                <i class="fa-solid fa-heart"></i>
-                                <span>Like</span>
-                                <span class="action-count">{{ image.likes.count() }}</span>
+                        <button class="action-icon action-save {% if image.id in favorited %}active{% endif %}" data-action="favorite" data-image-id="{{ image.id }}">
+                            <i class="fa-solid fa-bookmark"></i>
+                            <span>Save</span>
+                            <span class="action-count">{{ image.favorites.count() }}</span>
+                        </button>
+                        <button class="action-icon action-download" data-action="download" data-image-id="{{ image.id }}" data-download-url="{{ url_for('api.download_image', image_id=image.id) }}" data-download-name="{{ image.download_name }}">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Download</span>
+                        </button>
+                        {% if image.uploader.id != current_user.id %}
+                            <button class="action-icon action-follow {% if image.uploader.id in following %}active{% endif %}" data-action="follow" data-target-id="{{ image.uploader.id }}">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <span>{% if image.uploader.id in following %}Following{% else %}Follow{% endif %}</span>
                             </button>
-                            <button class="action-icon action-save {% if image.id in favorited %}active{% endif %}" data-action="favorite" data-image-id="{{ image.id }}">
-                                <i class="fa-solid fa-bookmark"></i>
-                                <span>Save</span>
-                                <span class="action-count">{{ image.favorites.count() }}</span>
-                            </button>
-                            <button class="action-icon action-download" data-action="download" data-image-id="{{ image.id }}" data-download-url="{{ url_for('api.download_image', image_id=image.id) }}" data-download-name="{{ image.download_name }}">
-                                <i class="fa-solid fa-download"></i>
-                                <span>Download</span>
-                            </button>
-                            {% if image.uploader.id != current_user.id %}
-                                <button class="action-icon action-follow {% if image.uploader.id in following %}active{% endif %}" data-action="follow" data-target-id="{{ image.uploader.id }}">
-                                    <i class="fa-solid fa-user-plus"></i>
-                                    <span>{% if image.uploader.id in following %}Following{% else %}Follow{% endif %}</span>
-                                </button>
-                            {% endif %}
-                            <button class="action-icon action-comment" data-action="comment" data-image-id="{{ image.id }}">
-                                <i class="fa-solid fa-comment"></i>
-                                <span>Comment</span>
-                                <span class="action-count">{{ image.comments.count() }}</span>
-                            </button>
-                            <button type="button" class="action-icon share" data-action="share" data-image-id="{{ image.id }}">
-                                <i class="fa-solid fa-share-nodes"></i>
-                                <span>Share</span>
-                            </button>
-                            {% if image.id in owned_ids %}
-                                <a class="action-icon" href="{{ url_for('main.edit_image', image_id=image.id) }}">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                    <span>Edit</span>
-                                </a>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="metadata-card px-3 py-3">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="small mb-1">{{ image.category }} · {{ image.observer_name }}</p>
-                            <h5 class="mb-0">{{ image.object_name }}</h5>
-                        </div>
-                        <span class="small">{{ image.observed_at.strftime('%Y-%m-%d %H:%M UTC') if image.observed_at else '—' }}</span>
-                    </div>
-                    <p class="meta-info small mb-0">
-                        {{ image.telescope or 'Telescope TBD' }} · {{ image.camera or 'Camera TBD' }}<br>
-                        Filter: {{ image.filter or 'n/a' }}<br>
-                        Location: {{ image.location or 'Unknown' }}
-                    </p>
-                    <p class="meta-info small mb-0">
-                        Seeing: {{ image.seeing_rating or 'N/A' }} · Transparency: {{ image.transparency_rating or 'N/A' }}
-                    </p>
-                    {% if image.category == "Deep Sky" and image.bortle_rating %}
-                        <p class="meta-info small mb-0">
-                            Bortle scale: {{ image.bortle_rating }}
-                        </p>
-                    {% endif %}
-                    {% if image.notes %}
-                        <p class="meta-info small mb-0">
-                            <strong>Notes:</strong> {{ image.notes }}
-                        </p>
-                    {% endif %}
-                    {% if image.display_tags %}
-                        <div class="metadata-tags small">
-                            {% for tag in image.display_tags %}
-                                <span class="tag-pill">#{{ tag }}</span>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    {% if image.derotation_time %}
-                        <p class="meta-info small mb-0">
-                            Derotation time: {{ "%.1f"|format(image.derotation_time) }} min
-                        </p>
-                    {% endif %}
-                </div>
-                {% if image.planetary_data %}
-                    <div class="post-metadata px-3 py-3">
-                        <p class="meta-info small mb-0">
-                            RA: {{ image.planetary_data.ra }}° · Dec: {{ image.planetary_data.dec }}°
-                        </p>
-                        <p class="meta-info small mb-0">Distance: {{ image.planetary_data.distance_au }} AU</p>
-                        {% if image.planetary_data.altitude is defined and image.planetary_data.azimuth is defined %}
-                            <p class="meta-info small mb-0">
-                                Altitude: {{ image.planetary_data.altitude }}° · Azimuth: {{ image.planetary_data.azimuth }}°
-                            </p>
                         {% endif %}
-                        {% if not image.planetary_data.has_location %}
-                            <p class="meta-info small mb-0 fst-italic text-white">
-                                Alt/Az unavailable – uploader has not provided observatory coordinates.
-                            </p>
-                        {% endif %}
-                        {% if image.planetary_data.jupiter_systems %}
-                            <p class="meta-info small mb-0 mt-1">
-                                <strong>Jupiter System</strong>
-                                I: {{ image.planetary_data.jupiter_systems.system_i }}° ·
-                                II: {{ image.planetary_data.jupiter_systems.system_ii }}° ·
-                                III: {{ image.planetary_data.jupiter_systems.system_iii }}°
-                            </p>
+                        <button class="action-icon action-comment" data-action="comment" data-image-id="{{ image.id }}">
+                            <i class="fa-solid fa-comment"></i>
+                            <span>Comment</span>
+                            <span class="action-count">{{ image.comments.count() }}</span>
+                        </button>
+                        <button type="button" class="action-icon share" data-action="share" data-image-id="{{ image.id }}">
+                            <i class="fa-solid fa-share-nodes"></i>
+                            <span>Share</span>
+                        </button>
+                        {% if image.id in owned_ids %}
+                            <a class="action-icon" href="{{ url_for('main.edit_image', image_id=image.id) }}">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>Edit</span>
+                            </a>
                         {% endif %}
                     </div>
                 {% endif %}
+                <details class="metadata-sheet">
+                    <summary>Metadata</summary>
+                    <div class="metadata-stack">
+                        <div class="metadata-card px-3 py-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <p class="small mb-1">{{ image.category }} · {{ image.observer_name }}</p>
+                                    <h5 class="mb-0">{{ image.object_name }}</h5>
+                                </div>
+                                <span class="small">{{ image.observed_at.strftime('%Y-%m-%d %H:%M UTC') if image.observed_at else '—' }}</span>
+                            </div>
+                            <p class="meta-info small mb-0">
+                                {{ image.telescope or 'Telescope TBD' }} · {{ image.camera or 'Camera TBD' }}<br>
+                                Filter: {{ image.filter or 'n/a' }}<br>
+                                Location: {{ image.location or 'Unknown' }}
+                            </p>
+                            <p class="meta-info small mb-0">
+                                Seeing: {{ image.seeing_rating or 'N/A' }} · Transparency: {{ image.transparency_rating or 'N/A' }}
+                            </p>
+                            {% if image.category == "Deep Sky" and image.bortle_rating %}
+                                <p class="meta-info small mb-0">
+                                    Bortle scale: {{ image.bortle_rating }}
+                                </p>
+                            {% endif %}
+                            {% if image.notes %}
+                                <p class="meta-info small mb-0">
+                                    <strong>Notes:</strong> {{ image.notes }}
+                                </p>
+                            {% endif %}
+                            {% if image.display_tags %}
+                                <div class="metadata-tags small">
+                                    {% for tag in image.display_tags %}
+                                        <span class="tag-pill">#{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if image.derotation_time %}
+                                <p class="meta-info small mb-0">
+                                    Derotation time: {{ "%.1f"|format(image.derotation_time) }} min
+                                </p>
+                            {% endif %}
+                        </div>
+                        {% if image.planetary_data %}
+                            <div class="post-metadata px-3 py-3">
+                                <p class="meta-info small mb-0">
+                                    RA: {{ image.planetary_data.ra }}° · Dec: {{ image.planetary_data.dec }}°
+                                </p>
+                                <p class="meta-info small mb-0">Distance: {{ image.planetary_data.distance_au }} AU</p>
+                                {% if image.planetary_data.altitude is defined and image.planetary_data.azimuth is defined %}
+                                    <p class="meta-info small mb-0">
+                                        Altitude: {{ image.planetary_data.altitude }}° · Azimuth: {{ image.planetary_data.azimuth }}°
+                                    </p>
+                                {% endif %}
+                                {% if not image.planetary_data.has_location %}
+                                    <p class="meta-info small mb-0 fst-italic text-white">
+                                        Alt/Az unavailable – uploader has not provided observatory coordinates.
+                                    </p>
+                                {% endif %}
+                                {% if image.planetary_data.jupiter_systems %}
+                                    <p class="meta-info small mb-0 mt-1">
+                                        <strong>Jupiter System</strong>
+                                        I: {{ image.planetary_data.jupiter_systems.system_i }}° ·
+                                        II: {{ image.planetary_data.jupiter_systems.system_ii }}° ·
+                                        III: {{ image.planetary_data.jupiter_systems.system_iii }}°
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </details>
             </article>
         {% endfor %}
     </div>

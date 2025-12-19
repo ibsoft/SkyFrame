@@ -58,6 +58,30 @@
         toast.show();
     };
 
+    const metadataMedia = window.matchMedia("(min-width: 992px)");
+    const syncMetadataSheet = (sheet) => {
+        if (!sheet || sheet.dataset.userToggled === "true") return;
+        if (metadataMedia.matches) {
+            sheet.setAttribute("open", "");
+        } else {
+            sheet.removeAttribute("open");
+        }
+    };
+
+    const syncMetadataSheets = (root = document) => {
+        root.querySelectorAll(".metadata-sheet").forEach((sheet) => {
+            if (!sheet.dataset.toggleBound) {
+                sheet.addEventListener("toggle", () => {
+                    sheet.dataset.userToggled = "true";
+                });
+                sheet.dataset.toggleBound = "true";
+            }
+            syncMetadataSheet(sheet);
+        });
+    };
+
+    metadataMedia.addEventListener("change", () => syncMetadataSheets());
+
     const shareImage = async (imageId) => {
         if (!imageId) return;
         try {
@@ -130,6 +154,7 @@
                 data.images.forEach((entry) => {
                     const card = buildCard(entry);
                     feedContainer.appendChild(card);
+                    syncMetadataSheets(card);
                 });
             }
             cursor = data.next_cursor;
@@ -239,16 +264,6 @@
                         <i class="fa-solid fa-download"></i>
                         <span>Download</span>
                     </button>
-                    ${
-                        image.watermark_hash
-                            ? `<button class="action-icon" data-action="verify" data-watermark="${image.watermark_hash}" data-uploader="${escapeHtml(
-                                  image.uploader || "SkyFrame"
-                              )}" data-image-id="${image.id}">
-                                 <i class="fa-solid fa-shield-check"></i>
-                                 <span>Verify</span>
-                               </button>`
-                            : ""
-                    }
                     <button class="action-icon action-follow ${image.following_uploader ? "active" : ""}" data-action="follow" data-target-id="${image.uploader_id}">
                         <i class="fa-solid fa-user-plus"></i>
                         <span>${image.following_uploader ? "Following" : "Follow"}</span>
@@ -264,7 +279,7 @@
                     </button>
                     ${
                         image.owned_by_current_user
-                            ? `<a class="action-icon" href="/images/${image.id}/edit"><span>Edit</span></a>`
+                            ? `<a class="action-icon" href="/images/${image.id}/edit"><i class="fa-solid fa-pen-to-square"></i><span>Edit</span></a>`
                             : ""
                     }
                 </div>
@@ -310,57 +325,62 @@
         card.innerHTML = `
             <div class="image-wrap">
                 <img class="feed-image" src="${image.thumb_url}" alt="${image.object_name}" loading="lazy" data-image-id="${image.id}">
-                ${actionButtons}
             </div>
-            <div class="metadata-card px-3 py-3">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="small mb-1">${image.category} · ${image.observer_name}</p>
-                        <h5 class="mb-0">${image.object_name}</h5>
-                    </div>
-                    <span class="small">${new Date(image.observed_at).toLocaleString()}</span>
-                </div>
-                <p class="meta-info small mb-0">${image.telescope || "Telescope TBD"} · ${image.camera || "Camera TBD"}<br>Filter: ${
+            ${actionButtons}
+            <details class="metadata-sheet">
+                <summary>Metadata</summary>
+                <div class="metadata-stack">
+                    <div class="metadata-card px-3 py-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="small mb-1">${image.category} · ${image.observer_name}</p>
+                                <h5 class="mb-0">${image.object_name}</h5>
+                            </div>
+                            <span class="small">${new Date(image.observed_at).toLocaleString()}</span>
+                        </div>
+                        <p class="meta-info small mb-0">${image.telescope || "Telescope TBD"} · ${image.camera || "Camera TBD"}<br>Filter: ${
             image.filter || "n/a"
         }<br>Location: ${image.location || "Unknown"}</p>
-                <p class="meta-info small mb-0">
-                    Seeing: ${image.seeing_rating || "N/A"} · Transparency: ${image.transparency_rating || "N/A"}
-                </p>
-                ${
-                    image.category === "Deep Sky" && image.bortle_rating
-                        ? `<p class="meta-info small mb-0">Bortle scale: ${image.bortle_rating}</p>`
-                        : ""
-                }
-                ${
-                    image.notes
-                        ? `<p class="meta-info small mb-0"><strong>Notes:</strong> ${escapeHtml(
-                              image.notes
-                          )}</p>`
-                        : ""
-                }
-                ${
-                    image.tags?.length
-                        ? `<div class="metadata-tags small">${image.tags
-                              .map((tag) => `<span class="tag-pill">#${escapeHtml(tag)}</span>`)
-                              .join("")}</div>`
-                        : ""
-                }
-                ${
-                    image.derotation_time
-                        ? `<p class="meta-info small mb-0">Derotation time: ${parseFloat(
-                              image.derotation_time
-                          ).toFixed(1)} min</p>`
-                        : ""
-                }
-                ${
-                    showExposureDetails
-                        ? `<p class="meta-info small mb-0">Max exposure: ${parseFloat(
-                              image.max_exposure_time
-                          ).toFixed(1)} s</p>`
-                        : ""
-                }
-            </div>
-            ${planetaryContent}
+                        <p class="meta-info small mb-0">
+                            Seeing: ${image.seeing_rating || "N/A"} · Transparency: ${image.transparency_rating || "N/A"}
+                        </p>
+                        ${
+                            image.category === "Deep Sky" && image.bortle_rating
+                                ? `<p class="meta-info small mb-0">Bortle scale: ${image.bortle_rating}</p>`
+                                : ""
+                        }
+                        ${
+                            image.notes
+                                ? `<p class="meta-info small mb-0"><strong>Notes:</strong> ${escapeHtml(
+                                      image.notes
+                                  )}</p>`
+                                : ""
+                        }
+                        ${
+                            image.tags?.length
+                                ? `<div class="metadata-tags small">${image.tags
+                                      .map((tag) => `<span class="tag-pill">#${escapeHtml(tag)}</span>`)
+                                      .join("")}</div>`
+                            : ""
+                        }
+                        ${
+                            image.derotation_time
+                                ? `<p class="meta-info small mb-0">Derotation time: ${parseFloat(
+                                      image.derotation_time
+                                  ).toFixed(1)} min</p>`
+                            : ""
+                        }
+                        ${
+                            showExposureDetails
+                                ? `<p class="meta-info small mb-0">Max exposure: ${parseFloat(
+                                      image.max_exposure_time
+                                  ).toFixed(1)} s</p>`
+                            : ""
+                        }
+                    </div>
+                    ${planetaryContent}
+                </div>
+            </details>
         `;
         return card;
     };
@@ -560,5 +580,7 @@
         }
         textarea.value = "";
     });
+
+    syncMetadataSheets();
 
 })();
