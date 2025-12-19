@@ -119,27 +119,4 @@
 {% endblock %}
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/edit-image.js') }}" nonce="{{ csp_nonce }}"></script>
-    <script nonce="{{ csp_nonce }}">
-        (() => {
-            const categorySelect = document.querySelector("select[name='category']");
-            const seeingGroup = document.querySelector(".seeing-group");
-            const bortleGroup = document.querySelector(".bortle-group");
-            const planetaryGroup = document.querySelector(".planetary-group");
-            const exposureGroup = document.querySelector(".exposure-group");
-            const planetaryValues = ["Planets", "Sun", "Moon"];
-            const deepTargets = ["Deep Sky", "Comets"];
-            const updateVisibility = () => {
-                const value = categorySelect?.value;
-                if (!value) return;
-                const isPlanetary = planetaryValues.includes(value);
-                const isDeepOrComet = deepTargets.includes(value);
-                seeingGroup?.classList.toggle("d-none", !isPlanetary);
-                planetaryGroup?.classList.toggle("d-none", !isPlanetary);
-                bortleGroup?.classList.toggle("d-none", !isDeepOrComet);
-                exposureGroup?.classList.toggle("d-none", !isDeepOrComet);
-            };
-            categorySelect?.addEventListener("change", updateVisibility);
-            updateVisibility();
-        })();
-    </script>
 {% endblock %}
