@@ -5,15 +5,29 @@ body {
     margin: 0;
 }
 
+:root {
+    --bottom-nav-height: 56px;
+}
+
 .letter-spacing {
     letter-spacing: 0.3em;
 }
 
 .app-shell {
     min-height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     background: transparent;
+}
+
+.app-shell main {
+    padding-bottom: calc(var(--bottom-nav-height) + 2rem);
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
 .app-shell header {
@@ -80,7 +94,9 @@ body {
 
 .feed-shell {
     position: relative;
-    min-height: 100vh;
+    height: 100%;
+    min-height: 0;
+    flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -261,18 +277,19 @@ body {
 .feed-stack {
     flex: 1;
     min-height: 0;
+    height: 100%;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     scroll-snap-stop: always;
-    padding-bottom: 80px;
+    padding-bottom: 0;
     scroll-behavior: smooth;
 }
 .feed-card {
     position: relative;
     scroll-snap-align: start;
-    margin-bottom: 1rem;
-    min-height: calc(100vh - 110px);
-    height: calc(100vh - 110px);
+    margin-bottom: 0;
+    min-height: 100%;
+    height: 100%;
     border-radius: 1rem;
     overflow: hidden;
     background: #000;
@@ -291,13 +308,14 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    max-height: calc(100vh - 200px);
+    max-height: 100%;
 }
 
 .feed-card .feed-image {
     width: 100%;
-    height: auto;
+    height: 100%;
     max-height: 100%;
+    max-width: 100%;
     object-fit: contain;
     display: block;
 }
@@ -309,10 +327,10 @@ body.controls-hidden .action-column {
 }
 
 .toggle-actions-btn {
-    position: absolute;
-    left: 12px;
-    bottom: 0.25rem;
-    z-index: 6;
+    position: fixed;
+    right: 16px;
+    bottom: calc(56px + 0.75rem + env(safe-area-inset-bottom));
+    z-index: 26;
     padding: 0.35rem 0.9rem;
     font-size: 0.7rem;
     letter-spacing: 0.08em;
@@ -381,6 +399,113 @@ body.controls-hidden .action-column {
     letter-spacing: 0.01em;
 }
 
+.metadata-stack {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.metadata-sheet {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(5, 6, 13, 0.92);
+}
+
+.metadata-sheet summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.metadata-sheet summary::-webkit-details-marker {
+    display: none;
+}
+
+.metadata-sheet summary::after {
+    content: "▾";
+    float: right;
+    opacity: 0.7;
+}
+
+.metadata-sheet[open] summary::after {
+    content: "▴";
+}
+
+.donate-status {
+    min-height: calc(100dvh - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem 3rem;
+}
+
+.donate-card {
+    max-width: 540px;
+    width: 100%;
+    background: rgba(5, 6, 13, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1.25rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
+}
+
+.donate-card h2 {
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.donate-card p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.5rem;
+}
+
+.donate-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.donate-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 1.6rem;
+    color: #fff;
+}
+
+.donate-icon.success {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.6);
+    color: #86efac;
+}
+
+.donate-icon.cancel {
+    background: rgba(248, 113, 113, 0.2);
+    border-color: rgba(248, 113, 113, 0.5);
+    color: #fca5a5;
+}
+
+.profile-page {
+    padding-bottom: calc(var(--bottom-nav-height) + 6rem);
+}
+
+@media (min-width: 992px) {
+    .profile-page {
+        padding-bottom: calc(var(--bottom-nav-height) + 6rem);
+    }
+}
+
 .planetary-data {
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0.6rem;
@@ -393,12 +518,18 @@ body.controls-hidden .action-column {
 .action-column {
     position: absolute;
     top: 16px;
+    bottom: 16px;
     right: 10px;
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
     z-index: 5;
     transition: opacity 0.2s ease, transform 0.2s ease;
+    max-height: calc(100% - 32px);
+    overflow-y: auto;
+    padding-bottom: 0.35rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
 }
 
 .action-icon {
@@ -470,14 +601,79 @@ body.controls-hidden .action-column {
     color: #f87171;
 }
 
+@media (max-height: 820px) {
+    .action-column {
+        gap: 0.45rem;
+        top: 12px;
+    }
+
+    .action-icon {
+        min-width: 54px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .action-icon i {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .action-column {
+        gap: 0.45rem;
+        top: 12px;
+        bottom: 12px;
+    }
+
+    .action-icon {
+        min-width: 54px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .action-icon i {
+        font-size: 0.9rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .feed-card {
+        display: grid;
+        grid-template-columns: minmax(280px, 34%) 1fr;
+        grid-template-rows: auto;
+        align-content: stretch;
+    }
+
+    .image-wrap {
+        grid-column: 2;
+        grid-row: 1 / -1;
+        max-height: 100%;
+    }
+
+    .metadata-sheet {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .metadata-stack {
+        position: static;
+        max-height: none;
+        overflow: visible;
+    }
+}
+
 .bottom-nav {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     background: rgba(5, 6, 13, 0.95);
     padding: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    position: sticky;
+    position: fixed;
     bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--bottom-nav-height);
     z-index: 20;
 }
 

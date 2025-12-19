@@ -3,9 +3,9 @@
 {% block title %}Profile – SkyFrame{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-4 profile-page">
     <div class="row gy-4">
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-lg-4">
             <div class="card bg-black border-secondary text-light text-center p-4">
                 <img src="{{ profile_user.avatar_url }}" class="rounded-circle profile-avatar" alt="avatar">
                 <h4 class="mt-3">{{ profile_user.username }}</h4>
@@ -28,6 +28,9 @@
                         <i class="fas fa-code-branch me-1"></i>App version {{ app_version }}
                     </p>
                 {% endif %}
+                <a href="https://www.paypal.com/donate/?hosted_button_id=6VJRURLXD2NFW&return=https%3A%2F%2Fskyframe.pyworld.org%2Fcompleted&cancel_return=https%3A%2F%2Fskyframe.pyworld.org%2Fcancel" class="btn btn-primary btn-sm w-100 mt-3" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-paypal me-1" aria-hidden="true"></i>Donate
+                </a>
                 <a href="{{ url_for('main.saved') }}" class="btn btn-outline-light btn-sm w-100 mt-3">View saved frames</a>
                 <a href="{{ url_for('main.profile_archives') }}" class="btn btn-outline-light btn-sm w-100 mt-2">Download my uploads</a>
                 <form method="post" action="{{ url_for('main.reset_avatar') }}" class="mt-2">
@@ -40,7 +43,7 @@
                 </form>
             </div>
         </div>
-        <div class="col-12 col-md-8">
+        <div class="col-12 col-lg-8">
             <div class="card bg-black border-secondary text-light p-4">
                 <h5 class="mb-3">Edit Profile</h5>
                 <form method="post" enctype="multipart/form-data">

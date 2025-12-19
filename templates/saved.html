@@ -17,21 +17,22 @@
                 <article class="feed-card" data-image-id="{{ image.id }}">
                     <div class="image-wrap">
                         <img class="feed-image" src="{{ url_for('api.download_image', image_id=image.id, thumb=1) }}" alt="{{ image.object_name }}" loading="lazy" data-image-id="{{ image.id }}">
-                        <button type="button" class="toggle-actions-btn" data-action="toggle-buttons">
-                            <span class="toggle-text">Hide controls</span>
+                    </div>
+                    <button type="button" class="toggle-actions-btn" data-action="toggle-buttons">
+                        <span class="toggle-text">Hide controls</span>
+                    </button>
+                    <div class="action-column" data-image-id="{{ image.id }}">
+                        <button class="action-icon {% if image.id in liked %}active{% endif %}" data-action="like" data-image-id="{{ image.id }}">
+                            <span>Like</span>
+                            <span class="action-count">{{ image.likes.count() }}</span>
                         </button>
-                        <div class="action-column" data-image-id="{{ image.id }}">
-                            <button class="action-icon {% if image.id in liked %}active{% endif %}" data-action="like" data-image-id="{{ image.id }}">
-                                <span>Like</span>
-                                <span class="action-count">{{ image.likes.count() }}</span>
-                            </button>
-                            <button class="action-icon {% if image.id in favorited %}active{% endif %}" data-action="favorite" data-image-id="{{ image.id }}">
-                                <span>Save</span>
-                                <span class="action-count">{{ image.favorites.count() }}</span>
-                            </button>
-                            <button class="action-icon" data-action="download" data-image-id="{{ image.id }}" data-download-url="{{ url_for('api.download_image', image_id=image.id) }}" data-download-name="{{ image.download_name }}">
-                                <span>Download</span>
-                            </button>
+                        <button class="action-icon {% if image.id in favorited %}active{% endif %}" data-action="favorite" data-image-id="{{ image.id }}">
+                            <span>Save</span>
+                            <span class="action-count">{{ image.favorites.count() }}</span>
+                        </button>
+                        <button class="action-icon" data-action="download" data-image-id="{{ image.id }}" data-download-url="{{ url_for('api.download_image', image_id=image.id) }}" data-download-name="{{ image.download_name }}">
+                            <span>Download</span>
+                        </button>
                         <button class="action-icon {% if image.uploader.id in following %}active{% endif %}" data-action="follow" data-target-id="{{ image.uploader.id }}">
                             <span>{% if image.uploader.id in following %}Following{% else %}Follow{% endif %}</span>
                         </button>
@@ -42,27 +43,32 @@
                         <button type="button" class="action-icon share" data-action="share" data-image-id="{{ image.id }}">
                             <span>Share</span>
                         </button>
-                            {% if image.id in owned_ids %}
-                                <a class="action-icon" href="{{ url_for('main.edit_image', image_id=image.id) }}">
-                                    <span>Edit</span>
-                                </a>
-                            {% endif %}
-                        </div>
+                        {% if image.id in owned_ids %}
+                            <a class="action-icon" href="{{ url_for('main.edit_image', image_id=image.id) }}">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>Edit</span>
+                            </a>
+                        {% endif %}
                     </div>
-                    <div class="metadata-card px-3 py-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="small mb-1">{{ image.category }} · {{ image.observer_name }}</p>
-                                <h5 class="mb-0">{{ image.object_name }}</h5>
+                    <details class="metadata-sheet">
+                        <summary>Metadata</summary>
+                        <div class="metadata-stack">
+                            <div class="metadata-card px-3 py-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="small mb-1">{{ image.category }} · {{ image.observer_name }}</p>
+                                        <h5 class="mb-0">{{ image.object_name }}</h5>
+                                    </div>
+                                    <span class="small">{{ image.observed_at.strftime('%Y-%m-%d %H:%M UTC') if image.observed_at else '—' }}</span>
+                                </div>
+                                <p class="meta-info small mb-0">
+                                    {{ image.telescope or 'Telescope TBD' }} · {{ image.camera or 'Camera TBD' }}<br>
+                                    Filter: {{ image.filter or 'n/a' }}<br>
+                                    Location: {{ image.location or 'Unknown' }}
+                                </p>
                             </div>
-                            <span class="small">{{ image.observed_at.strftime('%Y-%m-%d %H:%M UTC') if image.observed_at else '—' }}</span>
                         </div>
-                        <p class="meta-info small mb-0">
-                            {{ image.telescope or 'Telescope TBD' }} · {{ image.camera or 'Camera TBD' }}<br>
-                            Filter: {{ image.filter or 'n/a' }}<br>
-                            Location: {{ image.location or 'Unknown' }}
-                        </p>
-                    </div>
+                    </details>
                 </article>
             {% endfor %}
         {% else %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Thank You – SkyFrame{% endblock %}
+
+{% block content %}
+<section class="donate-status">
+    <div class="donate-card">
+        <div class="donate-icon success">
+            <i class="fa-solid fa-heart" aria-hidden="true"></i>
+        </div>
+        <h2>Thank you for supporting SkyFrame</h2>
+        <p>Your contribution helps keep the servers running and fuels new features for the community.</p>
+        <div class="donate-actions">
+            <a class="btn btn-primary" href="{{ url_for('main.feed') }}">Back to feed</a>
+            <a class="btn btn-outline-light" href="{{ url_for('main.profile') }}">Go to profile</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

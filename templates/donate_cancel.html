@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Donation Canceled – SkyFrame{% endblock %}
+
+{% block content %}
+<section class="donate-status">
+    <div class="donate-card">
+        <div class="donate-icon cancel">
+            <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+        </div>
+        <h2>Donation canceled</h2>
+        <p>No worries — you can return anytime if you decide to support the project.</p>
+        <div class="donate-actions">
+            <a class="btn btn-outline-light" href="{{ url_for('main.feed') }}">Back to feed</a>
+            <a class="btn btn-outline-light" href="{{ url_for('main.profile') }}">Go to profile</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

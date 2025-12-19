@@ -120,6 +120,16 @@ def root():
     return redirect(url_for("main.feed"))
 
 
+@bp.route("/completed")
+def donate_completed():
+    return render_template("donate_completed.html")
+
+
+@bp.route("/cancel")
+def donate_cancel():
+    return render_template("donate_cancel.html")
+
+
 @bp.route("/feed")
 def feed():
     form = SearchForm()
