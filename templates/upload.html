@@ -104,8 +104,8 @@
     </div>
 </div>
 {% block scripts %}
-    <script src="{{ url_for('static', filename='js/upload.js') }}" nonce="{{ g.csp_nonce }}"></script>
-    <script nonce="{{ g.csp_nonce }}">
+    <script src="{{ url_for('static', filename='js/upload.js') }}" nonce="{{ csp_nonce }}"></script>
+    <script nonce="{{ csp_nonce }}">
         (() => {
             const categorySelect = document.querySelector("select[name='category']");
             const seeingGroup = document.querySelector(".seeing-group");

@@ -369,7 +369,11 @@ def upload():
                 "success",
             )
             return redirect(url_for("main.feed"))
-    return render_template("upload.html", form=form)
+    return render_template(
+        "upload.html",
+        form=form,
+        csp_nonce=getattr(request, "csp_nonce", ""),
+    )
 
 
 @bp.route("/images/<int:image_id>/edit", methods=["GET", "POST"])
