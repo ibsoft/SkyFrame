@@ -439,6 +439,53 @@ body.controls-hidden .action-column {
     content: "▴";
 }
 
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.search-card {
+    background: rgba(5, 6, 13, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.9rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.35);
+}
+
+.search-thumb {
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.search-meta {
+    background: rgba(5, 6, 13, 0.95);
+}
+
+.search-card,
+.search-card .meta-info,
+.search-card p,
+.search-card span,
+.search-card h5,
+.search-card h4,
+.search-card summary {
+    color: #fff;
+}
+
 .donate-status {
     min-height: calc(100dvh - 160px);
     display: flex;

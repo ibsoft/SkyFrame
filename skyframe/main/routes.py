@@ -489,6 +489,7 @@ def search():
     form = SearchForm()
     query = Image.query
     if form.validate_on_submit():
+        per_page = current_app.config["FEED_PAGE_SIZE"]
         if form.category.data:
             query = query.filter_by(category=form.category.data)
         if form.object_name.data:
@@ -501,9 +502,35 @@ def search():
             query = query.filter(Image.observed_at <= form.date_to.data)
         if form.query.data:
             query = query.filter(Image.notes.ilike(f"%{form.query.data}%"))
-        images = query.order_by(Image.created_at.desc()).limit(20).all()
-        return render_template("search.html", feed_images=images, form=form)
-    return render_template("search.html", feed_images=[], form=form)
+        ordered = (
+            query.order_by(Image.created_at.desc(), Image.id.desc())
+            .limit(per_page + 1)
+            .all()
+        )
+        images = ordered[:per_page]
+        next_cursor = ""
+        if len(ordered) > per_page and images:
+            cursor_target = images[-1]
+            next_cursor = f"{cursor_target.created_at.isoformat()}_{cursor_target.id}"
+        for img in images:
+            img.download_name = f"{winjupos_label_from_metadata(img.object_name, img.observed_at, img.filter, img.uploader.username)}.jpg"
+            img.display_tags = _extract_tags(img.notes)
+        search_params = {
+            "category": form.category.data or "",
+            "object_name": form.object_name.data or "",
+            "observer": form.observer.data or "",
+            "date_from": form.date_from.data.isoformat() if form.date_from.data else "",
+            "date_to": form.date_to.data.isoformat() if form.date_to.data else "",
+            "query": form.query.data or "",
+        }
+        return render_template(
+            "search.html",
+            feed_images=images,
+            form=form,
+            next_cursor=next_cursor,
+            search_params=search_params,
+        )
+    return render_template("search.html", feed_images=[], form=form, next_cursor="", search_params={})
 
 
 @bp.route("/uploads/<path:filename>")
