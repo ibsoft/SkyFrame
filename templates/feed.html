@@ -74,6 +74,14 @@
                         Filter: {{ image.filter or 'n/a' }}<br>
                         Location: {{ image.location or 'Unknown' }}
                     </p>
+                    <p class="meta-info small mb-0">
+                        Seeing: {{ image.seeing_rating or 'N/A' }} · Transparency: {{ image.transparency_rating or 'N/A' }}
+                    </p>
+                    {% if image.category == "Deep Sky" and image.bortle_rating %}
+                        <p class="meta-info small mb-0">
+                            Bortle scale: {{ image.bortle_rating }}
+                        </p>
+                    {% endif %}
                     {% if image.notes %}
                         <p class="meta-info small mb-0">
                             <strong>Notes:</strong> {{ image.notes }}
@@ -101,6 +109,11 @@
                         {% if image.planetary_data.altitude is defined and image.planetary_data.azimuth is defined %}
                             <p class="meta-info small mb-0">
                                 Altitude: {{ image.planetary_data.altitude }}° · Azimuth: {{ image.planetary_data.azimuth }}°
+                            </p>
+                        {% endif %}
+                        {% if not image.planetary_data.has_location %}
+                            <p class="meta-info small mb-0 fst-italic text-white">
+                                Alt/Az unavailable – uploader has not provided observatory coordinates.
                             </p>
                         {% endif %}
                         {% if image.planetary_data.jupiter_systems %}

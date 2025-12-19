@@ -60,11 +60,37 @@
                                 {{ form.notes(class="form-control bg-black border-secondary text-white", rows="2") }}
                             </div>
                         </div>
-                        <div class="row g-2 mt-2">
+                        <div class="row g-2 mt-2 d-none planetary-group">
                             <div class="col-md-6">
                                 {{ form.derotation_time.label(class="form-label") }}
                                 {{ form.derotation_time(class="form-control bg-black border-secondary text-white") }}
                             </div>
+                        </div>
+                        <div class="row g-2 mt-2 d-none exposure-group">
+                            <div class="col-md-6">
+                                {{ form.max_exposure_time.label(class="form-label") }}
+                                {{ form.max_exposure_time(class="form-control bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2 seeing-group d-none">
+                            <div class="col-md-6">
+                                {{ form.seeing_rating.label(class="form-label") }}
+                                {{ form.seeing_rating(class="form-select bg-black border-secondary text-white") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.transparency_rating.label(class="form-label") }}
+                                {{ form.transparency_rating(class="form-select bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="row g-2 mt-2 bortle-group d-none">
+                            <div class="col-md-6">
+                                {{ form.bortle_rating.label(class="form-label") }}
+                                {{ form.bortle_rating(class="form-select bg-black border-secondary text-white") }}
+                            </div>
+                        </div>
+                        <div class="form-check form-switch mt-3">
+                            {{ form.allow_scientific_use(class="form-check-input") }}
+                            {{ form.allow_scientific_use.label(class="form-check-label text-white") }}
                         </div>
                         <div class="mb-3 mt-3">
                             {{ form.file.label(class="form-label") }}
@@ -79,5 +105,28 @@
 </div>
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/upload.js') }}" nonce="{{ g.csp_nonce }}"></script>
+    <script nonce="{{ g.csp_nonce }}">
+        (() => {
+            const categorySelect = document.querySelector("select[name='category']");
+            const seeingGroup = document.querySelector(".seeing-group");
+            const bortleGroup = document.querySelector(".bortle-group");
+            const planetaryGroup = document.querySelector(".planetary-group");
+            const exposureGroup = document.querySelector(".exposure-group");
+            const planetaryValues = ["Planets", "Sun", "Moon"];
+            const deepTargets = ["Deep Sky", "Comets"];
+            const updateVisibility = () => {
+                const value = categorySelect?.value;
+                if (!value) return;
+                const isPlanetary = planetaryValues.includes(value);
+                const isDeepOrComet = deepTargets.includes(value);
+                seeingGroup?.classList.toggle("d-none", !isPlanetary);
+                planetaryGroup?.classList.toggle("d-none", !isPlanetary);
+                bortleGroup?.classList.toggle("d-none", !isDeepOrComet);
+                exposureGroup?.classList.toggle("d-none", !isDeepOrComet);
+            };
+            categorySelect?.addEventListener("change", updateVisibility);
+            updateVisibility();
+        })();
+    </script>
 {% endblock %}
 {% endblock %}

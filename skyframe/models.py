@@ -103,6 +103,12 @@ class Image(db.Model):
     telescope = db.Column(db.String(128))
     camera = db.Column(db.String(128))
     notes = db.Column(db.Text)
+    allow_scientific_use = db.Column(db.Boolean, default=False, nullable=False)
+    watermark_hash = db.Column(db.String(64))
+    seeing_rating = db.Column(db.Integer, nullable=True)
+    transparency_rating = db.Column(db.Integer, nullable=True)
+    bortle_rating = db.Column(db.Integer, nullable=True)
+    max_exposure_time = db.Column(db.Float, nullable=True)
     derotation_time = db.Column(db.Float)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 

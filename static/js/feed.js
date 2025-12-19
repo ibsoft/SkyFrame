@@ -254,6 +254,43 @@
                 </div>
             `
             : "";
+        const planetary = image.planetary_data;
+        let planetaryContent = "";
+        if (planetary) {
+            planetaryContent = `
+            <div class="post-metadata px-3 py-3">
+                <p class="meta-info small mb-0">
+                    RA: ${planetary.ra}° · Dec: ${planetary.dec}°
+                </p>
+                <p class="meta-info small mb-0">Distance: ${planetary.distance_au} AU</p>
+                ${
+                    planetary.altitude !== undefined && planetary.azimuth !== undefined
+                        ? `<p class="meta-info small mb-0">
+                             Altitude: ${planetary.altitude}° · Azimuth: ${planetary.azimuth}°
+                           </p>`
+                        : ""
+                }
+                ${
+                    !planetary.has_location
+                        ? `<p class="meta-info small mb-0 fst-italic text-white">
+                             Alt/Az unavailable – uploader has not provided observatory coordinates.
+                           </p>`
+                        : ""
+                }
+                ${
+                    planetary.jupiter_systems
+                        ? `<p class="meta-info small mb-0 mt-1">
+                             <strong>Jupiter System</strong>
+                             I: ${planetary.jupiter_systems.system_i}° ·
+                             II: ${planetary.jupiter_systems.system_ii}° ·
+                             III: ${planetary.jupiter_systems.system_iii}°
+                           </p>`
+                        : ""
+                }
+            </div>`;
+        }
+        const showExposureDetails =
+            ["Deep Sky", "Comets"].includes(image.category) && image.max_exposure_time;
         card.innerHTML = `
             <div class="image-wrap">
                 <img class="feed-image" src="${image.thumb_url}" alt="${image.object_name}" loading="lazy" data-image-id="${image.id}">
@@ -270,6 +307,14 @@
                 <p class="meta-info small mb-0">${image.telescope || "Telescope TBD"} · ${image.camera || "Camera TBD"}<br>Filter: ${
             image.filter || "n/a"
         }<br>Location: ${image.location || "Unknown"}</p>
+                <p class="meta-info small mb-0">
+                    Seeing: ${image.seeing_rating || "N/A"} · Transparency: ${image.transparency_rating || "N/A"}
+                </p>
+                ${
+                    image.category === "Deep Sky" && image.bortle_rating
+                        ? `<p class="meta-info small mb-0">Bortle scale: ${image.bortle_rating}</p>`
+                        : ""
+                }
                 ${
                     image.notes
                         ? `<p class="meta-info small mb-0"><strong>Notes:</strong> ${escapeHtml(
@@ -284,7 +329,22 @@
                               .join("")}</div>`
                         : ""
                 }
+                ${
+                    image.derotation_time
+                        ? `<p class="meta-info small mb-0">Derotation time: ${parseFloat(
+                              image.derotation_time
+                          ).toFixed(1)} min</p>`
+                        : ""
+                }
+                ${
+                    showExposureDetails
+                        ? `<p class="meta-info small mb-0">Max exposure: ${parseFloat(
+                              image.max_exposure_time
+                          ).toFixed(1)} s</p>`
+                        : ""
+                }
             </div>
+            ${planetaryContent}
         `;
         return card;
     };

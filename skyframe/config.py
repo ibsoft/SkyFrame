@@ -27,7 +27,7 @@ class Config:
     IMAGE_SUBDIR = "images"
     THUMB_SUBDIR = "thumbs"
     AVATAR_SUBDIR = "avatars"
-    ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+    ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg"}
     IMAGE_PROCESS_SIZE = (1920, 1920)
     THUMB_SIZE = (640, 640)
     AVATAR_SIZE = (400, 400)
@@ -42,7 +42,9 @@ class Config:
     CSP_SCRIPT_SRC = "'self' https://cdn.jsdelivr.net"
     SHARE_PATH = PROJECT_ROOT / "instance" / "shares"
     ARCHIVE_SUBDIR = "archives"
-    APP_VERSION = os.getenv("APP_VERSION", "v_2.0.2")
+    APP_VERSION = os.getenv("APP_VERSION", "v_2.0.3")
+    WATERMARK_OPACITY = int(os.getenv("WATERMARK_OPACITY", "12"))
+    WATERMARK_PADDING = int(os.getenv("WATERMARK_PADDING", "12"))
 
     @classmethod
     def init_app(cls, app):

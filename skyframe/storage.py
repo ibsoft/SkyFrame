@@ -1,11 +1,11 @@
 import os
 import re
 import uuid
+import hashlib
 from datetime import datetime
 from pathlib import Path
-from io import BytesIO
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw, ImageFont
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
@@ -32,7 +32,33 @@ def _winjupos_base(name: str | None) -> str:
     return cleaned[:64]
 
 
-def process_image_upload(file_storage: FileStorage) -> tuple[str, str]:
+def _build_watermark_payload(owner_name: str | None) -> tuple[str, str]:
+    owner = owner_name.strip() if owner_name else "SkyFrame"
+    owner = re.sub(r"[^A-Za-z0-9 _-]", "", owner) or "SkyFrame"
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H%M%S")
+    payload = f"{owner}|{timestamp}"
+    signature = hashlib.sha256(payload.encode()).hexdigest()[:16]
+    return payload, signature
+
+
+def _apply_invisible_watermark(image: Image.Image, text: str) -> Image.Image:
+    watermark_layer = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(watermark_layer)
+    try:
+        font = ImageFont.load_default()
+    except IOError:
+        font = ImageFont.load_default()
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+    padding = Config.WATERMARK_PADDING
+    position = (max(image.width - text_width - padding, padding), max(image.height - text_height - padding, padding))
+    draw.text(position, text, font=font, fill=(255, 255, 255, Config.WATERMARK_OPACITY))
+    composited = Image.alpha_composite(image.convert("RGBA"), watermark_layer)
+    return composited.convert("RGB")
+
+
+def process_image_upload(file_storage: FileStorage, owner_name: str | None = None) -> tuple[str, str, str]:
     if not _allowed_file(file_storage.filename or ""):
         raise ValueError("Unsupported image format.")
 
@@ -52,7 +78,9 @@ def process_image_upload(file_storage: FileStorage) -> tuple[str, str]:
     image = Image.open(file_storage.stream)
     image = image.convert("RGB")
     image.thumbnail(Config.IMAGE_PROCESS_SIZE, Image.LANCZOS)
-    image.save(img_path, "JPEG", quality=90, progressive=True)
+    watermark_text, watermark_hash = _build_watermark_payload(owner_name)
+    watermarked = _apply_invisible_watermark(image, watermark_text)
+    watermarked.save(img_path, "JPEG", quality=90, progressive=True, comment=f"SkyFrame {watermark_hash}".encode())
 
     thumb = Image.open(img_path)
     thumb.thumbnail(Config.THUMB_SIZE, Image.LANCZOS)
@@ -61,6 +89,7 @@ def process_image_upload(file_storage: FileStorage) -> tuple[str, str]:
     return (
         str(img_path.relative_to(Config.UPLOAD_PATH)),
         str(thumb_path.relative_to(Config.UPLOAD_PATH)),
+        watermark_hash,
     )
 
 
