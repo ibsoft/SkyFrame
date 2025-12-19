@@ -5,6 +5,10 @@ body {
     margin: 0;
 }
 
+:root {
+    --bottom-nav-height: 56px;
+}
+
 .letter-spacing {
     letter-spacing: 0.3em;
 }
@@ -18,10 +22,12 @@ body {
 }
 
 .app-shell main {
+    padding-bottom: calc(var(--bottom-nav-height) + 2rem);
     min-height: 0;
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 .app-shell header {
@@ -428,6 +434,78 @@ body.controls-hidden .action-column {
     content: "▴";
 }
 
+.donate-status {
+    min-height: calc(100dvh - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem 3rem;
+}
+
+.donate-card {
+    max-width: 540px;
+    width: 100%;
+    background: rgba(5, 6, 13, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1.25rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
+}
+
+.donate-card h2 {
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.donate-card p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.5rem;
+}
+
+.donate-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.donate-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 1.6rem;
+    color: #fff;
+}
+
+.donate-icon.success {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.6);
+    color: #86efac;
+}
+
+.donate-icon.cancel {
+    background: rgba(248, 113, 113, 0.2);
+    border-color: rgba(248, 113, 113, 0.5);
+    color: #fca5a5;
+}
+
+.profile-page {
+    padding-bottom: calc(var(--bottom-nav-height) + 6rem);
+}
+
+@media (min-width: 992px) {
+    .profile-page {
+        padding-bottom: calc(var(--bottom-nav-height) + 6rem);
+    }
+}
+
 .planetary-data {
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0.6rem;
@@ -591,8 +669,11 @@ body.controls-hidden .action-column {
     background: rgba(5, 6, 13, 0.95);
     padding: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    position: sticky;
+    position: fixed;
     bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--bottom-nav-height);
     z-index: 20;
 }
 

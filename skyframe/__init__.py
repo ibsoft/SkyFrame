@@ -56,7 +56,7 @@ def create_app(config_name: str | None = None):
             f"style-src {Config.CSP_STYLE_SRC} 'nonce-{nonce}'; "
             f"img-src {Config.CSP_IMG_SRC}; "
             f"font-src {Config.CSP_FONT_SRC}; "
-            "connect-src 'self'; "
+            f"connect-src {Config.CSP_CONNECT_SRC}; "
             "object-src 'none'; "
             "base-uri 'self'; "
             "frame-ancestors 'none'; "
