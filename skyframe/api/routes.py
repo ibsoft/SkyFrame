@@ -238,6 +238,85 @@ def feed():
     return jsonify({"images": payload, "next_cursor": next_cursor}), 200
 
 
+@bp.route("/search", methods=["GET"])
+@login_required
+def search():
+    per_page = current_app.config["FEED_PAGE_SIZE"]
+    cursor = request.args.get("cursor")
+    query = Image.query
+    category = request.args.get("category")
+    object_name = request.args.get("object_name")
+    observer = request.args.get("observer")
+    date_from = request.args.get("date_from")
+    date_to = request.args.get("date_to")
+    notes_query = request.args.get("query")
+    if category:
+        query = query.filter_by(category=category)
+    if object_name:
+        query = query.filter(Image.object_name.ilike(f"%{object_name}%"))
+    if observer:
+        query = query.filter(Image.observer_name.ilike(f"%{observer}%"))
+    if date_from:
+        try:
+            query = query.filter(Image.observed_at >= datetime.fromisoformat(date_from))
+        except ValueError:
+            return jsonify({"error": "invalid date_from"}), 400
+    if date_to:
+        try:
+            query = query.filter(Image.observed_at <= datetime.fromisoformat(date_to))
+        except ValueError:
+            return jsonify({"error": "invalid date_to"}), 400
+    if notes_query:
+        query = query.filter(Image.notes.ilike(f"%{notes_query}%"))
+
+    cursor_point = None
+    cursor_image_id = None
+    if cursor:
+        try:
+            timestamp, image_id = cursor.split("_")
+            cursor_point = datetime.fromisoformat(timestamp)
+            cursor_image_id = int(image_id)
+        except ValueError:
+            return jsonify({"error": "invalid cursor"}), 400
+
+    if cursor_point:
+        query = query.filter(
+            (Image.created_at < cursor_point)
+            | ((Image.created_at == cursor_point) & (Image.id < cursor_image_id))
+        )
+
+    ordered = (
+        query.order_by(Image.created_at.desc(), Image.id.desc())
+        .limit(per_page + 1)
+        .all()
+    )
+    images = ordered[:per_page]
+    next_cursor = ""
+    if len(ordered) > per_page and images:
+        cursor_target = images[-1]
+        next_cursor = f"{cursor_target.created_at.isoformat()}_{cursor_target.id}"
+
+    liked_ids: set[int] = set()
+    favorited_ids: set[int] = set()
+    following_ids: set[int] = set()
+    if current_user.is_authenticated:
+        liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
+        favorited_ids = {
+            row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()
+        }
+        following_ids = {
+            row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
+        }
+    current_user_id = getattr(current_user, "id", None)
+    payload = [
+        _serialize_image(
+            image, liked_ids, favorited_ids, following_ids, current_user_id=current_user_id
+        )
+        for image in images
+    ]
+    return jsonify({"images": payload, "next_cursor": next_cursor}), 200
+
+
 @bp.route("/observers", methods=["GET"])
 def observer_suggestions():
     query = request.args.get("q", "").strip()

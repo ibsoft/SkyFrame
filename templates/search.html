@@ -40,26 +40,78 @@
             </form>
         </div>
     </div>
-    <div class="mt-4 feed-stack">
+    <div class="mt-4 search-grid" data-search-grid data-search-params='{{ search_params|tojson|safe }}'>
         {% if feed_images %}
             {% for image in feed_images %}
-                <article class="feed-card">
-                    <img class="feed-image" src="{{ url_for('api.download_image', image_id=image.id, thumb=1) }}" alt="{{ image.object_name }}" loading="lazy">
-                    <div class="card-overlay px-3 py-2">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="text-muted small mb-1">{{ image.category }}</p>
-                                <h5 class="mb-0">{{ image.object_name }}</h5>
-                            </div>
-                            <span class="text-muted small">{{ image.observed_at.strftime('%Y-%m-%d') if image.observed_at else '' }}</span>
-                        </div>
-                        <p class="text-muted small mb-0">{{ image.notes }}</p>
+                <article class="search-card">
+                    <div class="search-thumb">
+                        <img class="search-image" src="{{ url_for('api.download_image', image_id=image.id, thumb=1) }}" alt="{{ image.object_name }}" loading="lazy" data-image-id="{{ image.id }}" data-download-url="{{ url_for('api.download_image', image_id=image.id) }}" data-download-name="{{ image.download_name }}">
                     </div>
+                    <details class="metadata-sheet search-meta">
+                        <summary>Metadata</summary>
+                        <div class="metadata-stack">
+                            <div class="metadata-card px-3 py-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="small mb-1">{{ image.category }} · {{ image.observer_name }}</p>
+                                        <h5 class="mb-0">{{ image.object_name }}</h5>
+                                    </div>
+                                    <span class="small">{{ image.observed_at.strftime('%Y-%m-%d') if image.observed_at else '' }}</span>
+                                </div>
+                                <p class="meta-info small mb-0">
+                                    {{ image.telescope or 'Telescope TBD' }} · {{ image.camera or 'Camera TBD' }}<br>
+                                    Filter: {{ image.filter or 'n/a' }}<br>
+                                    Location: {{ image.location or 'Unknown' }}
+                                </p>
+                                <p class="meta-info small mb-0">
+                                    Seeing: {{ image.seeing_rating or 'N/A' }} · Transparency: {{ image.transparency_rating or 'N/A' }}
+                                </p>
+                                {% if image.category == "Deep Sky" and image.bortle_rating %}
+                                    <p class="meta-info small mb-0">Bortle scale: {{ image.bortle_rating }}</p>
+                                {% endif %}
+                                {% if image.notes %}
+                                    <p class="meta-info small mb-0">
+                                        <strong>Notes:</strong> {{ image.notes }}
+                                    </p>
+                                {% endif %}
+                                {% if image.display_tags %}
+                                    <div class="metadata-tags small">
+                                        {% for tag in image.display_tags %}
+                                            <span class="tag-pill">#{{ tag }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </details>
                 </article>
             {% endfor %}
         {% else %}
             <p class="text-white text-center mt-3">No matches yet. Try different filters.</p>
         {% endif %}
     </div>
+    <div class="search-sentinel" data-search-sentinel data-next-cursor="{{ next_cursor or '' }}"></div>
 </div>
+
+<div class="modal fade" id="searchImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-black text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="searchImageTitle">Preview</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex align-items-center justify-content-center">
+                <img id="searchImagePreview" src="" alt="" class="img-fluid">
+            </div>
+            <div class="modal-footer border-secondary">
+                <a id="searchDownloadBtn" class="btn btn-outline-light" href="#" download>Download</a>
+                <button id="searchShareBtn" class="btn btn-primary" type="button">Share</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/search.js') }}" nonce="{{ g.csp_nonce }}"></script>
+{% endblock %}
 {% endblock %}
