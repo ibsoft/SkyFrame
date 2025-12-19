@@ -225,15 +225,18 @@
                     <span class="toggle-text">Hide controls</span>
                 </button>
                 <div class="action-column" data-image-id="${image.id}">
-                    <button class="action-icon ${image.liked ? "active" : ""}" data-action="like" data-image-id="${image.id}">
+                <button class="action-icon action-like ${image.liked ? "active" : ""}" data-action="like" data-image-id="${image.id}">
+                        <i class="fa-solid fa-heart"></i>
                         <span>Like</span>
                         <span class="action-count">${image.like_count}</span>
                     </button>
-                    <button class="action-icon ${image.favorited ? "active" : ""}" data-action="favorite" data-image-id="${image.id}">
+                    <button class="action-icon action-save ${image.favorited ? "active" : ""}" data-action="favorite" data-image-id="${image.id}">
+                        <i class="fa-solid fa-bookmark"></i>
                         <span>Save</span>
                         <span class="action-count">${image.favorite_count}</span>
                     </button>
-                    <button class="action-icon" data-action="download" data-image-id="${image.id}" data-download-url="${image.download_url}" data-download-name="${image.download_name}">
+                    <button class="action-icon action-download" data-action="download" data-image-id="${image.id}" data-download-url="${image.download_url}" data-download-name="${image.download_name}">
+                        <i class="fa-solid fa-download"></i>
                         <span>Download</span>
                     </button>
                     ${
@@ -241,18 +244,22 @@
                             ? `<button class="action-icon" data-action="verify" data-watermark="${image.watermark_hash}" data-uploader="${escapeHtml(
                                   image.uploader || "SkyFrame"
                               )}" data-image-id="${image.id}">
+                                 <i class="fa-solid fa-shield-check"></i>
                                  <span>Verify</span>
                                </button>`
                             : ""
                     }
-                    <button class="action-icon ${image.following_uploader ? "active" : ""}" data-action="follow" data-target-id="${image.uploader_id}">
+                    <button class="action-icon action-follow ${image.following_uploader ? "active" : ""}" data-action="follow" data-target-id="${image.uploader_id}">
+                        <i class="fa-solid fa-user-plus"></i>
                         <span>${image.following_uploader ? "Following" : "Follow"}</span>
                     </button>
-                    <button class="action-icon" data-action="comment" data-image-id="${image.id}">
+                    <button class="action-icon action-comment" data-action="comment" data-image-id="${image.id}">
+                        <i class="fa-solid fa-comment"></i>
                         <span>Comment</span>
                         <span class="action-count">${image.comment_count}</span>
                     </button>
                     <button type="button" class="action-icon share" data-action="share" data-image-id="${image.id}">
+                        <i class="fa-solid fa-share-nodes"></i>
                         <span>Share</span>
                     </button>
                     ${

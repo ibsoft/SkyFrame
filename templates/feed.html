@@ -33,31 +33,38 @@
                             <span class="toggle-text">Hide controls</span>
                         </button>
                         <div class="action-column" data-image-id="{{ image.id }}">
-                            <button class="action-icon {% if image.id in liked %}active{% endif %}" data-action="like" data-image-id="{{ image.id }}">
+                            <button class="action-icon action-like {% if image.id in liked %}active{% endif %}" data-action="like" data-image-id="{{ image.id }}">
+                                <i class="fa-solid fa-heart"></i>
                                 <span>Like</span>
                                 <span class="action-count">{{ image.likes.count() }}</span>
                             </button>
-                            <button class="action-icon {% if image.id in favorited %}active{% endif %}" data-action="favorite" data-image-id="{{ image.id }}">
+                            <button class="action-icon action-save {% if image.id in favorited %}active{% endif %}" data-action="favorite" data-image-id="{{ image.id }}">
+                                <i class="fa-solid fa-bookmark"></i>
                                 <span>Save</span>
                                 <span class="action-count">{{ image.favorites.count() }}</span>
                             </button>
-                            <button class="action-icon" data-action="download" data-image-id="{{ image.id }}" data-download-url="{{ url_for('api.download_image', image_id=image.id) }}" data-download-name="{{ image.download_name }}">
+                            <button class="action-icon action-download" data-action="download" data-image-id="{{ image.id }}" data-download-url="{{ url_for('api.download_image', image_id=image.id) }}" data-download-name="{{ image.download_name }}">
+                                <i class="fa-solid fa-download"></i>
                                 <span>Download</span>
                             </button>
                             {% if image.uploader.id != current_user.id %}
-                                <button class="action-icon {% if image.uploader.id in following %}active{% endif %}" data-action="follow" data-target-id="{{ image.uploader.id }}">
+                                <button class="action-icon action-follow {% if image.uploader.id in following %}active{% endif %}" data-action="follow" data-target-id="{{ image.uploader.id }}">
+                                    <i class="fa-solid fa-user-plus"></i>
                                     <span>{% if image.uploader.id in following %}Following{% else %}Follow{% endif %}</span>
                                 </button>
                             {% endif %}
-                            <button class="action-icon" data-action="comment" data-image-id="{{ image.id }}">
+                            <button class="action-icon action-comment" data-action="comment" data-image-id="{{ image.id }}">
+                                <i class="fa-solid fa-comment"></i>
                                 <span>Comment</span>
                                 <span class="action-count">{{ image.comments.count() }}</span>
                             </button>
                             <button type="button" class="action-icon share" data-action="share" data-image-id="{{ image.id }}">
+                                <i class="fa-solid fa-share-nodes"></i>
                                 <span>Share</span>
                             </button>
                             {% if image.id in owned_ids %}
                                 <a class="action-icon" href="{{ url_for('main.edit_image', image_id=image.id) }}">
+                                    <i class="fa-solid fa-pen-to-square"></i>
                                     <span>Edit</span>
                                 </a>
                             {% endif %}
