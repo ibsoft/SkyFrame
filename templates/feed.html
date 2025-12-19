@@ -41,9 +41,11 @@
                             <button class="action-icon" data-action="download" data-image-id="{{ image.id }}" data-download-url="{{ url_for('api.download_image', image_id=image.id) }}" data-download-name="{{ image.download_name }}">
                                 <span>Download</span>
                             </button>
-                            <button class="action-icon {% if image.uploader.id in following %}active{% endif %}" data-action="follow" data-target-id="{{ image.uploader.id }}">
-                                <span>{% if image.uploader.id in following %}Following{% else %}Follow{% endif %}</span>
-                            </button>
+                            {% if image.uploader.id != current_user.id %}
+                                <button class="action-icon {% if image.uploader.id in following %}active{% endif %}" data-action="follow" data-target-id="{{ image.uploader.id }}">
+                                    <span>{% if image.uploader.id in following %}Following{% else %}Follow{% endif %}</span>
+                                </button>
+                            {% endif %}
                             <button class="action-icon" data-action="comment" data-image-id="{{ image.id }}">
                                 <span>Comment</span>
                                 <span class="action-count">{{ image.comments.count() }}</span>
