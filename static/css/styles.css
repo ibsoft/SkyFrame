@@ -188,6 +188,16 @@ body {
     margin: 0 auto;
 }
 
+.post-metadata {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(3, 3, 9, 0.95);
+    font-size: 0.75rem;
+    color: #fff;
+    letter-spacing: 0.02em;
+    gap: 0.3rem;
+    word-break: break-word;
+}
+
 
 .upload-spinner-overlay {
     position: fixed;
@@ -338,6 +348,15 @@ body.controls-hidden .action-column {
     color: #fff;
     font-size: 0.75rem;
     letter-spacing: 0.01em;
+}
+
+.planetary-data {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.6rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    margin-bottom: 0.35rem;
+    line-height: 1.3;
 }
 
 .action-column {
