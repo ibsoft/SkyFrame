@@ -131,6 +131,12 @@ def _serialize_image(
         )
         if image.category == "Planets"
         else None,
+        "seeing_rating": image.seeing_rating,
+        "transparency_rating": image.transparency_rating,
+        "bortle_rating": image.bortle_rating,
+        "max_exposure_time": image.max_exposure_time,
+        "allow_scientific_use": image.allow_scientific_use,
+        "watermark_hash": image.watermark_hash,
     }
 
 

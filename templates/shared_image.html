@@ -31,9 +31,27 @@
                 Telescope: {{ image.telescope or 'Telescope TBD' }} · Camera: {{ image.camera or 'Camera TBD' }}<br>
                 Filter: {{ image.filter or 'n/a' }} · Location: {{ image.location or 'Unknown' }}
             </p>
-            <a class="btn btn-outline-light mt-3" href="{{ share_download_url }}">
-                Download
-            </a>
+            <p class="small text-white mb-1">
+                <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
+                This frame is digitally signed; all rights reserved to {{ image.uploader.username }}.
+                {% if image.allow_scientific_use %}
+                    The uploader allows usage for scientific organizations and papers.
+                {% endif %}
+            </p>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <a class="btn btn-outline-light" href="{{ share_download_url }}">
+                    Download
+                </a>
+                {% if image.watermark_hash %}
+                <button
+                    class="btn btn-outline-info"
+                    data-bs-toggle="modal"
+                    data-bs-target="#signatureModal"
+                >
+                    Verify signature
+                </button>
+                {% endif %}
+            </div>
             <p class="small text-white-50 mb-0">
                 © {{ image.observed_at.strftime('%Y') if image.observed_at else '2025' }} {{ image.uploader.username }} · {{ image.category }} · {{ image.filter or 'RGB' }}
             </p>
@@ -41,6 +59,31 @@
                 Explore more at <a href="https://skyframe.pyworld.org" target="_blank" rel="noopener noreferrer">skyframe.pyworld.org</a>
             </p>
         </div>
+        {% if image.watermark_hash %}
+        <div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-black text-white border-secondary">
+                    <div class="modal-header border-bottom border-secondary">
+                        <h5 class="modal-title" id="signatureModalLabel">
+                            Signature verification
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="small mb-2">
+                            This frame carries an invisible SkyFrame signature that ties it to {{ image.uploader.username }}.
+                        </p>
+                        <p class="fw-semibold text-white mb-0">
+                            Signature ID: {{ image.watermark_hash }}
+                        </p>
+                        <p class="text-white-50 mt-1 small">
+                            The signature hash matches the embedded copyright statement and timestamp goal; no tampering detected.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

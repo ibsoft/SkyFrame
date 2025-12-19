@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask_wtf import FlaskForm
 from wtforms import (
+    BooleanField,
     DateTimeField,
     FileField,
     FloatField,
@@ -33,6 +34,34 @@ CATEGORY_CHOICES = [
 ]
 
 SEARCH_CATEGORY_CHOICES = [("", "Any")] + CATEGORY_CHOICES
+
+SEEING_CHOICES = [
+    ("5", "5 — Excellent: No blur, Milky Way bright, extreme contrast."),
+    ("4", "4 — Good: Slight contrast loss, still excellent."),
+    ("3", "3 — Average: Mild blur, brighter background."),
+    ("2", "2 — Poor: Humidity, thin clouds, fuzziness."),
+    ("1", "1 — Very poor: Milky Way milky, not useful for high-res."),
+]
+
+TRANSPARENCY_CHOICES = [
+    ("5", "5 — Excellent: Crystal clear, excellent stars."),
+    ("4", "4 — Good: Minor haze, still solid detail."),
+    ("3", "3 — Average: Light haze, moderate glow."),
+    ("2", "2 — Poor: Noticeable haze or dust."),
+    ("1", "1 — Very poor: Thick haze or light pollution."),
+]
+
+BORTLE_CHOICES = [
+    ("1", "1 — Excellent dark-sky (pristine)."),
+    ("2", "2 — Very dark sky."),
+    ("3", "3 — Rural sky."),
+    ("4", "4 — Rural/suburban transition."),
+    ("5", "5 — Suburban sky."),
+    ("6", "6 — Bright suburban."),
+    ("7", "7 — Urban sky."),
+    ("8", "8 — City sky."),
+    ("9", "9 — Inner-city with heavy light pollution."),
+]
 
 
 def password_complexity(form, field):
@@ -109,7 +138,24 @@ class UploadForm(FlaskForm):
     telescope = StringField("Telescope", validators=[DataRequired(), Length(max=128)])
     camera = StringField("Camera", validators=[DataRequired(), Length(max=128)])
     notes = TextAreaField("Notes / Tags", validators=[DataRequired(), Length(max=512)])
-    derotation_time = FloatField("Derotation time (minutes)", validators=[DataRequired()])
+    derotation_time = FloatField("Derotation time (minutes)", validators=[Optional()])
+    max_exposure_time = FloatField("Max exposure time (seconds)", validators=[Optional()])
+    seeing_rating = SelectField(
+        "Seeing (Pickering 1–5)",
+        choices=SEEING_CHOICES,
+        validators=[DataRequired()],
+    )
+    transparency_rating = SelectField(
+        "Transparency (1–5)",
+        choices=TRANSPARENCY_CHOICES,
+        validators=[DataRequired()],
+    )
+    bortle_rating = SelectField(
+        "Bortle scale (1–9)",
+        choices=BORTLE_CHOICES,
+        validators=[Optional()],
+    )
+    allow_scientific_use = BooleanField("Allow scientific reuse to all organizations and papers")
     file = FileField("Image File", validators=[DataRequired()])
     submit = SubmitField("Upload")
 
@@ -164,5 +210,22 @@ class ImageEditForm(FlaskForm):
     telescope = StringField("Telescope", validators=[DataRequired(), Length(max=128)])
     camera = StringField("Camera", validators=[DataRequired(), Length(max=128)])
     notes = TextAreaField("Notes / Tags", validators=[DataRequired(), Length(max=512)])
-    derotation_time = FloatField("Derotation time (minutes)", validators=[DataRequired()])
+    derotation_time = FloatField("Derotation time (minutes)", validators=[Optional()])
+    max_exposure_time = FloatField("Max exposure time (seconds)", validators=[Optional()])
+    seeing_rating = SelectField(
+        "Seeing (Pickering 1–5)",
+        choices=SEEING_CHOICES,
+        validators=[DataRequired()],
+    )
+    transparency_rating = SelectField(
+        "Transparency (1–5)",
+        choices=TRANSPARENCY_CHOICES,
+        validators=[DataRequired()],
+    )
+    bortle_rating = SelectField(
+        "Bortle scale (1–9)",
+        choices=BORTLE_CHOICES,
+        validators=[Optional()],
+    )
+    allow_scientific_use = BooleanField("Allow scientific reuse to all organizations and papers")
     submit = SubmitField("Save changes")

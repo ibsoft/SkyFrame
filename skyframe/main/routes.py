@@ -171,9 +171,12 @@ def feed():
         img.display_tags = _extract_tags(img.notes)
         img.avatar_url = img.uploader.avatar_url
         if img.category == "Planets":
-            lat = img.uploader.observatory_latitude
-            lon = img.uploader.observatory_longitude
-            img.planetary_data = planetary_coordinates(img.observed_at, img.object_name, lat, lon)
+            img.planetary_data = planetary_coordinates(
+                img.observed_at,
+                img.object_name,
+                img.uploader.observatory_latitude,
+                img.uploader.observatory_longitude,
+            )
         else:
             img.planetary_data = None
     return render_template(
@@ -332,7 +335,9 @@ def upload():
     form = UploadForm()
     if form.validate_on_submit():
         try:
-            image_path, thumb_path = process_image_upload(form.file.data)
+            image_path, thumb_path, watermark_hash = process_image_upload(
+                form.file.data, current_user.username
+            )
         except ValueError as exc:
             flash(str(exc), "danger")
         else:
@@ -350,10 +355,19 @@ def upload():
                 camera=form.camera.data,
                 notes=form.notes.data,
                 derotation_time=form.derotation_time.data,
+                max_exposure_time=form.max_exposure_time.data,
+                allow_scientific_use=form.allow_scientific_use.data or False,
+                watermark_hash=watermark_hash,
+                seeing_rating=int(form.seeing_rating.data),
+                transparency_rating=int(form.transparency_rating.data),
+                bortle_rating=int(form.bortle_rating.data) if form.bortle_rating.data else None,
             )
             db.session.add(image)
             db.session.commit()
-            flash("Astro frame uploaded successfully", "success")
+            flash(
+                f"Astro frame uploaded successfully. An invisible watermark (ID {watermark_hash[:8]}) tied to your account and timestamp has been applied.",
+                "success",
+            )
             return redirect(url_for("main.feed"))
     return render_template("upload.html", form=form)
 
@@ -371,6 +385,11 @@ def edit_image(image_id):
     if request.method == "GET":
         form.observed_at.data = image.observed_at
         form.derotation_time.data = image.derotation_time
+        form.max_exposure_time.data = image.max_exposure_time
+        form.seeing_rating.data = str(image.seeing_rating or "3")
+        form.transparency_rating.data = str(image.transparency_rating or "3")
+        form.bortle_rating.data = str(image.bortle_rating or "") if image.bortle_rating else ""
+        form.derotation_time.data = image.derotation_time
     if form.validate_on_submit():
         image.category = form.category.data
         image.object_name = form.object_name.data
@@ -382,6 +401,11 @@ def edit_image(image_id):
         image.camera = form.camera.data
         image.notes = form.notes.data
         image.derotation_time = form.derotation_time.data
+        image.max_exposure_time = form.max_exposure_time.data
+        image.allow_scientific_use = form.allow_scientific_use.data or False
+        image.seeing_rating = int(form.seeing_rating.data)
+        image.transparency_rating = int(form.transparency_rating.data)
+        image.bortle_rating = int(form.bortle_rating.data) if form.bortle_rating.data else None
         db.session.commit()
         flash("Frame details updated", "success")
         return redirect(url_for("main.feed"))

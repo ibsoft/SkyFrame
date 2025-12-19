@@ -167,6 +167,7 @@ def planetary_coordinates(observed_at: datetime, name: str, latitude: float | No
         "dec": round(math.degrees(dec_rad), 2),
         "distance_au": round(distance, 4),
     }
+    result["has_location"] = latitude is not None and longitude is not None
 
     if latitude is not None and longitude is not None:
         lat_rad = math.radians(latitude)
