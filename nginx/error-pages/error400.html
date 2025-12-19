@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>400 – SkyFrame</title>
+    <style>
+        :root {
+            --bg: #01030a;
+            --panel: #111827;
+            --accent: #ec4899;
+            font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        body {
+            background: radial-gradient(circle at top, rgba(236, 72, 153, 0.25), transparent 45%), var(--bg);
+            color: #fff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .card {
+            max-width: 520px;
+            width: 100%;
+            background: var(--panel);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7);
+        }
+        .label {
+            font-size: 0.75rem;
+            letter-spacing: 0.5em;
+            color: rgba(255, 255, 255, 0.65);
+        }
+        h1 {
+            margin: 1rem 0 0.5rem;
+            font-size: clamp(2rem, 4vw, 2.75rem);
+        }
+        p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 1.6rem;
+        }
+        .scene {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.2rem;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.7), transparent 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .scene svg {
+            width: 35px;
+            height: 35px;
+            fill: #fff;
+        }
+        .btn {
+            padding: 0.8rem 1.6rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="label">SkyFrame</div>
+        <div class="scene" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+                <path d="M32 6a26 26 0 1 1 0 52 26 26 0 0 1 0-52zm0 4a22 22 0 1 0 0 44 22 22 0 0 0 0-44z"/>
+                <circle cx="32" cy="32" r="6"/>
+            </svg>
+        </div>
+        <h1>Bad Request</h1>
+        <p>Something charmingly broke the request. Maybe a mistyped link or stardust in the payload. Try again, and if it keeps happening, email support@skyframe.pyworld.org.</p>
+        <a class="btn" href="https://skyframe.pyworld.org">Return home</a>
+    </div>
+</body>
+</html>

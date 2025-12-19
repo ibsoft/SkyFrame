@@ -44,7 +44,7 @@ class Config:
     CSP_SCRIPT_SRC = "'self' https://cdn.jsdelivr.net"
     SHARE_PATH = PROJECT_ROOT / "instance" / "shares"
     ARCHIVE_SUBDIR = "archives"
-    APP_VERSION = os.getenv("APP_VERSION", "v_2.0.10")
+    APP_VERSION = os.getenv("APP_VERSION", "v_3.0.1")
     WATERMARK_OPACITY = int(os.getenv("WATERMARK_OPACITY", "12"))
     WATERMARK_PADDING = int(os.getenv("WATERMARK_PADDING", "12"))
     LOG_DIR = PROJECT_ROOT / "logs"
@@ -52,6 +52,11 @@ class Config:
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
     LOG_MAX_BYTES = int(os.getenv("LOG_MAX_BYTES", "10485760"))
     LOG_BACKUP_COUNT = int(os.getenv("LOG_BACKUP_COUNT", "5"))
+    PASSWORD_MIN_LENGTH = int(os.getenv("PASSWORD_MIN_LENGTH", "12"))
+    PASSWORD_REQUIRE_UPPER = os.getenv("PASSWORD_REQUIRE_UPPER", "True").lower() in ("1", "true", "yes")
+    PASSWORD_REQUIRE_LOWER = os.getenv("PASSWORD_REQUIRE_LOWER", "True").lower() in ("1", "true", "yes")
+    PASSWORD_REQUIRE_DIGIT = os.getenv("PASSWORD_REQUIRE_DIGIT", "True").lower() in ("1", "true", "yes")
+    PASSWORD_REQUIRE_SYMBOL = os.getenv("PASSWORD_REQUIRE_SYMBOL", "True").lower() in ("1", "true", "yes")
 
     @classmethod
     def init_app(cls, app):

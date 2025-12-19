@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>500 – SkyFrame</title>
+    <style>
+        body{margin:0;background:linear-gradient(180deg,#02101e,#000);color:#fff;font-family:"Space Grotesk",sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
+        .card{background:#111827;border-radius:1.5rem;padding:2.6rem;max-width:520px;width:100%;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 25px 60px rgba(0,0,0,.8);}
+        .label{letter-spacing:.4em;font-size:.75rem;color:#94a3b8;text-transform:uppercase;}
+        h1{margin:1rem 0 .4rem;font-size:clamp(2.3rem,3.5vw,3rem);}
+        p{color:#cbd5f5;line-height:1.5;margin-bottom:1.4rem;}
+        .scene{width:70px;height:70px;margin:0 auto 1rem;border-radius:50%;background:radial-gradient(circle,rgba(236,72,153,.7),transparent 70%);display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 12px 35px rgba(236,72,153,.35));}
+        .scene svg{width:40px;height:40px;fill:#fff;}
+        .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.6rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);color:#fff;text-decoration:none;font-weight:600;transition:background .2s;}
+        .btn:hover{background:rgba(255,255,255,.12);}
+        .clouds{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:1rem;font-size:.8rem;color:#94a3b8;}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="label">SkyFrame</div>
+        <div class="scene" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+                <path d="M35 12c3.5 0 6.7 1.4 9 3.7a1.5 1.5 0 0 0 2.2-.1 23 23 0 0 0-7.2-5A22.8 22.8 0 0 0 28 8.8 22 22 0 0 0 12 24a1.5 1.5 0 0 0 .3 2.1 1.4 1.4 0 0 0 1.8-.2A13 13 0 0 1 23 26"/>
+                <path d="M53 32a17 17 0 1 0-23 15.5"/>
+            </svg>
+        </div>
+        <h1>Server Meltdown</h1>
+        <p>We’re busy patching the telescope software—think of it as a quick service window. You’ll be back to admiring skies shortly.</p>
+        <a class="btn" href="https://skyframe.pyworld.org">Try again</a>
+        <div class="clouds">Upgrade mode engaged · Some features temporarily paused</div>
+    </div>
+</body>
+</html>
