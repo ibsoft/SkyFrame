@@ -21,6 +21,7 @@ from wtforms.validators import (
     ValidationError,
 )
 
+from .config import Config
 from .models import User
 
 
@@ -66,12 +67,39 @@ BORTLE_CHOICES = [
 
 def password_complexity(form, field):
     password = field.data or ""
-    if len(password) < 12:
+    if len(password) < Config.PASSWORD_MIN_LENGTH:
         raise ValidationError("Password must be at least 12 characters.")
-    tests = [any(c.islower() for c in password), any(c.isupper() for c in password)]
-    tests.extend([any(c.isdigit() for c in password), any(c in "!@#$%^&*()-_+=" for c in password)])
-    if not all(tests):
+    tests = []
+    if Config.PASSWORD_REQUIRE_LOWER:
+        tests.append(any(c.islower() for c in password))
+    if Config.PASSWORD_REQUIRE_UPPER:
+        tests.append(any(c.isupper() for c in password))
+    if Config.PASSWORD_REQUIRE_DIGIT:
+        tests.append(any(c.isdigit() for c in password))
+    if Config.PASSWORD_REQUIRE_SYMBOL:
+        tests.append(any(c in "!@#$%^&*()-_+=" for c in password))
+    if tests and not all(tests):
         raise ValidationError("Password must include upper, lower, number, and symbol.")
+
+
+def password_requirements_summary():
+    requirements = []
+    if Config.PASSWORD_REQUIRE_UPPER:
+        requirements.append("uppercase")
+    if Config.PASSWORD_REQUIRE_LOWER:
+        requirements.append("lowercase")
+    if Config.PASSWORD_REQUIRE_DIGIT:
+        requirements.append("a digit")
+    if Config.PASSWORD_REQUIRE_SYMBOL:
+        requirements.append("a symbol")
+    base = f"Password must be at least {Config.PASSWORD_MIN_LENGTH} characters"
+    if requirements:
+        if len(requirements) == 1:
+            req_str = requirements[0]
+        else:
+            req_str = ", ".join(requirements[:-1]) + " and " + requirements[-1]
+        base += f" and include {req_str}"
+    return base + "."
 
 
 class RegistrationForm(FlaskForm):

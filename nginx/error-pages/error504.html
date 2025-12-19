@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>504 – SkyFrame</title>
+    <style>
+        body{margin:0;background:#000c17;color:#fff;font-family:"Space Grotesk",sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
+        .card{background:#111827;border-radius:1.5rem;padding:2.5rem;max-width:520px;width:100%;text-align:center;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 55px rgba(0,0,0,.8);}
+        .label{letter-spacing:.4em;font-size:.75rem;color:#94a3b8;text-transform:uppercase;}
+        h1{margin:1rem 0 .4rem;font-size:clamp(2.2rem,3vw,2.7rem);}
+        p{color:#cbd5f5;line-height:1.6;margin-bottom:1.5rem;}
+        .scene{width:70px;height:70px;margin:0 auto 1rem;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.6),rgba(2,6,23,.5));display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 12px 35px rgba(37,99,235,.4));}
+        .scene svg{width:38px;height:38px;fill:#fff;}
+        .btn{padding:.85rem 1.6rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);color:#fff;text-decoration:none;font-weight:600;}
+        .btn:hover{background:rgba(255,255,255,.1);}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="label">SkyFrame</div>
+        <div class="scene" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M32 6a26 26 0 1 1 0 52 26 26 0 0 1 0-52zm-1 10h2v18h-2zm0 26h2v4h-2z"/></svg>
+        </div>
+        <h1>Gateway Timeout</h1>
+        <p>No response from the telescope backend—our relay is taking forever to wake up. Please try refreshing shortly.</p>
+        <a class="btn" href="https://skyframe.pyworld.org">Reload page</a>
+    </div>
+</body>
+</html>
