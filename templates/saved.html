@@ -18,8 +18,8 @@
                     <div class="image-wrap">
                         <img class="feed-image" src="{{ url_for('api.download_image', image_id=image.id, thumb=1) }}" alt="{{ image.object_name }}" loading="lazy" data-image-id="{{ image.id }}">
                     </div>
-                    <button type="button" class="toggle-actions-btn" data-action="toggle-buttons">
-                        <span class="toggle-text">Hide controls</span>
+                    <button type="button" class="toggle-actions-btn toggle-right" data-action="toggle-buttons" aria-label="Toggle controls">
+                        <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
                     </button>
                     <div class="action-column" data-image-id="{{ image.id }}">
                         <button class="action-icon {% if image.id in liked %}active{% endif %}" data-action="like" data-image-id="{{ image.id }}">
