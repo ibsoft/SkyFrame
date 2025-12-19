@@ -31,26 +31,35 @@
                 Telescope: {{ image.telescope or 'Telescope TBD' }} · Camera: {{ image.camera or 'Camera TBD' }}<br>
                 Filter: {{ image.filter or 'n/a' }} · Location: {{ image.location or 'Unknown' }}
             </p>
-            <p class="small text-white mb-1">
-                <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
-                This frame is digitally signed; all rights reserved to {{ image.uploader.username }}.
-                {% if image.allow_scientific_use %}
-                    The uploader allows usage for scientific organizations and papers.
+            <div class="signature-banner d-flex align-items-center justify-content-between mt-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                    <div>
+                        <p class="mb-0 small text-white">
+                            This frame is digitally signed; all rights reserved to {{ image.uploader.username }}.
+                        </p>
+                        {% if image.allow_scientific_use %}
+                            <p class="mb-0 caption text-white-50">
+                                <i class="fas fa-universal-access me-1" aria-hidden="true"></i>
+                                The uploader allows usage for scientific organizations and papers.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if image.watermark_hash %}
+                    <button
+                        class="btn btn-outline-info btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#signatureModal"
+                    >
+                        Verify
+                    </button>
                 {% endif %}
-            </p>
+            </div>
             <div class="d-flex flex-wrap gap-2 mt-3">
                 <a class="btn btn-outline-light" href="{{ share_download_url }}">
                     Download
                 </a>
-                {% if image.watermark_hash %}
-                <button
-                    class="btn btn-outline-info"
-                    data-bs-toggle="modal"
-                    data-bs-target="#signatureModal"
-                >
-                    Verify signature
-                </button>
-                {% endif %}
             </div>
             <p class="small text-white-50 mb-0">
                 © {{ image.observed_at.strftime('%Y') if image.observed_at else '2025' }} {{ image.uploader.username }} · {{ image.category }} · {{ image.filter or 'RGB' }}
