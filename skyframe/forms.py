@@ -4,6 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     DateTimeField,
     FileField,
+    FloatField,
     SelectField,
     StringField,
     SubmitField,
@@ -108,6 +109,7 @@ class UploadForm(FlaskForm):
     telescope = StringField("Telescope", validators=[Optional(), Length(max=128)])
     camera = StringField("Camera", validators=[Optional(), Length(max=128)])
     notes = TextAreaField("Notes / Tags", validators=[Optional(), Length(max=512)])
+    derotation_time = FloatField("Derotation time (minutes)", validators=[Optional()])
     file = FileField("Image File", validators=[DataRequired()])
     submit = SubmitField("Upload")
 
@@ -139,6 +141,12 @@ class ProfileForm(FlaskForm):
     )
     avatar_upload = FileField("Upload Avatar", validators=[Optional()])
     bio = TextAreaField("Bio", validators=[Optional(), Length(max=500)])
+    observatory_name = StringField("Observatory Name", validators=[Optional(), Length(max=128)])
+    observatory_location = StringField(
+        "Observatory Location", validators=[Optional(), Length(max=128)]
+    )
+    observatory_latitude = FloatField("Observatory Latitude", validators=[Optional()])
+    observatory_longitude = FloatField("Observatory Longitude", validators=[Optional()])
     submit = SubmitField("Save Profile")
 
 
@@ -156,4 +164,5 @@ class ImageEditForm(FlaskForm):
     telescope = StringField("Telescope", validators=[Optional(), Length(max=128)])
     camera = StringField("Camera", validators=[Optional(), Length(max=128)])
     notes = TextAreaField("Notes / Tags", validators=[Optional(), Length(max=512)])
+    derotation_time = FloatField("Derotation time (minutes)", validators=[Optional()])
     submit = SubmitField("Save changes")

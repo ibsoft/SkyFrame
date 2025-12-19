@@ -21,6 +21,10 @@ class User(UserMixin, db.Model):
     avatar_type = db.Column(db.String(64), default="gravatar", nullable=False)
     avatar_path = db.Column(db.String(255))
     bio = db.Column(db.Text)
+    observatory_name = db.Column(db.String(128))
+    observatory_location = db.Column(db.String(128))
+    observatory_latitude = db.Column(db.Float)
+    observatory_longitude = db.Column(db.Float)
 
     uploads = db.relationship("Image", backref="uploader", lazy="dynamic")
     likes = db.relationship("Like", backref="user", lazy="dynamic")
@@ -99,6 +103,7 @@ class Image(db.Model):
     telescope = db.Column(db.String(128))
     camera = db.Column(db.String(128))
     notes = db.Column(db.Text)
+    derotation_time = db.Column(db.Float)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     likes = db.relationship("Like", backref="image", lazy="dynamic", cascade="all, delete-orphan")

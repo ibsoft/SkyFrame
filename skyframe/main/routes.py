@@ -19,6 +19,7 @@ from ..extensions import db, limiter
 from ..forms import CommentForm, ImageEditForm, ProfileForm, SearchForm, UploadForm
 from ..models import Favorite, Follow, Image, Like, User
 from ..share_storage import read_share_token
+from ..astro import planetary_coordinates
 from ..storage import (
     process_image_upload,
     save_avatar_upload,
@@ -169,6 +170,12 @@ def feed():
         img.download_name = f"{winjupos_label_from_metadata(img.object_name, img.observed_at, img.filter, img.uploader.username)}.jpg"
         img.display_tags = _extract_tags(img.notes)
         img.avatar_url = img.uploader.avatar_url
+        if img.category == "Planets":
+            lat = img.uploader.observatory_latitude
+            lon = img.uploader.observatory_longitude
+            img.planetary_data = planetary_coordinates(img.observed_at, img.object_name, lat, lon)
+        else:
+            img.planetary_data = None
     return render_template(
         "feed.html",
         feed_images=images,
@@ -342,6 +349,7 @@ def upload():
                 telescope=form.telescope.data,
                 camera=form.camera.data,
                 notes=form.notes.data,
+                derotation_time=form.derotation_time.data,
             )
             db.session.add(image)
             db.session.commit()
@@ -362,6 +370,7 @@ def edit_image(image_id):
     form = ImageEditForm(obj=image)
     if request.method == "GET":
         form.observed_at.data = image.observed_at
+        form.derotation_time.data = image.derotation_time
     if form.validate_on_submit():
         image.category = form.category.data
         image.object_name = form.object_name.data
@@ -372,6 +381,7 @@ def edit_image(image_id):
         image.telescope = form.telescope.data
         image.camera = form.camera.data
         image.notes = form.notes.data
+        image.derotation_time = form.derotation_time.data
         db.session.commit()
         flash("Frame details updated", "success")
         return redirect(url_for("main.feed"))
@@ -410,6 +420,10 @@ def update_profile():
     if form.validate_on_submit():
         current_user.bio = form.bio.data
         current_user.avatar_type = form.avatar_type.data
+        current_user.observatory_name = form.observatory_name.data
+        current_user.observatory_location = form.observatory_location.data
+        current_user.observatory_latitude = form.observatory_latitude.data
+        current_user.observatory_longitude = form.observatory_longitude.data
         if (
             form.avatar_type.data == "upload"
             and form.avatar_upload.data

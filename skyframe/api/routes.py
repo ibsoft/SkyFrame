@@ -1,3 +1,4 @@
+import hashlib
 import mimetypes
 import re
 from datetime import datetime
@@ -18,6 +19,7 @@ from wtforms.validators import ValidationError
 from werkzeug.utils import secure_filename
 
 from ..config import Config
+from ..astro import planetary_coordinates
 from ..extensions import db, limiter
 from ..forms import CATEGORY_CHOICES as FORM_CATEGORY_CHOICES
 from ..models import Comment, Favorite, Follow, Image, Like, User
@@ -120,6 +122,15 @@ def _serialize_image(
         "download_url": url_for("api.download_image", image_id=image.id),
         "download_name": f"{winjupos_label_from_metadata(image.object_name, image.observed_at, image.filter, image.uploader.username)}.jpg",
         "tags": _extract_tags(image.notes),
+        "derotation_time": getattr(image, "derotation_time", None),
+        "planetary_data": planetary_coordinates(
+            image.observed_at,
+            image.object_name,
+            image.uploader.observatory_latitude,
+            image.uploader.observatory_longitude,
+        )
+        if image.category == "Planets"
+        else None,
     }
 
 

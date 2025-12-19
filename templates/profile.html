@@ -16,6 +16,12 @@
                     <li><strong>{{ profile_user.followers_count() }}</strong> followers</li>
                     <li><strong>{{ profile_user.following_count() }}</strong> following</li>
                     <li><strong>{{ profile_user.favorites_count() }}</strong> favorites</li>
+                    {% if profile_user.observatory_name %}
+                        <li class="text-wrap">
+                            <strong>{{ profile_user.observatory_name }}</strong>
+                            {% if profile_user.observatory_location %}· {{ profile_user.observatory_location }}{% endif %}
+                        </li>
+                    {% endif %}
                 </ul>
                 <a href="{{ url_for('main.saved') }}" class="btn btn-outline-light btn-sm w-100 mt-3">View saved frames</a>
                 <a href="{{ url_for('main.profile_archives') }}" class="btn btn-outline-light btn-sm w-100 mt-2">Download my uploads</a>
@@ -45,6 +51,26 @@
                     <div class="mb-3">
                         {{ form.bio.label(class="form-label") }}
                         {{ form.bio(class="form-control bg-black border-secondary text-white", rows="4") }}
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            {{ form.observatory_name.label(class="form-label") }}
+                            {{ form.observatory_name(class="form-control bg-black border-secondary text-white") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.observatory_location.label(class="form-label") }}
+                            {{ form.observatory_location(class="form-control bg-black border-secondary text-white") }}
+                        </div>
+                    </div>
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-6">
+                            {{ form.observatory_latitude.label(class="form-label") }}
+                            {{ form.observatory_latitude(class="form-control bg-black border-secondary text-white") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.observatory_longitude.label(class="form-label") }}
+                            {{ form.observatory_longitude(class="form-control bg-black border-secondary text-white") }}
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-outline-light">{{ form.submit.label.text }}</button>
                 </form>

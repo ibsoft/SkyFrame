@@ -86,7 +86,31 @@
                             {% endfor %}
                         </div>
                     {% endif %}
+                    {% if image.derotation_time %}
+                        <p class="meta-info small mb-0">
+                            Derotation time: {{ "%.1f"|format(image.derotation_time) }} min
+                        </p>
+                    {% endif %}
                 </div>
+                {% if image.planetary_data %}
+                    <div class="post-metadata px-3 py-3">
+                        <div class="small mb-1">
+                            RA: {{ image.planetary_data.ra }}° · Dec: {{ image.planetary_data.dec }}°
+                        </div>
+                        <div class="small mb-1">Distance: {{ image.planetary_data.distance_au }} AU</div>
+                        {% if image.planetary_data.altitude is defined and image.planetary_data.azimuth is defined %}
+                            <div class="small">Altitude: {{ image.planetary_data.altitude }}° · Azimuth: {{ image.planetary_data.azimuth }}°</div>
+                        {% endif %}
+                        {% if image.planetary_data.jupiter_systems %}
+                            <div class="small mt-1">
+                                <strong>Jupiter System</strong>
+                                I: {{ image.planetary_data.jupiter_systems.system_i }}° ·
+                                II: {{ image.planetary_data.jupiter_systems.system_ii }}° ·
+                                III: {{ image.planetary_data.jupiter_systems.system_iii }}°
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </article>
         {% endfor %}
     </div>
