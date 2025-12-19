@@ -342,6 +342,11 @@ body.controls-hidden .action-column {
     transition: transform 0.15s ease;
 }
 
+.toggle-actions-btn.toggle-right {
+    right: 16px;
+    left: auto;
+}
+
 .toggle-actions-btn:hover {
     transform: translateY(-1px);
 }

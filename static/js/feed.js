@@ -246,8 +246,8 @@
         card.dataset.imageId = image.id;
         const actionButtons = isAuthenticated
             ? `
-                <button type="button" class="toggle-actions-btn" data-action="toggle-buttons">
-                    <span class="toggle-text">Hide controls</span>
+                <button type="button" class="toggle-actions-btn toggle-right" data-action="toggle-buttons" aria-label="Toggle controls">
+                    <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
                 </button>
                 <div class="action-column" data-image-id="${image.id}">
                 <button class="action-icon action-like ${image.liked ? "active" : ""}" data-action="like" data-image-id="${image.id}">
@@ -385,11 +385,10 @@
         return card;
     };
 
-    const updateToggleText = (button, text) => {
-        const label = button.querySelector(".toggle-text");
-        if (label) {
-            label.textContent = text;
-        }
+    const updateToggleIcon = (button, isHidden) => {
+        const icon = button.querySelector("i");
+        if (!icon) return;
+        icon.className = isHidden ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
     };
 
     const toggleControls = () => {
@@ -399,7 +398,14 @@
         document.body.classList.toggle("controls-hidden", shouldHide);
         toggles.forEach((btn) => {
             btn.classList.toggle("controls-active", shouldHide);
-            updateToggleText(btn, shouldHide ? "Show controls" : "Hide controls");
+            updateToggleIcon(btn, shouldHide);
+        });
+    };
+
+    const initToggleIcons = () => {
+        const isHidden = document.body.classList.contains("controls-hidden");
+        document.querySelectorAll(".toggle-actions-btn").forEach((btn) => {
+            updateToggleIcon(btn, isHidden);
         });
     };
 
@@ -582,5 +588,6 @@
     });
 
     syncMetadataSheets();
+    initToggleIcons();
 
 })();
