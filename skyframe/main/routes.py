@@ -120,6 +120,11 @@ def root():
     return redirect(url_for("main.feed"))
 
 
+@bp.route("/skyframe-docs-install")
+def docs_install():
+    return render_template("docs_install.html")
+
+
 @bp.route("/completed")
 def donate_completed():
     return render_template("donate_completed.html")
@@ -200,6 +205,55 @@ def feed():
         following=following_ids,
         next_cursor=next_cursor,
         owned_ids=owned_ids,
+        feed_endpoint="/api/feed",
+    )
+
+
+@bp.route("/my-feed")
+@login_required
+def my_feed():
+    form = SearchForm()
+    comment_form = CommentForm()
+    per_page = current_app.config["FEED_PAGE_SIZE"]
+    liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
+    favorited_ids = {row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()}
+    following_ids = {row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()}
+    images = (
+        Image.query.filter_by(user_id=current_user.id)
+        .order_by(Image.created_at.desc(), Image.id.desc())
+        .limit(per_page)
+        .all()
+    )
+    next_cursor = ""
+    if images:
+        cursor_target = images[-1]
+        next_cursor = f"{cursor_target.created_at.isoformat()}_{cursor_target.id}"
+    owned_ids = {image.id for image in images}
+    for img in images:
+        img.download_name = f"{winjupos_label_from_metadata(img.object_name, img.observed_at, img.filter, img.uploader.username)}.jpg"
+        img.display_tags = _extract_tags(img.notes)
+        img.avatar_url = img.uploader.avatar_url
+        if img.category == "Planets":
+            img.planetary_data = planetary_coordinates(
+                img.observed_at,
+                img.object_name,
+                img.uploader.observatory_latitude,
+                img.uploader.observatory_longitude,
+            )
+        else:
+            img.planetary_data = None
+    return render_template(
+        "feed.html",
+        feed_images=images,
+        search_form=form,
+        comment_form=comment_form,
+        csp_nonce=getattr(request, "csp_nonce", ""),
+        liked=liked_ids,
+        favorited=favorited_ids,
+        following=following_ids,
+        next_cursor=next_cursor,
+        owned_ids=owned_ids,
+        feed_endpoint="/api/my-feed",
     )
 
 

@@ -1,6 +1,8 @@
 (() => {
     const feedContainer = document.querySelector(".feed-stack");
+    const feedShell = document.querySelector(".feed-shell");
     const sentinel = document.querySelector("[data-feed-sentinel]");
+    const feedEndpoint = feedShell?.dataset?.feedEndpoint || "/api/feed";
     const commentsSheet = document.getElementById("comments-sheet");
     const commentsList = document.getElementById("comments-list");
     const commentsTarget = document.getElementById("comments-target");
@@ -148,7 +150,7 @@
             if (cursor) {
                 params.set("cursor", cursor);
             }
-            const resp = await fetch(`/api/feed?${params.toString()}`);
+            const resp = await fetch(`${feedEndpoint}?${params.toString()}`);
             const data = await resp.json();
             if (data.images?.length && feedContainer) {
                 data.images.forEach((entry) => {
