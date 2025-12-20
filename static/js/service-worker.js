@@ -1,6 +1,5 @@
 const CACHE_VERSION = "skyframe-v1";
 const ASSETS_TO_CACHE = [
-  "/",
   "/static/css/styles.css",
   "/static/js/feed.js",
   "/static/offline.html",
@@ -33,6 +32,20 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
+    return;
+  }
+
+  const url = new URL(event.request.url);
+  const isStaticAsset = url.pathname.startsWith("/static/");
+  if (!isStaticAsset) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        if (event.request.mode === "navigate") {
+          return caches.match("/static/offline.html");
+        }
+        return caches.match("/static/offline.html");
+      })
+    );
     return;
   }
 

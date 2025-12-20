@@ -7,7 +7,7 @@
     <div class="docs-hero">
         <div class="container py-5">
             <div class="row align-items-center g-4">
-                <div class="col-lg-7 docs-animate" style="--delay: 0.05s;">
+                <div class="col-lg-7 docs-animate docs-delay-05">
                     <div class="docs-pill mb-3">
                         <i class="fa-solid fa-satellite-dish me-2" aria-hidden="true"></i>
                         SkyFrame Docs
@@ -23,7 +23,7 @@
                         <a class="btn btn-outline-light px-4" href="#signing">Image signing</a>
                     </div>
                 </div>
-                <div class="col-lg-5 docs-animate" style="--delay: 0.15s;">
+                <div class="col-lg-5 docs-animate docs-delay-15">
                     <div class="docs-hero-aside">
                         <div class="docs-hero-card">
                             <div class="docs-hero-card-body">
@@ -64,20 +64,19 @@
     </div>
 
     <div class="container py-5" id="install">
-        <div class="docs-section-header docs-animate" style="--delay: 0.02s;">
+        <div class="docs-section-header docs-animate docs-delay-02">
             <h2 class="h3 fw-semibold mb-2">
                 <i class="fa-solid fa-meteor me-2 text-accent" aria-hidden="true"></i>What is it?
             </h2>
             <p class="text-white-50 mb-0">
                 SkyFrame is a simple, fast place for amateur astrophotographers to share their images, add serious metadata,
-                and keep ownership protection baked in from the start. The feature I care most about is image signing:
-                SkyFrame can secure your amateur images with an invisible signature tied to your account and the exact upload
+                and keep ownership protection baked in from the start. SkyFrame can secure your amateur images with an invisible signature tied to your account and the exact upload
                 time, so you can share confidently without slapping ugly watermarks on the frame.
             </p>
         </div>
         <div class="row g-4 align-items-stretch">
             <div class="col-12">
-                <div class="docs-section-header docs-animate" style="--delay: 0.05s;">
+                <div class="docs-section-header docs-animate docs-delay-05">
                     <h2 class="h3 fw-semibold mb-2">
                         <i class="fa-solid fa-download me-2 text-accent" aria-hidden="true"></i>Install SkyFrame
                     </h2>
@@ -85,7 +84,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 docs-animate" style="--delay: 0.1s;">
+            <div class="col-lg-4 docs-animate docs-delay-10">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-brands fa-windows me-2" aria-hidden="true"></i>Windows (Chrome/Edge)
@@ -97,7 +96,7 @@
                         <li>Pin to taskbar for quick access.</li>
                     </ol>
                     <div class="docs-image-stack">
-                        <button class="docs-image-button" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="Windows install prompt for SkyFrame">
+                        <button class="docs-image-button" type="button" data-docs-image data-caption="Windows install prompt for SkyFrame">
                             <img src="{{ url_for('static', filename='docs/Windows-installation.png') }}"
                                  alt="Windows install prompt for SkyFrame"
                                  class="docs-image docs-thumb">
@@ -106,7 +105,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 docs-animate" style="--delay: 0.2s;">
+            <div class="col-lg-4 docs-animate docs-delay-20">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-brands fa-android me-2" aria-hidden="true"></i>Android (Chrome)
@@ -118,7 +117,7 @@
                         <li>Tap Install to confirm.</li>
                     </ol>
                     <div class="docs-image-stack">
-                        <button class="docs-image-button" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="Mobile browser menu showing add to home screen">
+                        <button class="docs-image-button" type="button" data-docs-image data-caption="Mobile browser menu showing add to home screen">
                             <img src="{{ url_for('static', filename='docs/Mobile-Install-1.png') }}"
                                  alt="Mobile browser menu showing add to home screen"
                                  class="docs-image docs-thumb">
@@ -127,7 +126,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 docs-animate" style="--delay: 0.3s;">
+            <div class="col-lg-4 docs-animate docs-delay-30">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-brands fa-apple me-2" aria-hidden="true"></i>iPhone/iPad (Safari)
@@ -139,7 +138,7 @@
                         <li>Tap Add to install.</li>
                     </ol>
                     <div class="docs-image-stack">
-                        <button class="docs-image-button" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="Install prompt shown in mobile browser">
+                        <button class="docs-image-button" type="button" data-docs-image data-caption="Install prompt shown in mobile browser">
                             <img src="{{ url_for('static', filename='docs/Mobile-Install-3.png') }}"
                                  alt="Install prompt shown in mobile browser"
                                  class="docs-image docs-thumb">
@@ -152,7 +151,7 @@
         <div class="docs-divider"></div>
 
         <div class="row g-4 align-items-center">
-            <div class="col-lg-6 docs-animate" style="--delay: 0.1s;">
+            <div class="col-lg-6 docs-animate docs-delay-10">
                 <h3 class="h4 fw-semibold mb-3">Tablet mode tips</h3>
                 <ul class="docs-list">
                     <li>Use landscape for a wider feed view and metadata panel.</li>
@@ -164,7 +163,7 @@
     </div>
 
     <div class="container py-5" id="use">
-        <div class="docs-section-header docs-animate" style="--delay: 0.05s;">
+        <div class="docs-section-header docs-animate docs-delay-05">
             <h2 class="h3 fw-semibold mb-2">
                 <i class="fa-solid fa-compass me-2 text-accent" aria-hidden="true"></i>How to use SkyFrame
             </h2>
@@ -172,7 +171,7 @@
         </div>
 
         <div class="row g-4">
-            <div class="col-lg-4 docs-animate" style="--delay: 0.1s;">
+            <div class="col-lg-4 docs-animate docs-delay-10">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-user-plus me-2" aria-hidden="true"></i>Create an account
@@ -181,14 +180,14 @@
                         Register with an email, username, and password. Your profile will store observatory details and
                         a custom avatar.
                     </p>
-                    <button class="docs-image-button mt-3" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="SkyFrame registration screen">
+                    <button class="docs-image-button mt-3" type="button" data-docs-image data-caption="SkyFrame registration screen">
                         <img src="{{ url_for('static', filename='docs/Windows-register.png') }}"
                              alt="SkyFrame registration screen"
                              class="docs-image docs-thumb">
                     </button>
                 </div>
             </div>
-            <div class="col-lg-4 docs-animate" style="--delay: 0.2s;">
+            <div class="col-lg-4 docs-animate docs-delay-20">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-right-to-bracket me-2" aria-hidden="true"></i>Log in
@@ -196,14 +195,14 @@
                     <p class="text-white-50">
                         Sign in to access your personalized feed, uploads, and saved frames.
                     </p>
-                    <button class="docs-image-button mt-3" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="SkyFrame login screen">
+                    <button class="docs-image-button mt-3" type="button" data-docs-image data-caption="SkyFrame login screen">
                         <img src="{{ url_for('static', filename='docs/Windows-login.png') }}"
                              alt="SkyFrame login screen"
                              class="docs-image docs-thumb">
                     </button>
                 </div>
             </div>
-            <div class="col-lg-4 docs-animate" style="--delay: 0.3s;">
+            <div class="col-lg-4 docs-animate docs-delay-30">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-stream me-2" aria-hidden="true"></i>Explore the feed
@@ -211,7 +210,7 @@
                     <p class="text-white-50">
                         Scroll the feed to view astronomy frames with full metadata and quick actions.
                     </p>
-                    <button class="docs-image-button mt-3" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="SkyFrame feed view">
+                    <button class="docs-image-button mt-3" type="button" data-docs-image data-caption="SkyFrame feed view">
                         <img src="{{ url_for('static', filename='docs/Windows-logedin.png') }}"
                              alt="SkyFrame feed view"
                              class="docs-image docs-thumb">
@@ -221,7 +220,7 @@
         </div>
 
         <div class="row g-4 mt-1">
-            <div class="col-lg-4 docs-animate" style="--delay: 0.15s;">
+            <div class="col-lg-4 docs-animate docs-delay-15">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-magnifying-glass me-2" aria-hidden="true"></i>Search and filter
@@ -235,7 +234,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 docs-animate" style="--delay: 0.25s;">
+            <div class="col-lg-4 docs-animate docs-delay-25">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-upload me-2" aria-hidden="true"></i>Upload frames
@@ -251,7 +250,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-4 docs-animate" style="--delay: 0.35s;">
+            <div class="col-lg-4 docs-animate docs-delay-35">
                 <div class="docs-card h-100">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-pen-to-square me-2" aria-hidden="true"></i>Edit and organize
@@ -270,7 +269,7 @@
     </div>
 
     <div class="container py-5" id="signing">
-        <div class="docs-section-header docs-animate" style="--delay: 0.05s;">
+        <div class="docs-section-header docs-animate docs-delay-05">
             <h2 class="h3 fw-semibold mb-2">
                 <i class="fa-solid fa-shield-halved me-2 text-accent" aria-hidden="true"></i>Image signing and protection
             </h2>
@@ -280,7 +279,7 @@
         </div>
 
         <div class="row g-4 align-items-center">
-            <div class="col-lg-7 docs-animate" style="--delay: 0.1s;">
+            <div class="col-lg-7 docs-animate docs-delay-10">
                 <div class="docs-card">
                     <h3 class="h5 fw-semibold">How SkyFrame signs images</h3>
                     <p class="text-white-50">
@@ -298,7 +297,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-5 docs-animate" style="--delay: 0.2s;">
+            <div class="col-lg-5 docs-animate docs-delay-20">
                 <div class="docs-card">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-lock me-2" aria-hidden="true"></i>Best practices
@@ -314,13 +313,13 @@
     </div>
 
     <div class="container py-5">
-        <div class="docs-section-header docs-animate" style="--delay: 0.05s;">
+        <div class="docs-section-header docs-animate docs-delay-05">
             <h2 class="h3 fw-semibold mb-2">
                 <i class="fa-solid fa-circle-question me-2 text-accent" aria-hidden="true"></i>Quick help
             </h2>
         </div>
         <div class="row g-4">
-            <div class="col-lg-6 docs-animate" style="--delay: 0.1s;">
+            <div class="col-lg-6 docs-animate docs-delay-10">
                 <div class="docs-card">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-bolt me-2" aria-hidden="true"></i>Install prompt missing?
@@ -331,7 +330,7 @@
                     </p>
                 </div>
             </div>
-            <div class="col-lg-6 docs-animate" style="--delay: 0.2s;">
+            <div class="col-lg-6 docs-animate docs-delay-20">
                 <div class="docs-card">
                     <div class="docs-card-header">
                         <i class="fa-solid fa-wifi me-2" aria-hidden="true"></i>Offline access
@@ -363,25 +362,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script nonce="{{ g.csp_nonce }}">
-    document.addEventListener("DOMContentLoaded", () => {
-        const modal = document.getElementById("docsImageModal");
-        if (!modal) return;
-        const modalImg = modal.querySelector("[data-modal-image]");
-        const modalCaption = modal.querySelector("[data-modal-caption]");
-        document.querySelectorAll("[data-docs-image]").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const img = btn.querySelector("img");
-                const src = img ? img.src : "";
-                const caption = btn.dataset.caption || (img ? img.alt : "");
-                if (modalImg && src) {
-                    modalImg.src = src;
-                }
-                if (modalCaption) {
-                    modalCaption.textContent = caption;
-                }
-            });
-        });
-    });
-</script>
+<script src="{{ url_for('static', filename='js/docs_install.js') }}" nonce="{{ g.csp_nonce }}"></script>
 {% endblock %}

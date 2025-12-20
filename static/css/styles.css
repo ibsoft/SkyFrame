@@ -1214,6 +1214,42 @@ select::placeholder {
     max-width: 720px;
     margin-bottom: 2.5rem;
 }
+.docs-animate {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: docs-fade 0.6s ease forwards;
+    animation-delay: var(--delay, 0s);
+}
+.docs-delay-02 {
+    --delay: 0.02s;
+}
+.docs-delay-05 {
+    --delay: 0.05s;
+}
+.docs-delay-10 {
+    --delay: 0.1s;
+}
+.docs-delay-15 {
+    --delay: 0.15s;
+}
+.docs-delay-20 {
+    --delay: 0.2s;
+}
+.docs-delay-25 {
+    --delay: 0.25s;
+}
+.docs-delay-30 {
+    --delay: 0.3s;
+}
+.docs-delay-35 {
+    --delay: 0.35s;
+}
+@keyframes docs-fade {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 .docs-steps {
     list-style: none;
     padding-left: 0;
