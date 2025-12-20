@@ -238,6 +238,54 @@ def feed():
     return jsonify({"images": payload, "next_cursor": next_cursor}), 200
 
 
+@bp.route("/my-feed", methods=["GET"])
+@login_required
+def my_feed():
+    cursor = request.args.get("cursor")
+    per_page = current_app.config["FEED_PAGE_SIZE"]
+    liked_ids = {row.image_id for row in current_user.likes.with_entities(Like.image_id).all()}
+    favorited_ids = {
+        row.image_id for row in current_user.favorites.with_entities(Favorite.image_id).all()
+    }
+    following_ids = {
+        row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
+    }
+
+    cursor_point = None
+    cursor_image_id = None
+    if cursor:
+        try:
+            timestamp, image_id = cursor.split("_")
+            cursor_point = datetime.fromisoformat(timestamp)
+            cursor_image_id = int(image_id)
+        except ValueError:
+            return jsonify({"error": "invalid cursor"}), 400
+
+    query = Image.query.filter_by(user_id=current_user.id)
+    if cursor_point:
+        query = query.filter(
+            (Image.created_at < cursor_point)
+            | ((Image.created_at == cursor_point) & (Image.id < cursor_image_id))
+        )
+
+    ordered = (
+        query.order_by(Image.created_at.desc(), Image.id.desc())
+        .limit(per_page + 1)
+        .all()
+    )
+    images = ordered[:per_page]
+    next_cursor = ""
+    if len(ordered) > per_page and images:
+        cursor_target = images[-1]
+        next_cursor = f"{cursor_target.created_at.isoformat()}_{cursor_target.id}"
+
+    payload = [
+        _serialize_image(image, liked_ids, favorited_ids, following_ids, current_user_id=current_user.id)
+        for image in images
+    ]
+    return jsonify({"images": payload, "next_cursor": next_cursor}), 200
+
+
 @bp.route("/search", methods=["GET"])
 @login_required
 def search():

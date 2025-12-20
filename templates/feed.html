@@ -3,7 +3,7 @@
 {% block title %}Feed – SkyFrame{% endblock %}
 
 {% block content %}
-<section class="feed-shell" data-feed>
+<section class="feed-shell" data-feed data-feed-endpoint="{{ feed_endpoint }}">
     <div id="feed-loading-overlay" class="feed-loading-overlay d-none">
         <div class="feed-spinner-border"></div>
     </div>

@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+
+{% block title %}SkyFrame Docs - Install & Use{% endblock %}
+
+{% block content %}
+<section class="docs-page">
+    <div class="docs-hero">
+        <div class="container py-5">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7 docs-animate" style="--delay: 0.05s;">
+                    <div class="docs-pill mb-3">
+                        <i class="fa-solid fa-satellite-dish me-2" aria-hidden="true"></i>
+                        SkyFrame Docs
+                    </div>
+                    <h1 class="display-5 fw-semibold mb-3">Install SkyFrame on Windows, mobile, and tablet</h1>
+                    <p class="lead text-white-50 mb-4">
+                        A full, visual guide for installing SkyFrame as a fast, app-like experience, plus a complete
+                        walkthrough of everyday use.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a class="btn btn-gradient px-4" href="#install">Install guide</a>
+                        <a class="btn btn-outline-light px-4" href="#use">How to use</a>
+                        <a class="btn btn-outline-light px-4" href="#signing">Image signing</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 docs-animate" style="--delay: 0.15s;">
+                    <div class="docs-hero-aside">
+                        <div class="docs-hero-card">
+                            <div class="docs-hero-card-body">
+                                <div class="docs-hero-icon">
+                                    <i class="fa-solid fa-rocket" aria-hidden="true"></i>
+                                </div>
+                                <h2 class="h5 mb-2">Why install?</h2>
+                                <p class="text-white-50 mb-3">
+                                    Launch SkyFrame with one tap, keep it pinned, and enjoy a focused experience that feels
+                                    like a native app.
+                                </p>
+                                <div class="docs-metrics">
+                                    <div>
+                                        <span class="docs-metric-title">Launch</span>
+                                        <span class="docs-metric-value">Instant</span>
+                                    </div>
+                                    <div>
+                                        <span class="docs-metric-title">Sync</span>
+                                        <span class="docs-metric-value">Multi-device</span>
+                                    </div>
+                                    <div>
+                                        <span class="docs-metric-title">Share</span>
+                                        <span class="docs-metric-value">Secure</span>
+                                    </div>
+                                </div>
+                                <p class="docs-note">
+                                    Works on modern browsers: Chrome, Edge, Safari, and Firefox (limited install support).
+                                </p>
+                            </div>
+                        </div>
+                        <img src="{{ url_for('static', filename='docs/Mobile-logedin.png') }}"
+                             alt="SkyFrame mobile preview"
+                             class="docs-hero-mini">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5" id="install">
+        <div class="docs-section-header docs-animate" style="--delay: 0.02s;">
+            <h2 class="h3 fw-semibold mb-2">
+                <i class="fa-solid fa-meteor me-2 text-accent" aria-hidden="true"></i>What is it?
+            </h2>
+            <p class="text-white-50 mb-0">
+                SkyFrame is a simple, fast place for amateur astrophotographers to share their images, add serious metadata,
+                and keep ownership protection baked in from the start. The feature I care most about is image signing:
+                SkyFrame can secure your amateur images with an invisible signature tied to your account and the exact upload
+                time, so you can share confidently without slapping ugly watermarks on the frame.
+            </p>
+        </div>
+        <div class="row g-4 align-items-stretch">
+            <div class="col-12">
+                <div class="docs-section-header docs-animate" style="--delay: 0.05s;">
+                    <h2 class="h3 fw-semibold mb-2">
+                        <i class="fa-solid fa-download me-2 text-accent" aria-hidden="true"></i>Install SkyFrame
+                    </h2>
+                    <p class="text-white-50 mb-0">Choose your device and follow the steps below.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 docs-animate" style="--delay: 0.1s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-brands fa-windows me-2" aria-hidden="true"></i>Windows (Chrome/Edge)
+                    </div>
+                    <ol class="docs-steps">
+                        <li>Open SkyFrame in Chrome or Edge.</li>
+                        <li>Click the install icon in the address bar.</li>
+                        <li>Confirm by pressing Install.</li>
+                        <li>Pin to taskbar for quick access.</li>
+                    </ol>
+                    <div class="docs-image-stack">
+                        <button class="docs-image-button" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="Windows install prompt for SkyFrame">
+                            <img src="{{ url_for('static', filename='docs/Windows-installation.png') }}"
+                                 alt="Windows install prompt for SkyFrame"
+                                 class="docs-image docs-thumb">
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 docs-animate" style="--delay: 0.2s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-brands fa-android me-2" aria-hidden="true"></i>Android (Chrome)
+                    </div>
+                    <ol class="docs-steps">
+                        <li>Open SkyFrame in Chrome.</li>
+                        <li>Tap the menu (three dots).</li>
+                        <li>Select Add to Home screen.</li>
+                        <li>Tap Install to confirm.</li>
+                    </ol>
+                    <div class="docs-image-stack">
+                        <button class="docs-image-button" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="Mobile browser menu showing add to home screen">
+                            <img src="{{ url_for('static', filename='docs/Mobile-Install-1.png') }}"
+                                 alt="Mobile browser menu showing add to home screen"
+                                 class="docs-image docs-thumb">
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 docs-animate" style="--delay: 0.3s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-brands fa-apple me-2" aria-hidden="true"></i>iPhone/iPad (Safari)
+                    </div>
+                    <ol class="docs-steps">
+                        <li>Open SkyFrame in Safari.</li>
+                        <li>Tap Share (square with arrow).</li>
+                        <li>Select Add to Home Screen.</li>
+                        <li>Tap Add to install.</li>
+                    </ol>
+                    <div class="docs-image-stack">
+                        <button class="docs-image-button" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="Install prompt shown in mobile browser">
+                            <img src="{{ url_for('static', filename='docs/Mobile-Install-3.png') }}"
+                                 alt="Install prompt shown in mobile browser"
+                                 class="docs-image docs-thumb">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="docs-divider"></div>
+
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6 docs-animate" style="--delay: 0.1s;">
+                <h3 class="h4 fw-semibold mb-3">Tablet mode tips</h3>
+                <ul class="docs-list">
+                    <li>Use landscape for a wider feed view and metadata panel.</li>
+                    <li>Pin SkyFrame to your dock for faster launches.</li>
+                    <li>Enable desktop mode only if your device blocks install prompts.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5" id="use">
+        <div class="docs-section-header docs-animate" style="--delay: 0.05s;">
+            <h2 class="h3 fw-semibold mb-2">
+                <i class="fa-solid fa-compass me-2 text-accent" aria-hidden="true"></i>How to use SkyFrame
+            </h2>
+            <p class="text-white-50 mb-0">From signing in to sharing your best frames.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 docs-animate" style="--delay: 0.1s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-user-plus me-2" aria-hidden="true"></i>Create an account
+                    </div>
+                    <p class="text-white-50">
+                        Register with an email, username, and password. Your profile will store observatory details and
+                        a custom avatar.
+                    </p>
+                    <button class="docs-image-button mt-3" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="SkyFrame registration screen">
+                        <img src="{{ url_for('static', filename='docs/Windows-register.png') }}"
+                             alt="SkyFrame registration screen"
+                             class="docs-image docs-thumb">
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4 docs-animate" style="--delay: 0.2s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-right-to-bracket me-2" aria-hidden="true"></i>Log in
+                    </div>
+                    <p class="text-white-50">
+                        Sign in to access your personalized feed, uploads, and saved frames.
+                    </p>
+                    <button class="docs-image-button mt-3" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="SkyFrame login screen">
+                        <img src="{{ url_for('static', filename='docs/Windows-login.png') }}"
+                             alt="SkyFrame login screen"
+                             class="docs-image docs-thumb">
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4 docs-animate" style="--delay: 0.3s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-stream me-2" aria-hidden="true"></i>Explore the feed
+                    </div>
+                    <p class="text-white-50">
+                        Scroll the feed to view astronomy frames with full metadata and quick actions.
+                    </p>
+                    <button class="docs-image-button mt-3" type="button" data-bs-toggle="modal" data-bs-target="#docsImageModal" data-docs-image data-caption="SkyFrame feed view">
+                        <img src="{{ url_for('static', filename='docs/Windows-logedin.png') }}"
+                             alt="SkyFrame feed view"
+                             class="docs-image docs-thumb">
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-lg-4 docs-animate" style="--delay: 0.15s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-magnifying-glass me-2" aria-hidden="true"></i>Search and filter
+                    </div>
+                    <p class="text-white-50">
+                        Filter by category, object, observer, and date range. Use tags in notes for quick lookup.
+                    </p>
+                    <div class="docs-tip">
+                        <i class="fa-solid fa-hashtag me-2" aria-hidden="true"></i>
+                        Add tags like #jupiter or #ircut in notes to make search faster.
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 docs-animate" style="--delay: 0.25s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-upload me-2" aria-hidden="true"></i>Upload frames
+                    </div>
+                    <p class="text-white-50">
+                        Upload a processed image and fill in metadata. SkyFrame applies an invisible watermark to
+                        protect your work.
+                    </p>
+                    <ul class="docs-list">
+                        <li>Category, object, observer</li>
+                        <li>Location, filter, telescope, camera</li>
+                        <li>Seeing, transparency, exposure details</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-4 docs-animate" style="--delay: 0.35s;">
+                <div class="docs-card h-100">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-pen-to-square me-2" aria-hidden="true"></i>Edit and organize
+                    </div>
+                    <p class="text-white-50">
+                        Edit metadata anytime. Save favorite frames and keep a personal archive.
+                    </p>
+                    <ul class="docs-list">
+                        <li>Like, save, comment, and share</li>
+                        <li>Download your images with labels</li>
+                        <li>Export archives from your profile</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5" id="signing">
+        <div class="docs-section-header docs-animate" style="--delay: 0.05s;">
+            <h2 class="h3 fw-semibold mb-2">
+                <i class="fa-solid fa-shield-halved me-2 text-accent" aria-hidden="true"></i>Image signing and protection
+            </h2>
+            <p class="text-white-50 mb-0">
+                Secure amateur images with an invisible signature tied to your account and upload time.
+            </p>
+        </div>
+
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7 docs-animate" style="--delay: 0.1s;">
+                <div class="docs-card">
+                    <h3 class="h5 fw-semibold">How SkyFrame signs images</h3>
+                    <p class="text-white-50">
+                        Every upload receives a unique watermark hash. This invisible signature stays in the file and
+                        helps verify ownership without changing the visible image quality.
+                    </p>
+                    <div class="docs-tip">
+                        <i class="fa-solid fa-fingerprint me-2" aria-hidden="true"></i>
+                        The watermark is logged with your account and timestamp to support provenance checks.
+                    </div>
+                    <ul class="docs-list mt-3">
+                        <li>Protects amateur work from uncredited reuse.</li>
+                        <li>Supports scientific-use permissions you choose.</li>
+                        <li>Share safely with public or private links.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-5 docs-animate" style="--delay: 0.2s;">
+                <div class="docs-card">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-lock me-2" aria-hidden="true"></i>Best practices
+                    </div>
+                    <ul class="docs-list">
+                        <li>Keep originals offline if you plan to publish elsewhere.</li>
+                        <li>Use clear notes and tags for attribution.</li>
+                        <li>Enable scientific-use only when ready to share openly.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="docs-section-header docs-animate" style="--delay: 0.05s;">
+            <h2 class="h3 fw-semibold mb-2">
+                <i class="fa-solid fa-circle-question me-2 text-accent" aria-hidden="true"></i>Quick help
+            </h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6 docs-animate" style="--delay: 0.1s;">
+                <div class="docs-card">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-bolt me-2" aria-hidden="true"></i>Install prompt missing?
+                    </div>
+                    <p class="text-white-50 mb-0">
+                        Make sure you are using HTTPS and a supported browser. On Android, open the menu and choose
+                        Add to Home screen. On Windows, look for the install icon in the address bar.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6 docs-animate" style="--delay: 0.2s;">
+                <div class="docs-card">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-wifi me-2" aria-hidden="true"></i>Offline access
+                    </div>
+                    <p class="text-white-50 mb-0">
+                        SkyFrame uses a service worker to keep the app fast and resilient. Some pages can load with
+                        limited connectivity after first use.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="docsImageModal" tabindex="-1" aria-labelledby="docsImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content docs-modal">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="docsImageModalLabel">SkyFrame Docs</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <img src="" alt="Docs preview" class="img-fluid docs-modal-image" data-modal-image>
+                <p class="text-white-50 small mt-3 mb-0" data-modal-caption></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ g.csp_nonce }}">
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("docsImageModal");
+        if (!modal) return;
+        const modalImg = modal.querySelector("[data-modal-image]");
+        const modalCaption = modal.querySelector("[data-modal-caption]");
+        document.querySelectorAll("[data-docs-image]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const img = btn.querySelector("img");
+                const src = img ? img.src : "";
+                const caption = btn.dataset.caption || (img ? img.alt : "");
+                if (modalImg && src) {
+                    modalImg.src = src;
+                }
+                if (modalCaption) {
+                    modalCaption.textContent = caption;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
