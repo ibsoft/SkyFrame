@@ -266,10 +266,14 @@
                         <i class="fa-solid fa-download"></i>
                         <span>Download</span>
                     </button>
-                    <button class="action-icon action-follow ${image.following_uploader ? "active" : ""}" data-action="follow" data-target-id="${image.uploader_id}">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>${image.following_uploader ? "Following" : "Follow"}</span>
-                    </button>
+                    ${
+                        image.owned_by_current_user
+                            ? ""
+                            : `<button class="action-icon action-follow ${image.following_uploader ? "active" : ""}" data-action="follow" data-target-id="${image.uploader_id}">
+                                   <i class="fa-solid fa-user-plus"></i>
+                                   <span>${image.following_uploader ? "Following" : "Follow"}</span>
+                               </button>`
+                    }
                     <button class="action-icon action-comment" data-action="comment" data-image-id="${image.id}">
                         <i class="fa-solid fa-comment"></i>
                         <span>Comment</span>
