@@ -505,6 +505,24 @@ def list_comments(image_id):
     )
 
 
+@bp.route("/images/<int:image_id>/likes", methods=["GET"])
+@login_required
+def list_likes(image_id):
+    image = Image.query.get_or_404(image_id)
+    likes = (
+        db.session.query(User, Like)
+        .join(Like, Like.user_id == User.id)
+        .filter(Like.image_id == image.id)
+        .order_by(Like.created_at.desc())
+        .all()
+    )
+    payload = [
+        {"id": user.id, "username": user.username, "avatar_url": user.avatar_url}
+        for user, _ in likes
+    ]
+    return jsonify({"likes": payload, "count": len(payload)}), 200
+
+
 @bp.route("/images/<int:image_id>", methods=["PATCH"])
 @login_required
 @limiter.limit("12 per minute")

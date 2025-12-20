@@ -1382,6 +1382,46 @@ select::placeholder {
     border-radius: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+.likes-modal {
+    background: rgba(6, 8, 18, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 1.25rem;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 25px 55px rgba(0, 0, 0, 0.55);
+    color: #fff;
+}
+.likes-list {
+    display: grid;
+    gap: 0.85rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+.likes-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.likes-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.likes-username {
+    font-weight: 600;
+}
+.likes-empty {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.65);
+    padding: 1.25rem 0;
+}
 .docs-tip {
     padding: 0.9rem 1rem;
     border-radius: 0.9rem;
