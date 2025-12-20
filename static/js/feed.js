@@ -7,6 +7,9 @@
     const commentsList = document.getElementById("comments-list");
     const commentsTarget = document.getElementById("comments-target");
     const commentForm = document.getElementById("comment-form");
+    const likesModal = document.getElementById("likesModal");
+    const likesList = likesModal?.querySelector("[data-likes-list]");
+    const likesCount = likesModal?.querySelector("[data-likes-count]");
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
     let cursor = sentinel?.dataset.nextCursor || null;
     let isFetching = false;
@@ -61,6 +64,47 @@
     };
 
     const metadataMedia = window.matchMedia("(min-width: 992px)");
+
+    const openLikesModal = async (imageId) => {
+        if (!likesModal || !likesList) return;
+        likesList.innerHTML = `<div class="likes-empty">Loading likes...</div>`;
+        if (likesCount) {
+            likesCount.textContent = "";
+        }
+        const modalApi = window.bootstrap?.Modal;
+        if (modalApi) {
+            modalApi.getOrCreateInstance(likesModal).show();
+        }
+        try {
+            const resp = await fetch(`/api/images/${imageId}/likes`);
+            if (!resp.ok) {
+                throw new Error("Failed to load likes");
+            }
+            const data = await resp.json();
+            const items = data.likes || [];
+            if (!items.length) {
+                likesList.innerHTML = `<div class="likes-empty">No likes yet.</div>`;
+                return;
+            }
+            if (likesCount) {
+                likesCount.textContent = `${data.count || items.length} likes`;
+            }
+            likesList.innerHTML = items
+                .map(
+                    (user) => `
+                    <div class="likes-item">
+                        <img class="likes-avatar" src="${user.avatar_url}" alt="${escapeHtml(
+                        user.username
+                    )} avatar">
+                        <div class="likes-username">${escapeHtml(user.username)}</div>
+                    </div>
+                `
+                )
+                .join("");
+        } catch (error) {
+            likesList.innerHTML = `<div class="likes-empty">Unable to load likes.</div>`;
+        }
+    };
     const syncMetadataSheet = (sheet) => {
         if (!sheet || sheet.dataset.userToggled === "true") return;
         if (metadataMedia.matches) {
@@ -544,6 +588,10 @@
     document.addEventListener("click", (event) => {
         const actionTarget = event.target.closest("[data-action]");
         if (actionTarget) {
+            if (actionTarget.dataset.longPress === "true") {
+                actionTarget.dataset.longPress = "false";
+                return;
+            }
             const action = actionTarget.dataset.action;
             if (action === "close-comments") {
                 closeComments();
@@ -566,6 +614,41 @@
         animateHeart(card.querySelector(".image-wrap"));
         likeImage(imageId, card);
     });
+
+    if (window.matchMedia("(pointer: coarse)").matches) {
+        let longPressTimer = null;
+        let longPressTarget = null;
+        document.addEventListener("pointerdown", (event) => {
+            const button = event.target.closest('[data-action="like"]');
+            if (!button || event.pointerType !== "touch") return;
+            const imageId = button.dataset.imageId;
+            longPressTarget = button;
+            longPressTimer = window.setTimeout(() => {
+                if (longPressTarget) {
+                    longPressTarget.dataset.longPress = "true";
+                }
+                openLikesModal(imageId);
+            }, 550);
+        });
+
+        const clearLongPress = () => {
+            if (longPressTimer) {
+                window.clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            longPressTarget = null;
+        };
+
+        document.addEventListener("pointerup", clearLongPress);
+        document.addEventListener("pointercancel", clearLongPress);
+        document.addEventListener("pointermove", (event) => {
+            if (event.pointerType !== "touch") return;
+            if (longPressTimer) {
+                window.clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
+    }
 
     commentForm?.addEventListener("submit", async (event) => {
         event.preventDefault();

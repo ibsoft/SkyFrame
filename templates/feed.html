@@ -183,5 +183,22 @@
     </div>
 </div>
 
+<div class="modal fade" id="likesModal" tabindex="-1" aria-labelledby="likesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content likes-modal">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title" id="likesModalLabel">Liked by</h5>
+                    <p class="small text-white-50 mb-0" data-likes-count></p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="likes-list" data-likes-list></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% block scripts %}{% endblock %}
 {% endblock %}
