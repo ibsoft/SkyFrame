@@ -17,6 +17,10 @@
     const objectCounts = parseJson(container.dataset.objectCounts);
     const dailyLabels = parseJson(container.dataset.dailyLabels);
     const dailyCounts = parseJson(container.dataset.dailyCounts);
+    const userObjectLabels = parseJson(container.dataset.userObjectLabels);
+    const userObjectCounts = parseJson(container.dataset.userObjectCounts);
+    const userDailyLabels = parseJson(container.dataset.userDailyLabels);
+    const userDailyCounts = parseJson(container.dataset.userDailyCounts);
 
     const baseOptions = {
         responsive: true,
@@ -48,16 +52,18 @@
         "rgba(147,197,253,0.8)",
     ];
 
-    if (objectLabels.length) {
-        new Chart(document.getElementById("objectsChart"), {
+    const buildPie = (elementId, labels, counts) => {
+        const el = document.getElementById(elementId);
+        if (!el || !labels.length) return;
+        new Chart(el, {
             type: "pie",
             data: {
-                labels: objectLabels,
+                labels,
                 datasets: [
                     {
                         label: "Images",
-                        data: objectCounts,
-                        backgroundColor: pieColors.slice(0, objectCounts.length),
+                        data: counts,
+                        backgroundColor: pieColors.slice(0, counts.length),
                         borderColor: "rgba(2,6,23,1)",
                         borderWidth: 1,
                     },
@@ -65,16 +71,19 @@
             },
             options: baseOptions,
         });
-    }
+    };
 
-    new Chart(document.getElementById("uploadsChart"), {
+    const buildLine = (elementId, labels, counts) => {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        new Chart(el, {
         type: "line",
         data: {
-            labels: dailyLabels,
+            labels,
             datasets: [
                 {
                     label: "Uploads",
-                    data: dailyCounts,
+                    data: counts,
                     borderColor: "rgba(14,165,233,1)",
                     backgroundColor: "rgba(14,165,233,0.2)",
                     fill: true,
@@ -83,5 +92,11 @@
             ],
         },
         options: baseOptions,
-    });
+        });
+    };
+
+    buildPie("objectsChart", objectLabels, objectCounts);
+    buildLine("uploadsChart", dailyLabels, dailyCounts);
+    buildPie("userObjectsChart", userObjectLabels, userObjectCounts);
+    buildLine("userUploadsChart", userDailyLabels, userDailyCounts);
 })();

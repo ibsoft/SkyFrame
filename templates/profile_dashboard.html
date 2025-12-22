@@ -15,13 +15,17 @@
     <div class="row g-3">
         <div class="col-12 col-md-6">
             <div class="card bg-black border-secondary text-light p-4 dashboard-card">
-                <h6 class="text-uppercase text-white-50">Total users</h6>
+                <h6 class="text-uppercase text-white-50">
+                    <i class="fa-solid fa-users me-2" aria-hidden="true"></i>Total users
+                </h6>
                 <div class="display-6">{{ total_users }}</div>
             </div>
         </div>
         <div class="col-12 col-md-6">
             <div class="card bg-black border-secondary text-light p-4 dashboard-card">
-                <h6 class="text-uppercase text-white-50">Total images</h6>
+                <h6 class="text-uppercase text-white-50">
+                    <i class="fa-solid fa-images me-2" aria-hidden="true"></i>Total images
+                </h6>
                 <div class="display-6">{{ total_images }}</div>
             </div>
         </div>
@@ -48,11 +52,36 @@
             </div>
         </div>
     </div>
+    <div class="row g-3 mt-1">
+        <div class="col-12 col-lg-6">
+            <div class="card bg-black border-secondary text-light p-4 dashboard-card">
+                <h6 class="mb-3">Your uploads by object</h6>
+                <div class="chart-box">
+                    <canvas id="userObjectsChart"></canvas>
+                </div>
+                {% if not user_object_labels %}
+                    <p class="text-muted mt-3 mb-0">No uploads yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card bg-black border-secondary text-light p-4 dashboard-card">
+                <h6 class="mb-3">Your uploads (last 30 days)</h6>
+                <div class="chart-box">
+                    <canvas id="userUploadsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="dashboard-data"
          data-object-labels='{{ object_labels|tojson|e }}'
          data-object-counts='{{ object_counts|tojson|e }}'
          data-daily-labels='{{ daily_labels|tojson|e }}'
-         data-daily-counts='{{ daily_counts|tojson|e }}'></div>
+         data-daily-counts='{{ daily_counts|tojson|e }}'
+         data-user-object-labels='{{ user_object_labels|tojson|e }}'
+         data-user-object-counts='{{ user_object_counts|tojson|e }}'
+         data-user-daily-labels='{{ user_daily_labels|tojson|e }}'
+         data-user-daily-counts='{{ user_daily_counts|tojson|e }}'></div>
 </div>
 {% endblock %}
 

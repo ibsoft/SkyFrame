@@ -113,6 +113,13 @@ python scripts/skyframe_admin.py motd expire --id 1
 python scripts/skyframe_admin.py stats
 ```
 
+Notes:
+
+- Run from the repo root. If the import fails, prefix with `PYTHONPATH=.`.
+- `motd add` creates a message; it only shows if it is published.
+- `motd publish` can optionally add `--starts-at` / `--ends-at` windows (ISO 8601).
+- Disabled users cannot log in (see `users disable`).
+
 ## MOTD alerts
 
 Admins can publish message-of-the-day alerts for upcoming celestial events. Logged-in users will see a modal once per message (acknowledged on dismiss). The MOTD system respects `starts_at`/`ends_at` windows and the `MOTD_ENABLED` config flag.
