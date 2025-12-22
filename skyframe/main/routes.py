@@ -544,6 +544,36 @@ def profile_dashboard():
     daily_labels = [day.isoformat() for day in days]
     daily_counts = [day_counts[day] for day in days]
 
+    user_top_objects = (
+        db.session.query(Image.object_name, func.count(Image.id))
+        .filter(Image.user_id == current_user.id)
+        .group_by(Image.object_name)
+        .order_by(func.count(Image.id).desc())
+        .limit(8)
+        .all()
+    )
+    user_object_labels = [name or "Unknown" for name, _count in user_top_objects]
+    user_object_counts = [count for _name, count in user_top_objects]
+
+    user_cutoff = datetime.utcnow() - timedelta(days=30)
+    user_rows = (
+        db.session.query(Image.created_at)
+        .filter(Image.user_id == current_user.id, Image.created_at >= user_cutoff)
+        .all()
+    )
+    user_day_counts = {}
+    user_days = []
+    for offset in range(30, -1, -1):
+        day = (datetime.utcnow() - timedelta(days=offset)).date()
+        user_day_counts[day] = 0
+        user_days.append(day)
+    for (created_at,) in user_rows:
+        day = created_at.date()
+        if day in user_day_counts:
+            user_day_counts[day] += 1
+    user_daily_labels = [day.isoformat() for day in user_days]
+    user_daily_counts = [user_day_counts[day] for day in user_days]
+
     return render_template(
         "profile_dashboard.html",
         total_users=total_users,
@@ -552,6 +582,10 @@ def profile_dashboard():
         object_counts=object_counts,
         daily_labels=daily_labels,
         daily_counts=daily_counts,
+        user_object_labels=user_object_labels,
+        user_object_counts=user_object_counts,
+        user_daily_labels=user_daily_labels,
+        user_daily_counts=user_daily_counts,
     )
 
 
