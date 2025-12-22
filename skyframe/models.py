@@ -154,3 +154,16 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     body = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class FeedSeen(db.Model):
+    __tablename__ = "feed_seen"
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "image_id", name="uq_feed_seen_user_image"),
+        db.Index("ix_feed_seen_user_seen_at", "user_id", "seen_at"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    image_id = db.Column(db.Integer, db.ForeignKey("images.id"), nullable=False)
+    seen_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

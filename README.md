@@ -72,6 +72,33 @@ SkyFrame is a single-service Python Flask MVP that delivers a TikTok-style verti
 - Production config enforces secure cookies, HSTS, CSP, and other headers; development mode relaxes secure cookies for local testing.
 - Adjust `FEED_PAGE_SIZE`, `MAX_CONTENT_LENGTH`, or storage paths directly in `config.py` before deploying.
 
+## Feed tuning (configurable)
+
+SkyFrame's feed prioritizes new images from people a user follows (and images the user already liked), while still mixing in recent uploads from everyone. All tuning is controlled via `skyframe/config.py` (or matching environment variables):
+
+- `FEED_PAGE_SIZE`: Number of images per batch/page.
+- `FEED_FRESH_DAYS`: Only consider images newer than this many days for the main feed pools. Set to `0` to disable.
+- `FEED_PRIORITIZED_PCT`: Percentage of each page reserved for prioritized content (followed/liked). The remainder is filled with global newest images.
+- `FEED_CANDIDATE_MULTIPLIER`: How many candidates to fetch per page for mixing and throttling (higher helps quality at some DB cost).
+- `FEED_MAX_PER_UPLOADER`: Maximum images per uploader per page (set `0` for unlimited).
+- `FEED_MAX_CONSECUTIVE_PER_UPLOADER`: Maximum consecutive images from the same uploader (set `0` for unlimited).
+- `FEED_SEEN_ENABLED`: When `True`, track images the user has already seen so they are not repeated until the pool is exhausted.
+- `FEED_SEEN_RETENTION_DAYS`: Retain seen history for this many days (older records are purged).
+- `FEED_SEEN_MAX_IDS`: Limit the seen history per user to this many recent images.
+
+Feed selection details:
+
+- Prioritized pool = images by followed users OR images the user has liked.
+- Global pool = newest images from everyone (excluding the prioritized pool).
+- The selector blends the two pools based on `FEED_PRIORITIZED_PCT`, applying the per‑uploader caps.
+- If no images match (e.g., very strict rules), the feed falls back to a random batch so the feed never appears empty.
+
+Tuning tips:
+
+- For stronger “following” bias, raise `FEED_PRIORITIZED_PCT` (e.g., 70–80).
+- For more discovery, lower it (e.g., 40–50) or increase `FEED_FRESH_DAYS`.
+- If you want more variety per page, reduce `FEED_MAX_PER_UPLOADER` and keep `FEED_MAX_CONSECUTIVE_PER_UPLOADER` at `1`.
+
 ## Deployment notes
 
 - Use `gunicorn wsgi:app` (or a similar WSGI server) with an HTTPS fronting proxy.

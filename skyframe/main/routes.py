@@ -13,7 +13,6 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
-from sqlalchemy import func, or_
 
 from ..extensions import db, limiter
 from ..forms import CommentForm, ImageEditForm, ProfileForm, SearchForm, UploadForm
@@ -26,6 +25,7 @@ from ..storage import (
     winjupos_label_from_metadata,
 )
 from ..config import Config
+from ..feed import build_feed_selection, persist_seen_for_feed
 import zipfile
 from . import bp
 
@@ -35,17 +35,6 @@ def _load_nonce():
     from secrets import token_urlsafe
 
     request.csp_nonce = token_urlsafe(16)
-
-
-def _prioritized_filter(liked_ids: set[int], following_ids: set[int]):
-    conditions = []
-    if liked_ids:
-        conditions.append(Image.id.in_(liked_ids))
-    if following_ids:
-        conditions.append(Image.user_id.in_(following_ids))
-    if not conditions:
-        return None
-    return or_(*conditions)
 
 
 def _extract_tags(notes: str | None) -> list[str]:
@@ -151,33 +140,23 @@ def feed():
         following_ids = {
             row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
         }
-    prioritized_filter = _prioritized_filter(liked_ids, following_ids)
-    prioritized_images = []
-    if prioritized_filter is not None:
-        prioritized_images = (
-            Image.query.filter(prioritized_filter)
-            .order_by(Image.created_at.desc(), Image.id.desc())
-            .limit(per_page)
-            .all()
-        )
-    random_needed = max(per_page - len(prioritized_images), 0)
-    random_images = []
-    if random_needed > 0:
-        random_query = Image.query
-        if liked_ids:
-            random_query = random_query.filter(~Image.id.in_(liked_ids))
-        if following_ids:
-            random_query = random_query.filter(~Image.user_id.in_(following_ids))
-        random_images = random_query.order_by(func.random()).limit(random_needed).all()
-    images = prioritized_images + random_images
-    next_cursor = "random"
-    if prioritized_images:
-        cursor_target = prioritized_images[-1]
-        next_cursor = f"{cursor_target.created_at.isoformat()}_{cursor_target.id}"
-        if len(prioritized_images) < per_page:
-            next_cursor = "random"
-    elif not images:
-        next_cursor = ""
+    selection = build_feed_selection(
+        liked_ids=liked_ids,
+        following_ids=following_ids,
+        per_page=per_page,
+        cursor=request.args.get("cursor"),
+        fresh_days=current_app.config["FEED_FRESH_DAYS"],
+        prioritized_pct=current_app.config["FEED_PRIORITIZED_PCT"],
+        candidate_multiplier=current_app.config["FEED_CANDIDATE_MULTIPLIER"],
+        max_per_uploader=current_app.config["FEED_MAX_PER_UPLOADER"],
+        max_consecutive=current_app.config["FEED_MAX_CONSECUTIVE_PER_UPLOADER"],
+        seen_enabled=current_app.config["FEED_SEEN_ENABLED"],
+        seen_user_id=getattr(current_user, "id", None),
+        seen_retention_days=current_app.config["FEED_SEEN_RETENTION_DAYS"],
+        seen_max_ids=current_app.config["FEED_SEEN_MAX_IDS"],
+    )
+    images = selection.images
+    next_cursor = selection.next_cursor
     owned_ids: set[int] = set()
     if current_user.is_authenticated:
         owned_ids = {image.id for image in images if image.user_id == current_user.id}
@@ -194,6 +173,11 @@ def feed():
             )
         else:
             img.planetary_data = None
+    persist_seen_for_feed(
+        user_id=getattr(current_user, "id", None),
+        images=images,
+        retention_days=current_app.config["FEED_SEEN_RETENTION_DAYS"],
+    )
     return render_template(
         "feed.html",
         feed_images=images,

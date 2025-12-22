@@ -13,12 +13,13 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
-from sqlalchemy import func, or_
+
 from flask_wtf.csrf import validate_csrf
 from wtforms.validators import ValidationError
 from werkzeug.utils import secure_filename
 
 from ..config import Config
+from ..feed import build_feed_selection, persist_seen_for_feed
 from ..astro import planetary_coordinates
 from ..extensions import db, limiter
 from ..forms import CATEGORY_CHOICES as FORM_CATEGORY_CHOICES
@@ -70,18 +71,6 @@ def _require_json_csrf():
     if not token:
         raise ValidationError("Missing CSRF token")
     validate_csrf(token)
-
-
-def _prioritized_filter(liked_ids: set[int], following_ids: set[int]):
-    conditions = []
-    if liked_ids:
-        conditions.append(Image.id.in_(liked_ids))
-    if following_ids:
-        conditions.append(Image.user_id.in_(following_ids))
-    if not conditions:
-        return None
-    return or_(*conditions)
-
 
 
 def _extract_tags(notes: str | None) -> list[str]:
@@ -169,73 +158,35 @@ def feed():
             row.followed_id for row in current_user.following.with_entities(Follow.followed_id).all()
         }
 
-    cursor_point = None
-    cursor_image_id = None
-    if cursor and cursor != "random":
-        try:
-            timestamp, image_id = cursor.split("_")
-            cursor_point = datetime.fromisoformat(timestamp)
-            cursor_image_id = int(image_id)
-        except ValueError:
-            return jsonify({"error": "invalid cursor"}), 400
-
-    prioritized_filter = _prioritized_filter(liked_ids, following_ids)
-    images: list[Image] = []
-    seen_ids = set()
-    next_cursor = None
-
-    if cursor != "random" and prioritized_filter is not None:
-        query = Image.query.filter(prioritized_filter)
-        if cursor_point:
-            query = query.filter(
-                (Image.created_at < cursor_point)
-                | ((Image.created_at == cursor_point) & (Image.id < cursor_image_id))
-            )
-        ordered = (
-            query.order_by(Image.created_at.desc(), Image.id.desc())
-            .limit(per_page + 1)
-            .all()
-        )
-        prioritized_entries = ordered[:per_page]
-        has_more_prioritized = len(ordered) > per_page
-        for image in prioritized_entries:
-            images.append(image)
-            seen_ids.add(image.id)
-        if prioritized_entries:
-            cursor_target = prioritized_entries[-1]
-            next_cursor = f"{cursor_target.created_at.isoformat()}_{cursor_target.id}"
-            if not has_more_prioritized:
-                next_cursor = "random"
-        else:
-            next_cursor = "random"
-
-    remaining = per_page - len(images)
-    if remaining > 0:
-        random_query = Image.query
-        if liked_ids:
-            random_query = random_query.filter(~Image.id.in_(liked_ids))
-        if following_ids:
-            random_query = random_query.filter(~Image.user_id.in_(following_ids))
-        if seen_ids:
-            random_query = random_query.filter(~Image.id.in_(seen_ids))
-        random_entries = random_query.order_by(func.random()).limit(remaining).all()
-        for image in random_entries:
-            images.append(image)
-            seen_ids.add(image.id)
-        if not next_cursor:
-            next_cursor = "random"
-
-    if not images:
-        next_cursor = ""
+    selection = build_feed_selection(
+        liked_ids=liked_ids,
+        following_ids=following_ids,
+        per_page=per_page,
+        cursor=cursor,
+        fresh_days=current_app.config["FEED_FRESH_DAYS"],
+        prioritized_pct=current_app.config["FEED_PRIORITIZED_PCT"],
+        candidate_multiplier=current_app.config["FEED_CANDIDATE_MULTIPLIER"],
+        max_per_uploader=current_app.config["FEED_MAX_PER_UPLOADER"],
+        max_consecutive=current_app.config["FEED_MAX_CONSECUTIVE_PER_UPLOADER"],
+        seen_enabled=current_app.config["FEED_SEEN_ENABLED"],
+        seen_user_id=getattr(current_user, "id", None),
+        seen_retention_days=current_app.config["FEED_SEEN_RETENTION_DAYS"],
+        seen_max_ids=current_app.config["FEED_SEEN_MAX_IDS"],
+    )
 
     current_user_id = getattr(current_user, "id", None)
     payload = [
         _serialize_image(
             image, liked_ids, favorited_ids, following_ids, current_user_id=current_user_id
         )
-        for image in images
+        for image in selection.images
     ]
-    return jsonify({"images": payload, "next_cursor": next_cursor}), 200
+    persist_seen_for_feed(
+        user_id=current_user_id,
+        images=selection.images,
+        retention_days=current_app.config["FEED_SEEN_RETENTION_DAYS"],
+    )
+    return jsonify({"images": payload, "next_cursor": selection.next_cursor}), 200
 
 
 @bp.route("/my-feed", methods=["GET"])
