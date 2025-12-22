@@ -1062,10 +1062,9 @@ body.controls-hidden .action-column {
 }
 
 .comments-sheet textarea,
-.comments-sheet button,
-.comments-sheet .form-control,
-.comments-sheet .btn {
-    color: #fff;
+.comments-sheet .form-control {
+    color: #111;
+    background: #fff;
 }
 
 .comment-row:last-child {

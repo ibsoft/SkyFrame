@@ -34,6 +34,16 @@ class Config:
     THUMB_SIZE = (640, 640)
     AVATAR_SIZE = (400, 400)
     FEED_PAGE_SIZE = 50
+    FEED_FRESH_DAYS = int(os.getenv("FEED_FRESH_DAYS", "7"))
+    FEED_PRIORITIZED_PCT = int(os.getenv("FEED_PRIORITIZED_PCT", "60"))
+    FEED_SEEN_ENABLED = os.getenv("FEED_SEEN_ENABLED", "True").lower() in ("1", "true", "yes")
+    FEED_SEEN_RETENTION_DAYS = int(os.getenv("FEED_SEEN_RETENTION_DAYS", "30"))
+    FEED_SEEN_MAX_IDS = int(os.getenv("FEED_SEEN_MAX_IDS", "5000"))
+    FEED_CANDIDATE_MULTIPLIER = int(os.getenv("FEED_CANDIDATE_MULTIPLIER", "3"))
+    FEED_MAX_PER_UPLOADER = int(os.getenv("FEED_MAX_PER_UPLOADER", "3"))
+    FEED_MAX_CONSECUTIVE_PER_UPLOADER = int(
+        os.getenv("FEED_MAX_CONSECUTIVE_PER_UPLOADER", "1")
+    )
     PREFERRED_URL_SCHEME = "https"
     CACHE_TYPE = "simple"
     REPORT_EMAIL = None
@@ -45,7 +55,7 @@ class Config:
     CSP_CONNECT_SRC = "'self' https://cdn.jsdelivr.net"
     SHARE_PATH = PROJECT_ROOT / "instance" / "shares"
     ARCHIVE_SUBDIR = "archives"
-    APP_VERSION = os.getenv("APP_VERSION", "v_4.2.7")
+    APP_VERSION = os.getenv("APP_VERSION", "v_4.2.9")
     WATERMARK_OPACITY = int(os.getenv("WATERMARK_OPACITY", "12"))
     WATERMARK_PADDING = int(os.getenv("WATERMARK_PADDING", "12"))
     LOG_DIR = PROJECT_ROOT / "logs"

@@ -197,10 +197,18 @@
             const resp = await fetch(`${feedEndpoint}?${params.toString()}`);
             const data = await resp.json();
             if (data.images?.length && feedContainer) {
+                let lastImageId = feedContainer.lastElementChild?.dataset.imageId || null;
+                const seenBatch = new Set();
                 data.images.forEach((entry) => {
+                    const entryId = String(entry.id);
+                    if (entryId === lastImageId || seenBatch.has(entryId)) {
+                        return;
+                    }
                     const card = buildCard(entry);
                     feedContainer.appendChild(card);
                     syncMetadataSheets(card);
+                    lastImageId = entryId;
+                    seenBatch.add(entryId);
                 });
             }
             cursor = data.next_cursor;
