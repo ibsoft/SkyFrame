@@ -814,7 +814,7 @@ body.controls-hidden .action-column {
 }
 
 .shared-page {
-    min-height: calc(100vh - 112px);
+    min-height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -844,6 +844,32 @@ body.controls-hidden .action-column {
 
 .shared-metadata {
     text-align: center;
+}
+
+@media (min-width: 992px) {
+    .shared-page {
+        align-items: flex-start;
+        padding: 2rem 2rem 4.5rem;
+    }
+
+    .shared-card {
+        max-width: 1100px;
+        text-align: left;
+    }
+
+    .shared-metadata {
+        text-align: left;
+    }
+
+    .shared-image {
+        max-height: 45vh;
+        object-fit: contain;
+    }
+
+    .shared-image-wrapper {
+        background: transparent;
+        padding: 0;
+    }
 }
 
 .signature-banner {
