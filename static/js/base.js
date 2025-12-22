@@ -48,5 +48,26 @@
             }
             toast.show();
         });
+
+        const motdModal = document.getElementById("motd-modal");
+        if (motdModal) {
+            const motdId = motdModal.dataset.motdId;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+            const modal = new bootstrap.Modal(motdModal);
+            let acked = false;
+            motdModal.addEventListener("hidden.bs.modal", () => {
+                if (acked || !motdId || !csrfToken) return;
+                acked = true;
+                fetch("/api/motd/ack", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken,
+                    },
+                    body: JSON.stringify({ motd_id: Number(motdId) }),
+                }).catch(() => {});
+            });
+            modal.show();
+        }
     });
 })();

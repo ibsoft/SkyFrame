@@ -32,6 +32,7 @@
                     <i class="fa-brands fa-paypal me-1" aria-hidden="true"></i>Donate
                 </a>
                 <a href="{{ url_for('main.saved') }}" class="btn btn-outline-light btn-sm w-100 mt-3">View saved frames</a>
+                <a href="{{ url_for('main.profile_dashboard') }}" class="btn btn-outline-light btn-sm w-100 mt-2">View dashboard</a>
                 <a href="{{ url_for('main.profile_archives') }}" class="btn btn-outline-light btn-sm w-100 mt-2">Download my uploads</a>
                 <form method="post" action="{{ url_for('main.reset_avatar') }}" class="mt-2">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

@@ -23,7 +23,7 @@ from ..feed import build_feed_selection, persist_seen_for_feed
 from ..astro import planetary_coordinates
 from ..extensions import db, limiter
 from ..forms import CATEGORY_CHOICES as FORM_CATEGORY_CHOICES
-from ..models import Comment, Favorite, Follow, Image, Like, User
+from ..models import Comment, Favorite, Follow, Image, Like, Motd, MotdSeen, User
 from ..share_storage import create_share_token
 from ..storage import winjupos_label_from_metadata
 from . import bp
@@ -140,6 +140,24 @@ def share_image(image_id):
     token = create_share_token(image)
     share_url = url_for("main.shared_image", token=token, _external=True)
     return jsonify({"share_url": share_url})
+
+
+@bp.route("/motd/ack", methods=["POST"])
+@login_required
+@json_csrf_protected
+def motd_ack():
+    data = request.get_json(silent=True) or {}
+    motd_id = data.get("motd_id")
+    if not motd_id:
+        return jsonify({"error": "missing motd id"}), 400
+    motd = Motd.query.get(motd_id)
+    if not motd:
+        return jsonify({"error": "motd not found"}), 404
+    existing = MotdSeen.query.filter_by(user_id=current_user.id, motd_id=motd.id).first()
+    if not existing:
+        db.session.add(MotdSeen(user_id=current_user.id, motd_id=motd.id))
+        db.session.commit()
+    return jsonify({"ok": True})
 
 
 @bp.route("/feed", methods=["GET"])

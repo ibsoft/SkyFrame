@@ -44,6 +44,7 @@ class Config:
     FEED_MAX_CONSECUTIVE_PER_UPLOADER = int(
         os.getenv("FEED_MAX_CONSECUTIVE_PER_UPLOADER", "1")
     )
+    MOTD_ENABLED = os.getenv("MOTD_ENABLED", "True").lower() in ("1", "true", "yes")
     PREFERRED_URL_SCHEME = "https"
     CACHE_TYPE = "simple"
     REPORT_EMAIL = None

@@ -99,6 +99,24 @@ Tuning tips:
 - For more discovery, lower it (e.g., 40–50) or increase `FEED_FRESH_DAYS`.
 - If you want more variety per page, reduce `FEED_MAX_PER_UPLOADER` and keep `FEED_MAX_CONSECUTIVE_PER_UPLOADER` at `1`.
 
+## Admin CLI
+
+Use the admin CLI from the repo root:
+
+```bash
+python scripts/skyframe_admin.py users list
+python scripts/skyframe_admin.py users create --email user@example.com --username user --password 'secret'
+python scripts/skyframe_admin.py users disable --username user
+python scripts/skyframe_admin.py motd add --title "Lunar Watch" --body "Peak viewing on Friday." --publish
+python scripts/skyframe_admin.py motd publish --id 1 --starts-at 2025-01-12T18:00:00
+python scripts/skyframe_admin.py motd expire --id 1
+python scripts/skyframe_admin.py stats
+```
+
+## MOTD alerts
+
+Admins can publish message-of-the-day alerts for upcoming celestial events. Logged-in users will see a modal once per message (acknowledged on dismiss). The MOTD system respects `starts_at`/`ends_at` windows and the `MOTD_ENABLED` config flag.
+
 ## Deployment notes
 
 - Use `gunicorn wsgi:app` (or a similar WSGI server) with an HTTPS fronting proxy.
