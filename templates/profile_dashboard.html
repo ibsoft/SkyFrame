@@ -48,73 +48,15 @@
             </div>
         </div>
     </div>
+    <div id="dashboard-data"
+         data-object-labels='{{ object_labels|tojson|e }}'
+         data-object-counts='{{ object_counts|tojson|e }}'
+         data-daily-labels='{{ daily_labels|tojson|e }}'
+         data-daily-counts='{{ daily_counts|tojson|e }}'></div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous" nonce="{{ g.csp_nonce }}"></script>
-<script nonce="{{ g.csp_nonce }}">
-    const objectLabels = {{ object_labels|tojson }};
-    const objectCounts = {{ object_counts|tojson }};
-    const dailyLabels = {{ daily_labels|tojson }};
-    const dailyCounts = {{ daily_counts|tojson }};
-
-    const baseOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { labels: { color: "#ffffff" } },
-            tooltip: {
-                titleColor: "#ffffff",
-                bodyColor: "#ffffff",
-                backgroundColor: "rgba(15, 23, 42, 0.9)",
-                borderColor: "rgba(148, 163, 184, 0.4)",
-                borderWidth: 1,
-            },
-        },
-    };
-    const pieColors = [
-        "rgba(59,130,246,0.8)",
-        "rgba(14,165,233,0.8)",
-        "rgba(56,189,248,0.8)",
-        "rgba(34,211,238,0.8)",
-        "rgba(125,211,252,0.8)",
-        "rgba(30,64,175,0.8)",
-        "rgba(37,99,235,0.8)",
-        "rgba(147,197,253,0.8)",
-    ];
-
-    if (objectLabels.length) {
-        new Chart(document.getElementById("objectsChart"), {
-            type: "pie",
-            data: {
-                labels: objectLabels,
-                datasets: [{
-                    label: "Images",
-                    data: objectCounts,
-                    backgroundColor: pieColors.slice(0, objectCounts.length),
-                    borderColor: "rgba(2,6,23,1)",
-                    borderWidth: 1,
-                }],
-            },
-            options: baseOptions,
-        });
-    }
-
-    new Chart(document.getElementById("uploadsChart"), {
-        type: "line",
-        data: {
-            labels: dailyLabels,
-            datasets: [{
-                label: "Uploads",
-                data: dailyCounts,
-                borderColor: "rgba(14,165,233,1)",
-                backgroundColor: "rgba(14,165,233,0.2)",
-                fill: true,
-                tension: 0.3,
-            }],
-        },
-        options: baseOptions,
-    });
-</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}" nonce="{{ g.csp_nonce }}"></script>
 {% endblock %}
