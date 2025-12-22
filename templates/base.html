@@ -52,6 +52,24 @@
             </div>
             {% block content %}{% endblock %}
         </main>
+        {% if motd %}
+            <div class="modal fade" id="motd-modal" tabindex="-1" aria-hidden="true" data-motd-id="{{ motd.id }}">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content bg-black text-white border-secondary">
+                        <div class="modal-header border-secondary">
+                            <h5 class="modal-title">{{ motd.title }}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {{ motd.body | e | replace('\n', '<br>') | safe }}
+                        </div>
+                        <div class="modal-footer border-secondary">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <nav class="bottom-nav border-top border-secondary">
             <a href="{{ url_for('main.feed') }}" class="bottom-nav-link nav-label" title="Browse feeds for free or log in for more">
                 <i class="fas fa-stream me-1" aria-hidden="true"></i>Feed

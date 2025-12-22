@@ -44,6 +44,7 @@ class Config:
     FEED_MAX_CONSECUTIVE_PER_UPLOADER = int(
         os.getenv("FEED_MAX_CONSECUTIVE_PER_UPLOADER", "1")
     )
+    MOTD_ENABLED = os.getenv("MOTD_ENABLED", "True").lower() in ("1", "true", "yes")
     PREFERRED_URL_SCHEME = "https"
     CACHE_TYPE = "simple"
     REPORT_EMAIL = None
@@ -55,7 +56,7 @@ class Config:
     CSP_CONNECT_SRC = "'self' https://cdn.jsdelivr.net"
     SHARE_PATH = PROJECT_ROOT / "instance" / "shares"
     ARCHIVE_SUBDIR = "archives"
-    APP_VERSION = os.getenv("APP_VERSION", "v_4.2.9")
+    APP_VERSION = os.getenv("APP_VERSION", "v_5.2.1")
     WATERMARK_OPACITY = int(os.getenv("WATERMARK_OPACITY", "12"))
     WATERMARK_PADDING = int(os.getenv("WATERMARK_PADDING", "12"))
     LOG_DIR = PROJECT_ROOT / "logs"

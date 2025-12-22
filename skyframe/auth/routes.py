@@ -47,6 +47,9 @@ def login():
             if form.username.data
             else None
         )
+        if user and not user.active:
+            flash("This account is disabled. Please contact support.", "danger")
+            return render_template("auth/login.html", form=form)
         if user and user.check_password(form.password.data):
             login_user(user)
             current_app.logger.info("User logged in: %s", user.username)

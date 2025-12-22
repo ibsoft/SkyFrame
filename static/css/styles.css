@@ -1076,6 +1076,16 @@ body.controls-hidden .action-column {
     color: #fff;
 }
 
+.chart-box {
+    height: 260px;
+}
+
+@media (min-width: 992px) {
+    .dashboard-card {
+        height: 100%;
+    }
+}
+
 .profile-avatar {
     width: 140px;
     height: 140px;

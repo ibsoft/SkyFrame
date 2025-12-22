@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import (
@@ -13,10 +13,11 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from sqlalchemy import func
 
 from ..extensions import db, limiter
 from ..forms import CommentForm, ImageEditForm, ProfileForm, SearchForm, UploadForm
-from ..models import Favorite, Follow, Image, Like, User
+from ..models import Favorite, Follow, Image, Like, Motd, MotdSeen, User
 from ..share_storage import read_share_token
 from ..astro import planetary_coordinates
 from ..storage import (
@@ -45,6 +46,37 @@ def _extract_tags(notes: str | None) -> list[str]:
 
 
 ARCHIVE_MAX_BYTES = 100 * 1024 * 1024
+
+
+def _active_motd_for_user(user_id: int | None):
+    if not user_id:
+        return None
+    now = datetime.utcnow()
+    query = (
+        Motd.query.filter(Motd.published.is_(True))
+        .filter((Motd.starts_at.is_(None)) | (Motd.starts_at <= now))
+        .filter((Motd.ends_at.is_(None)) | (Motd.ends_at >= now))
+        .outerjoin(MotdSeen, (MotdSeen.motd_id == Motd.id) & (MotdSeen.user_id == user_id))
+        .filter(MotdSeen.id.is_(None))
+        .order_by(Motd.created_at.desc())
+    )
+    return query.first()
+
+
+@bp.app_context_processor
+def inject_motd():
+    if not current_app.config.get("MOTD_ENABLED", True):
+        return {}
+    motd = _active_motd_for_user(getattr(current_user, "id", None))
+    if not motd:
+        return {}
+    return {
+        "motd": {
+            "id": motd.id,
+            "title": motd.title,
+            "body": motd.body,
+        }
+    }
 
 
 def _archive_root_dir(user: User) -> Path:
@@ -479,6 +511,47 @@ def profile():
         profile_user=current_user,
         form=form,
         app_version=current_app.config.get("APP_VERSION"),
+    )
+
+
+@bp.route("/profile/dashboard")
+@login_required
+def profile_dashboard():
+    total_users = db.session.query(func.count(User.id)).scalar() or 0
+    total_images = db.session.query(func.count(Image.id)).scalar() or 0
+    top_objects = (
+        db.session.query(Image.object_name, func.count(Image.id))
+        .group_by(Image.object_name)
+        .order_by(func.count(Image.id).desc())
+        .limit(8)
+        .all()
+    )
+    object_labels = [name or "Unknown" for name, _count in top_objects]
+    object_counts = [count for _name, count in top_objects]
+
+    cutoff = datetime.utcnow() - timedelta(days=7)
+    rows = db.session.query(Image.created_at).filter(Image.created_at >= cutoff).all()
+    day_counts = {}
+    days = []
+    for offset in range(6, -1, -1):
+        day = (datetime.utcnow() - timedelta(days=offset)).date()
+        day_counts[day] = 0
+        days.append(day)
+    for (created_at,) in rows:
+        day = created_at.date()
+        if day in day_counts:
+            day_counts[day] += 1
+    daily_labels = [day.isoformat() for day in days]
+    daily_counts = [day_counts[day] for day in days]
+
+    return render_template(
+        "profile_dashboard.html",
+        total_users=total_users,
+        total_images=total_images,
+        object_labels=object_labels,
+        object_counts=object_counts,
+        daily_labels=daily_labels,
+        daily_counts=daily_counts,
     )
 
 

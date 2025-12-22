@@ -25,6 +25,7 @@ class User(UserMixin, db.Model):
     observatory_location = db.Column(db.String(128))
     observatory_latitude = db.Column(db.Float)
     observatory_longitude = db.Column(db.Float)
+    active = db.Column(db.Boolean, default=True, nullable=False)
 
     uploads = db.relationship("Image", backref="uploader", lazy="dynamic")
     likes = db.relationship("Like", backref="user", lazy="dynamic")
@@ -54,6 +55,10 @@ class User(UserMixin, db.Model):
             return ph.verify(self.password_hash, password)
         except Exception:
             return False
+
+    @property
+    def is_active(self) -> bool:
+        return self.active
 
     def likes_count(self):
         return self.likes.count()
@@ -154,6 +159,35 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     body = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class Motd(db.Model):
+    __tablename__ = "motd"
+    __table_args__ = (
+        db.Index("ix_motd_published", "published"),
+        db.Index("ix_motd_window", "starts_at", "ends_at"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(140), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    published = db.Column(db.Boolean, default=False, nullable=False)
+    starts_at = db.Column(db.DateTime, nullable=True)
+    ends_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class MotdSeen(db.Model):
+    __tablename__ = "motd_seen"
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "motd_id", name="uq_motd_seen_user"),
+        db.Index("ix_motd_seen_user", "user_id", "seen_at"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    motd_id = db.Column(db.Integer, db.ForeignKey("motd.id"), nullable=False)
+    seen_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
 class FeedSeen(db.Model):

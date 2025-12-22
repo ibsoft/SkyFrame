@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard – SkyFrame{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="mb-1 text-white">SkyFrame dashboard</h3>
+            <p class="text-white-50 mb-0">Live stats from your community.</p>
+        </div>
+        <a href="{{ url_for('main.profile') }}" class="btn btn-outline-light btn-sm">Back to profile</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <div class="card bg-black border-secondary text-light p-4 dashboard-card">
+                <h6 class="text-uppercase text-white-50">Total users</h6>
+                <div class="display-6">{{ total_users }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card bg-black border-secondary text-light p-4 dashboard-card">
+                <h6 class="text-uppercase text-white-50">Total images</h6>
+                <div class="display-6">{{ total_images }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-12 col-lg-6">
+            <div class="card bg-black border-secondary text-light p-4 dashboard-card">
+                <h6 class="mb-3">Top objects</h6>
+                <div class="chart-box">
+                    <canvas id="objectsChart"></canvas>
+                </div>
+                {% if not object_labels %}
+                    <p class="text-muted mt-3 mb-0">No data yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card bg-black border-secondary text-light p-4 dashboard-card">
+                <h6 class="mb-3">Uploads (last 7 days)</h6>
+                <div class="chart-box">
+                    <canvas id="uploadsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous" nonce="{{ g.csp_nonce }}"></script>
+<script nonce="{{ g.csp_nonce }}">
+    const objectLabels = {{ object_labels|tojson }};
+    const objectCounts = {{ object_counts|tojson }};
+    const dailyLabels = {{ daily_labels|tojson }};
+    const dailyCounts = {{ daily_counts|tojson }};
+
+    const baseOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: "#ffffff" } },
+            tooltip: {
+                titleColor: "#ffffff",
+                bodyColor: "#ffffff",
+                backgroundColor: "rgba(15, 23, 42, 0.9)",
+                borderColor: "rgba(148, 163, 184, 0.4)",
+                borderWidth: 1,
+            },
+        },
+    };
+    const pieColors = [
+        "rgba(59,130,246,0.8)",
+        "rgba(14,165,233,0.8)",
+        "rgba(56,189,248,0.8)",
+        "rgba(34,211,238,0.8)",
+        "rgba(125,211,252,0.8)",
+        "rgba(30,64,175,0.8)",
+        "rgba(37,99,235,0.8)",
+        "rgba(147,197,253,0.8)",
+    ];
+
+    if (objectLabels.length) {
+        new Chart(document.getElementById("objectsChart"), {
+            type: "pie",
+            data: {
+                labels: objectLabels,
+                datasets: [{
+                    label: "Images",
+                    data: objectCounts,
+                    backgroundColor: pieColors.slice(0, objectCounts.length),
+                    borderColor: "rgba(2,6,23,1)",
+                    borderWidth: 1,
+                }],
+            },
+            options: baseOptions,
+        });
+    }
+
+    new Chart(document.getElementById("uploadsChart"), {
+        type: "line",
+        data: {
+            labels: dailyLabels,
+            datasets: [{
+                label: "Uploads",
+                data: dailyCounts,
+                borderColor: "rgba(14,165,233,1)",
+                backgroundColor: "rgba(14,165,233,0.2)",
+                fill: true,
+                tension: 0.3,
+            }],
+        },
+        options: baseOptions,
+    });
+</script>
+{% endblock %}
