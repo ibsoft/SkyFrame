@@ -269,33 +269,26 @@ def build_feed_selection(
 
     prioritized_ids = {img.id for img in prioritized_candidates}
 
-    global_query = Image.query
-    if cutoff:
-        global_query = global_query.filter(Image.created_at >= cutoff)
+    random_query = Image.query
     if seen_ids:
-        global_query = global_query.filter(~Image.id.in_(seen_ids))
+        random_query = random_query.filter(~Image.id.in_(seen_ids))
     if prioritized_ids:
-        global_query = global_query.filter(~Image.id.in_(prioritized_ids))
-    if not use_seen:
-        global_query = _apply_cursor(global_query, cursor_state.global_new)
-    global_candidates = (
-        global_query.order_by(Image.created_at.desc(), Image.id.desc())
+        random_query = random_query.filter(~Image.id.in_(prioritized_ids))
+    random_candidates = (
+        random_query.order_by(func.random())
         .limit(candidate_limit)
         .all()
     )
-
-    if not use_seen and prioritized_filter is not None:
-        prioritized_target = per_page
     images, last_prioritized, last_global = _blend_feed(
         prioritized_candidates,
-        global_candidates,
+        random_candidates,
         per_page,
         prioritized_target,
         max_per_uploader,
         max_consecutive,
     )
 
-    has_more = len(prioritized_candidates) + len(global_candidates) > len(images)
+    has_more = len(prioritized_candidates) + len(random_candidates) > len(images)
     if use_seen:
         next_cursor = "seen" if has_more else ""
     else:
@@ -304,9 +297,7 @@ def build_feed_selection(
             if last_prioritized and prioritized_filter is not None
             else cursor_state.prioritized
         )
-        global_cursor = (
-            f"{last_global.created_at.isoformat()}_{last_global.id}" if last_global else cursor_state.global_new
-        )
+        global_cursor = "random" if random_candidates else cursor_state.global_new
         next_cursor = format_feed_cursor(prioritized_cursor, global_cursor)
         if not images:
             next_cursor = ""
