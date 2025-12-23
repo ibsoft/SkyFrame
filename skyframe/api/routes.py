@@ -16,6 +16,7 @@ from flask_login import current_user, login_required
 
 from flask_wtf.csrf import validate_csrf
 from wtforms.validators import ValidationError
+from sqlalchemy import func
 from werkzeug.utils import secure_filename
 
 from ..config import Config
@@ -303,6 +304,121 @@ def verify_file():
             "allow_scientific_use": image.allow_scientific_use,
         }
     )
+
+
+@bp.route("/notifications", methods=["GET"])
+@login_required
+def notifications():
+    last_read = current_user.notifications_last_read_at or datetime.fromtimestamp(0)
+    like_total = (
+        db.session.query(func.count(Like.user_id))
+        .join(Image, Like.image_id == Image.id)
+        .filter(Image.user_id == current_user.id)
+        .scalar()
+        or 0
+    )
+    comment_total = (
+        db.session.query(func.count(Comment.id))
+        .join(Image, Comment.image_id == Image.id)
+        .filter(Image.user_id == current_user.id)
+        .scalar()
+        or 0
+    )
+    like_unread = (
+        db.session.query(func.count(Like.user_id))
+        .join(Image, Like.image_id == Image.id)
+        .filter(Image.user_id == current_user.id, Like.created_at > last_read)
+        .scalar()
+        or 0
+    )
+    comment_unread = (
+        db.session.query(func.count(Comment.id))
+        .join(Image, Comment.image_id == Image.id)
+        .filter(Image.user_id == current_user.id, Comment.created_at > last_read)
+        .scalar()
+        or 0
+    )
+    likes = (
+        db.session.query(Like, Image, User)
+        .join(Image, Like.image_id == Image.id)
+        .join(User, Like.user_id == User.id)
+        .filter(Image.user_id == current_user.id, Like.created_at > last_read)
+        .order_by(Like.created_at.desc())
+        .limit(20)
+        .all()
+    )
+    comments = (
+        db.session.query(Comment, Image, User)
+        .join(Image, Comment.image_id == Image.id)
+        .join(User, Comment.user_id == User.id)
+        .filter(Image.user_id == current_user.id, Comment.created_at > last_read)
+        .order_by(Comment.created_at.desc())
+        .limit(20)
+        .all()
+    )
+    likes_payload = [
+        {
+            "image_id": image.id,
+            "image_name": image.object_name,
+            "thumb_url": url_for("api.download_image", image_id=image.id, thumb=1),
+            "actor": user.username,
+            "actor_avatar": user.avatar_url,
+            "created_at": like.created_at.isoformat(),
+            "link": url_for("main.feed", focus_image=image.id),
+        }
+        for like, image, user in likes
+    ]
+    comments_payload = [
+        {
+            "image_id": image.id,
+            "image_name": image.object_name,
+            "thumb_url": url_for("api.download_image", image_id=image.id, thumb=1),
+            "actor": user.username,
+            "actor_avatar": user.avatar_url,
+            "body": comment.body,
+            "created_at": comment.created_at.isoformat(),
+            "link": url_for("main.feed", open_comment=image.id, focus_image=image.id),
+        }
+        for comment, image, user in comments
+    ]
+    return jsonify(
+        {
+            "like_total": like_total,
+            "comment_total": comment_total,
+            "like_unread": like_unread,
+            "comment_unread": comment_unread,
+            "likes": likes_payload,
+            "comments": comments_payload,
+        }
+    )
+
+
+@bp.route("/notifications/read", methods=["POST"])
+@login_required
+@json_csrf_protected
+def notifications_read():
+    current_user.notifications_last_read_at = datetime.utcnow()
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.route("/notifications/read-item", methods=["POST"])
+@login_required
+@json_csrf_protected
+def notifications_read_item():
+    data = request.get_json(silent=True) or {}
+    read_at = data.get("read_at")
+    if not read_at:
+        return jsonify({"error": "missing read_at"}), 400
+    try:
+        parsed = datetime.fromisoformat(read_at)
+    except ValueError:
+        return jsonify({"error": "invalid read_at"}), 400
+    current = current_user.notifications_last_read_at
+    if not current or parsed > current:
+        current_user.notifications_last_read_at = parsed
+        db.session.commit()
+    return jsonify({"ok": True})
 
 
 @bp.route("/motd/ack", methods=["POST"])

@@ -25,6 +25,7 @@ class User(UserMixin, db.Model):
     observatory_location = db.Column(db.String(128))
     observatory_latitude = db.Column(db.Float)
     observatory_longitude = db.Column(db.Float)
+    notifications_last_read_at = db.Column(db.DateTime, nullable=True)
     active = db.Column(db.Boolean, default=True, nullable=False)
 
     uploads = db.relationship("Image", backref="uploader", lazy="dynamic")

@@ -553,6 +553,20 @@ def edit_image(image_id):
     )
 
 
+@bp.route("/images/<int:image_id>")
+@login_required
+def view_image(image_id):
+    image = Image.query.get_or_404(image_id)
+    if image.user_id != current_user.id:
+        flash("You can only view your own uploads here.", "danger")
+        return redirect(url_for("main.feed"))
+    image.download_name = f"{winjupos_label_from_metadata(image.object_name, image.observed_at, image.filter, image.uploader.username)}.jpg"
+    return render_template(
+        "image_view.html",
+        image=image,
+    )
+
+
 @bp.route("/profile")
 @login_required
 def profile():

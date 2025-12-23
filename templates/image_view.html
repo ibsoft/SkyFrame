@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ image.object_name }} – SkyFrame{% endblock %}
+
+{% block content %}
+<section class="shared-page">
+    <div class="shared-card">
+        <p class="text-white-50 mb-2">Your upload</p>
+        <div class="shared-image-wrapper">
+            <img class="shared-image" src="{{ url_for('api.download_image', image_id=image.id) }}" alt="{{ image.object_name }}">
+        </div>
+        <div class="shared-metadata mt-4 text-start">
+            <h5>{{ image.object_name }}</h5>
+            <p class="small text-white-50 mb-1">
+                {{ image.category }} · {{ image.observer_name }} ·
+                {{ image.observed_at.strftime('%Y-%m-%d %H:%M UTC') if image.observed_at else '—' }}
+            </p>
+            <p class="meta-info small mb-1">
+                Telescope: {{ image.telescope or 'Telescope TBD' }} · Camera: {{ image.camera or 'Camera TBD' }}<br>
+                Filter: {{ image.filter or 'n/a' }} · Location: {{ image.location or 'Unknown' }}
+            </p>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <a class="btn btn-outline-light" href="{{ url_for('api.download_image', image_id=image.id) }}">
+                    Download
+                </a>
+                <a class="btn btn-outline-light" href="{{ url_for('main.edit_image', image_id=image.id) }}">
+                    Edit
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
