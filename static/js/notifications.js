@@ -46,7 +46,7 @@
                     <div class="notify-meta">
                         <div class="notify-title">${escapeHtml(item.actor)} liked</div>
                         <div class="notify-sub">${escapeHtml(item.image_name)}</div>
-                        <a class="notify-link" href="${item.link}" data-notify-link data-created-at="${item.created_at}">View image</a>
+                        <a class="notify-link" href="${item.link}" data-notify-link data-event-type="like" data-image-id="${item.image_id}" data-actor-id="${item.actor_id}" data-created-at="${item.created_at}">View image</a>
                     </div>
                 </div>
             `
@@ -70,7 +70,7 @@
                     <div class="notify-meta">
                         <div class="notify-title">${escapeHtml(item.actor)} commented</div>
                         <div class="notify-sub">${escapeHtml(item.body).slice(0, 80)}</div>
-                        <a class="notify-link" href="${item.link}" data-notify-link data-created-at="${item.created_at}">View image</a>
+                        <a class="notify-link" href="${item.link}" data-notify-link data-event-type="comment" data-image-id="${item.image_id}" data-actor-id="${item.actor_id}" data-created-at="${item.created_at}">View image</a>
                     </div>
                 </div>
             `
@@ -102,8 +102,8 @@
         }
     };
 
-    const markItemRead = async (createdAt) => {
-        if (!createdAt) return;
+    const markItemRead = async (payload) => {
+        if (!payload) return;
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
             await fetch("/api/notifications/read-item", {
@@ -113,7 +113,7 @@
                     "X-CSRFToken": csrfToken,
                 },
                 credentials: "same-origin",
-                body: JSON.stringify({ read_at: createdAt }),
+                body: JSON.stringify(payload),
             });
         } catch (err) {
             // ignore
@@ -173,7 +173,12 @@
         const createdAt = link.dataset.createdAt;
         event.preventDefault();
         const target = link.href;
-        markItemRead(createdAt).finally(() => {
+        markItemRead({
+            event_type: link.dataset.eventType,
+            image_id: link.dataset.imageId,
+            actor_id: link.dataset.actorId,
+            event_created_at: createdAt,
+        }).finally(() => {
             window.location.assign(target);
         });
     });

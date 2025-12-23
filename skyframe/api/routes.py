@@ -24,7 +24,7 @@ from ..feed import build_feed_selection, persist_seen_for_feed
 from ..astro import planetary_coordinates
 from ..extensions import csrf_protect, db, limiter
 from ..forms import CATEGORY_CHOICES as FORM_CATEGORY_CHOICES
-from ..models import Comment, Favorite, Follow, Image, Like, Motd, MotdSeen, User
+from ..models import Comment, Favorite, Follow, Image, Like, Motd, MotdSeen, NotificationRead, User
 from ..share_storage import create_share_token
 from ..storage import perceptual_hashes_for_bytes, sha256_file, winjupos_label_from_metadata
 from . import bp
@@ -327,14 +327,38 @@ def notifications():
     like_unread = (
         db.session.query(func.count(Like.user_id))
         .join(Image, Like.image_id == Image.id)
-        .filter(Image.user_id == current_user.id, Like.created_at > last_read)
+        .outerjoin(
+            NotificationRead,
+            (NotificationRead.user_id == current_user.id)
+            & (NotificationRead.event_type == "like")
+            & (NotificationRead.image_id == Like.image_id)
+            & (NotificationRead.actor_id == Like.user_id)
+            & (NotificationRead.event_created_at == Like.created_at),
+        )
+        .filter(
+            Image.user_id == current_user.id,
+            Like.created_at > last_read,
+            NotificationRead.id.is_(None),
+        )
         .scalar()
         or 0
     )
     comment_unread = (
         db.session.query(func.count(Comment.id))
         .join(Image, Comment.image_id == Image.id)
-        .filter(Image.user_id == current_user.id, Comment.created_at > last_read)
+        .outerjoin(
+            NotificationRead,
+            (NotificationRead.user_id == current_user.id)
+            & (NotificationRead.event_type == "comment")
+            & (NotificationRead.image_id == Comment.image_id)
+            & (NotificationRead.actor_id == Comment.user_id)
+            & (NotificationRead.event_created_at == Comment.created_at),
+        )
+        .filter(
+            Image.user_id == current_user.id,
+            Comment.created_at > last_read,
+            NotificationRead.id.is_(None),
+        )
         .scalar()
         or 0
     )
@@ -342,7 +366,19 @@ def notifications():
         db.session.query(Like, Image, User)
         .join(Image, Like.image_id == Image.id)
         .join(User, Like.user_id == User.id)
-        .filter(Image.user_id == current_user.id, Like.created_at > last_read)
+        .outerjoin(
+            NotificationRead,
+            (NotificationRead.user_id == current_user.id)
+            & (NotificationRead.event_type == "like")
+            & (NotificationRead.image_id == Like.image_id)
+            & (NotificationRead.actor_id == Like.user_id)
+            & (NotificationRead.event_created_at == Like.created_at),
+        )
+        .filter(
+            Image.user_id == current_user.id,
+            Like.created_at > last_read,
+            NotificationRead.id.is_(None),
+        )
         .order_by(Like.created_at.desc())
         .limit(20)
         .all()
@@ -351,7 +387,19 @@ def notifications():
         db.session.query(Comment, Image, User)
         .join(Image, Comment.image_id == Image.id)
         .join(User, Comment.user_id == User.id)
-        .filter(Image.user_id == current_user.id, Comment.created_at > last_read)
+        .outerjoin(
+            NotificationRead,
+            (NotificationRead.user_id == current_user.id)
+            & (NotificationRead.event_type == "comment")
+            & (NotificationRead.image_id == Comment.image_id)
+            & (NotificationRead.actor_id == Comment.user_id)
+            & (NotificationRead.event_created_at == Comment.created_at),
+        )
+        .filter(
+            Image.user_id == current_user.id,
+            Comment.created_at > last_read,
+            NotificationRead.id.is_(None),
+        )
         .order_by(Comment.created_at.desc())
         .limit(20)
         .all()
@@ -362,6 +410,7 @@ def notifications():
             "image_name": image.object_name,
             "thumb_url": url_for("api.download_image", image_id=image.id, thumb=1),
             "actor": user.username,
+            "actor_id": user.id,
             "actor_avatar": user.avatar_url,
             "created_at": like.created_at.isoformat(),
             "link": url_for("main.feed", focus_image=image.id),
@@ -374,6 +423,7 @@ def notifications():
             "image_name": image.object_name,
             "thumb_url": url_for("api.download_image", image_id=image.id, thumb=1),
             "actor": user.username,
+            "actor_id": user.id,
             "actor_avatar": user.avatar_url,
             "body": comment.body,
             "created_at": comment.created_at.isoformat(),
@@ -407,16 +457,35 @@ def notifications_read():
 @json_csrf_protected
 def notifications_read_item():
     data = request.get_json(silent=True) or {}
-    read_at = data.get("read_at")
-    if not read_at:
-        return jsonify({"error": "missing read_at"}), 400
+    event_type = data.get("event_type")
+    image_id = data.get("image_id")
+    actor_id = data.get("actor_id")
+    event_created_at = data.get("event_created_at")
+    if not event_type or event_type not in ("like", "comment"):
+        return jsonify({"error": "invalid event_type"}), 400
+    if not image_id or not actor_id or not event_created_at:
+        return jsonify({"error": "missing event fields"}), 400
     try:
-        parsed = datetime.fromisoformat(read_at)
+        parsed = datetime.fromisoformat(event_created_at)
     except ValueError:
-        return jsonify({"error": "invalid read_at"}), 400
-    current = current_user.notifications_last_read_at
-    if not current or parsed > current:
-        current_user.notifications_last_read_at = parsed
+        return jsonify({"error": "invalid event_created_at"}), 400
+    exists = NotificationRead.query.filter_by(
+        user_id=current_user.id,
+        event_type=event_type,
+        image_id=int(image_id),
+        actor_id=int(actor_id),
+        event_created_at=parsed,
+    ).first()
+    if not exists:
+        db.session.add(
+            NotificationRead(
+                user_id=current_user.id,
+                event_type=event_type,
+                image_id=int(image_id),
+                actor_id=int(actor_id),
+                event_created_at=parsed,
+            )
+        )
         db.session.commit()
     return jsonify({"ok": True})
 

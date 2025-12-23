@@ -165,6 +165,29 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
+class NotificationRead(db.Model):
+    __tablename__ = "notification_reads"
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id",
+            "event_type",
+            "image_id",
+            "actor_id",
+            "event_created_at",
+            name="uq_notification_read_event",
+        ),
+        db.Index("ix_notification_reads_user_type", "user_id", "event_type"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    event_type = db.Column(db.String(16), nullable=False)
+    image_id = db.Column(db.Integer, db.ForeignKey("images.id"), nullable=False)
+    actor_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    event_created_at = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
 class Motd(db.Model):
     __tablename__ = "motd"
     __table_args__ = (
