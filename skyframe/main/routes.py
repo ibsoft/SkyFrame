@@ -6,6 +6,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -23,6 +24,7 @@ from ..astro import planetary_coordinates
 from ..storage import (
     process_image_upload,
     save_avatar_upload,
+    sha256_file,
     winjupos_label_from_metadata,
 )
 from ..config import Config
@@ -408,6 +410,47 @@ def shared_image_download(token):
     )
 
 
+@bp.route("/share/<token>/verify")
+def shared_image_verify(token):
+    try:
+        record = read_share_token(token)
+    except FileNotFoundError:
+        abort(404)
+    image = Image.query.get_or_404(record["image_id"])
+    base_path = Path(Config.UPLOAD_PATH)
+    file_path = base_path / image.file_path
+    if not file_path.exists():
+        return jsonify({"error": "image file missing"}), 404
+    computed_hash = sha256_file(file_path)
+    stored_hash = image.signature_sha256
+    if not stored_hash:
+        return jsonify(
+            {
+                "valid": False,
+                "reason": "missing_signature",
+                "computed_hash": computed_hash,
+            }
+        )
+    return jsonify(
+        {
+            "valid": stored_hash == computed_hash,
+            "stored_hash": stored_hash,
+            "computed_hash": computed_hash,
+            "image_id": image.id,
+            "object_name": image.object_name,
+            "observer_name": image.observer_name,
+            "category": image.category,
+            "observed_at": image.observed_at.isoformat() if image.observed_at else None,
+            "uploader": image.uploader.username,
+            "telescope": image.telescope,
+            "camera": image.camera,
+            "filter": image.filter,
+            "location": image.location,
+            "allow_scientific_use": image.allow_scientific_use,
+        }
+    )
+
+
 @bp.route("/upload", methods=["GET", "POST"])
 @login_required
 @limiter.limit("6 per minute")
@@ -415,7 +458,7 @@ def upload():
     form = UploadForm()
     if form.validate_on_submit():
         try:
-            image_path, thumb_path, watermark_hash = process_image_upload(
+            image_path, thumb_path, watermark_hash, signature_sha256 = process_image_upload(
                 form.file.data, current_user.username
             )
         except ValueError as exc:
@@ -438,6 +481,7 @@ def upload():
                 max_exposure_time=form.max_exposure_time.data,
                 allow_scientific_use=form.allow_scientific_use.data or False,
                 watermark_hash=watermark_hash,
+                signature_sha256=signature_sha256,
                 seeing_rating=int(form.seeing_rating.data),
                 transparency_rating=int(form.transparency_rating.data),
                 bortle_rating=int(form.bortle_rating.data) if form.bortle_rating.data else None,

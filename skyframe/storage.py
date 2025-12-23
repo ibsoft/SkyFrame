@@ -58,7 +58,85 @@ def _apply_invisible_watermark(image: Image.Image, text: str) -> Image.Image:
     return composited.convert("RGB")
 
 
-def process_image_upload(file_storage: FileStorage, owner_name: str | None = None) -> tuple[str, str, str]:
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(8192), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    return _sha256_file(path)
+
+
+def apply_watermark_to_file(path: Path, owner_name: str | None) -> str:
+    image = Image.open(path)
+    image = image.convert("RGB")
+    watermark_text, watermark_hash = _build_watermark_payload(owner_name)
+    watermarked = _apply_invisible_watermark(image, watermark_text)
+    watermarked.save(path, "JPEG", quality=90, progressive=True, comment=f"SkyFrame {watermark_hash}".encode())
+    return watermark_hash
+
+
+def regenerate_thumbnail(image_path: Path, thumb_path: Path) -> None:
+    thumb = Image.open(image_path)
+    thumb.thumbnail(Config.THUMB_SIZE, Image.LANCZOS)
+    thumb.save(thumb_path, "JPEG", quality=80, progressive=True)
+
+
+def read_watermark_comment_bytes(data: bytes) -> str | None:
+    marker = b"SkyFrame "
+    idx = 0
+    length = len(data)
+    while idx + 4 < length:
+        if data[idx] != 0xFF:
+            idx += 1
+            continue
+        marker_id = data[idx + 1]
+        if marker_id == 0xDA or marker_id == 0xD9:
+            break
+        if idx + 4 > length:
+            break
+        segment_length = int.from_bytes(data[idx + 2 : idx + 4], "big")
+        segment_start = idx + 4
+        segment_end = segment_start + segment_length - 2
+        if segment_end > length:
+            break
+        if marker_id == 0xFE:
+            segment = data[segment_start:segment_end]
+            pos = segment.find(marker)
+            if pos != -1:
+                comment = segment[pos:].decode("utf-8", "ignore")
+                match = re.search(r"SkyFrame\\s+([0-9a-fA-F]+)", comment)
+                if match:
+                    return match.group(1).lower()
+        idx = segment_end
+    try:
+        from io import BytesIO
+
+        image = Image.open(BytesIO(data))
+        comment = image.info.get("comment")
+        if isinstance(comment, bytes):
+            comment = comment.decode("utf-8", "ignore")
+        if isinstance(comment, str):
+            match = re.search(r"SkyFrame\\s+([0-9a-fA-F]+)", comment)
+            if match:
+                return match.group(1).lower()
+    except Exception:
+        return None
+    return None
+
+
+def read_watermark_comment(path: Path) -> str | None:
+    try:
+        data = path.read_bytes()
+    except Exception:
+        return None
+    return read_watermark_comment_bytes(data)
+
+
+def process_image_upload(file_storage: FileStorage, owner_name: str | None = None) -> tuple[str, str, str, str]:
     if not _allowed_file(file_storage.filename or ""):
         raise ValueError("Unsupported image format.")
 
@@ -81,6 +159,7 @@ def process_image_upload(file_storage: FileStorage, owner_name: str | None = Non
     watermark_text, watermark_hash = _build_watermark_payload(owner_name)
     watermarked = _apply_invisible_watermark(image, watermark_text)
     watermarked.save(img_path, "JPEG", quality=90, progressive=True, comment=f"SkyFrame {watermark_hash}".encode())
+    signature_sha256 = _sha256_file(img_path)
 
     thumb = Image.open(img_path)
     thumb.thumbnail(Config.THUMB_SIZE, Image.LANCZOS)
@@ -90,6 +169,7 @@ def process_image_upload(file_storage: FileStorage, owner_name: str | None = Non
         str(img_path.relative_to(Config.UPLOAD_PATH)),
         str(thumb_path.relative_to(Config.UPLOAD_PATH)),
         watermark_hash,
+        signature_sha256,
     )
 
 
