@@ -16,7 +16,7 @@ from skyframe.models import Image, User
 from skyframe.storage import process_image_upload
 
 FILENAME_RE = re.compile(
-    r"^(?:[A-Za-z])?(?P<date>\d{4}-\d{2}-\d{2})_"
+    r"^(?:[A-Za-z]+)?(?P<date>\d{4}-\d{2}-\d{2})_"
     r"(?P<time>\d{2}-\d{2}-\d{2})(?:_(?P<filter>[^_]+))?(?:_(?P<observer>.+))?$"
 )
 
@@ -49,6 +49,30 @@ def build_parser():
         "--default-filter",
         default="RGB",
         help="Fallback filter when filename does not include one (default: RGB).",
+    )
+    parser.add_argument(
+        "--observer-name",
+        help="Observer name to use when filename does not include one.",
+    )
+    parser.add_argument("--location", help="Location/observatory for all images.")
+    parser.add_argument("--telescope", help="Telescope name for all images.")
+    parser.add_argument("--camera", help="Camera name for all images.")
+    parser.add_argument(
+        "--seeing",
+        type=int,
+        choices=range(1, 6),
+        help="Seeing rating 1-5.",
+    )
+    parser.add_argument(
+        "--transparency",
+        type=int,
+        choices=range(1, 6),
+        help="Transparency rating 1-5.",
+    )
+    parser.add_argument(
+        "--allow-scientific",
+        action="store_true",
+        help="Allow scientific reuse for all images.",
     )
     parser.add_argument(
         "--env",
@@ -95,7 +119,7 @@ def main():
                 skipped += 1
                 continue
             if not observer_name:
-                observer_name = user.username
+                observer_name = args.observer_name or user.username
             if not filter_value:
                 filter_value = args.default_filter
 
@@ -107,9 +131,14 @@ def main():
                         filename=path.name,
                         content_type=content_type or "application/octet-stream",
                     )
-                    image_path, thumb_path, watermark_hash = process_image_upload(
-                        file_storage, user.username
-                    )
+                    (
+                        image_path,
+                        thumb_path,
+                        watermark_hash,
+                        signature_sha256,
+                        signature_phash,
+                        signature_dhash,
+                    ) = process_image_upload(file_storage, user.username)
                 image = Image(
                     user_id=user.id,
                     file_path=image_path,
@@ -118,8 +147,17 @@ def main():
                     object_name=args.object,
                     observer_name=observer_name,
                     observed_at=observed_at,
+                    location=args.location,
                     filter=filter_value,
+                    telescope=args.telescope,
+                    camera=args.camera,
+                    seeing_rating=args.seeing,
+                    transparency_rating=args.transparency,
+                    allow_scientific_use=args.allow_scientific,
                     watermark_hash=watermark_hash,
+                    signature_sha256=signature_sha256,
+                    signature_phash=signature_phash,
+                    signature_dhash=signature_dhash,
                 )
                 db.session.add(image)
                 db.session.commit()
