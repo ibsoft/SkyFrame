@@ -28,9 +28,16 @@
                     <span class="text-uppercase fs-6 letter-spacing">SkyFrame</span>
                 </div>
                 {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('main.profile') }}" class="header-profile-link" aria-label="Open profile">
-                        <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }} avatar" class="header-profile-avatar">
-                    </a>
+                    <div class="header-actions">
+                        <button class="header-notify-btn" type="button" id="notify-btn" aria-label="Open notifications">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="notify-badge badge-like" data-like-badge>0</span>
+                            <span class="notify-badge badge-comment" data-comment-badge>0</span>
+                        </button>
+                        <a href="{{ url_for('main.profile') }}" class="header-profile-link" aria-label="Open profile">
+                            <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }} avatar" class="header-profile-avatar">
+                        </a>
+                    </div>
                 {% endif %}
             </div>
         </header>
@@ -70,6 +77,46 @@
                 </div>
             </div>
         {% endif %}
+        <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content notifications-modal">
+                    <div class="modal-header border-secondary">
+                        <div>
+                            <h5 class="modal-title" id="notificationsLabel">Activity</h5>
+                            <p class="small text-white-50 mb-0">Latest likes and comments on your uploads.</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-outline-light btn-sm" data-mark-read>Mark all read</button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-lg-6">
+                                <div class="notify-panel">
+                                    <div class="notify-panel-header">
+                                        <i class="fa-solid fa-heart"></i>
+                                        <span>Likes</span>
+                                        <span class="text-white-50 small" data-like-count></span>
+                                    </div>
+                                    <div class="notify-list" data-like-list></div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="notify-panel">
+                                    <div class="notify-panel-header">
+                                        <i class="fa-solid fa-comment"></i>
+                                        <span>Comments</span>
+                                        <span class="text-white-50 small" data-comment-count></span>
+                                    </div>
+                                    <div class="notify-list" data-comment-list></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <nav class="bottom-nav border-top border-secondary">
             <a href="{{ url_for('main.feed') }}" class="bottom-nav-link nav-label" title="Browse feeds for free or log in for more">
                 <i class="fas fa-stream me-1" aria-hidden="true"></i>Feed
@@ -98,6 +145,7 @@
     <script src="{{ url_for('static', filename='js/base.js') }}" nonce="{{ g.csp_nonce }}"></script>
     <script src="{{ url_for('static', filename='js/feed.js') }}" nonce="{{ g.csp_nonce }}"></script>
     <script src="{{ url_for('static', filename='js/observer_suggestions.js') }}" nonce="{{ g.csp_nonce }}"></script>
+    <script src="{{ url_for('static', filename='js/notifications.js') }}" nonce="{{ g.csp_nonce }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

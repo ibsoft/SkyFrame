@@ -260,6 +260,42 @@
         }
     };
 
+    const openCommentFromQuery = () => {
+        if (!commentsSheet) return;
+        const params = new URLSearchParams(window.location.search);
+        const imageId = params.get("open_comment");
+        if (!imageId) return;
+        openComments(imageId, "Comments");
+        params.delete("open_comment");
+        const next = `${window.location.pathname}${params.toString() ? `?${params}` : ""}`;
+        window.history.replaceState({}, "", next);
+    };
+
+    const focusImageFromQuery = () => {
+        const params = new URLSearchParams(window.location.search);
+        const imageId = params.get("focus_image");
+        if (!imageId || !feedContainer) return;
+        const card = feedContainer.querySelector(`[data-image-id="${imageId}"]`);
+        if (!card) return;
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        card.classList.add("feed-highlight");
+        setTimeout(() => card.classList.remove("feed-highlight"), 1600);
+        params.delete("focus_image");
+        const next = `${window.location.pathname}${params.toString() ? `?${params}` : ""}`;
+        window.history.replaceState({}, "", next);
+    };
+
+    const initDeepLink = () => {
+        openCommentFromQuery();
+        focusImageFromQuery();
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initDeepLink);
+    } else {
+        initDeepLink();
+    }
+
     observerInput?.addEventListener("input", (ev) => {
         const text = ev.target.value.trim();
         clearTimeout(observerDebounce);
