@@ -40,9 +40,9 @@ class Config:
     FEED_SEEN_RETENTION_DAYS = int(os.getenv("FEED_SEEN_RETENTION_DAYS", "30"))
     FEED_SEEN_MAX_IDS = int(os.getenv("FEED_SEEN_MAX_IDS", "5000"))
     FEED_CANDIDATE_MULTIPLIER = int(os.getenv("FEED_CANDIDATE_MULTIPLIER", "3"))
-    FEED_MAX_PER_UPLOADER = int(os.getenv("FEED_MAX_PER_UPLOADER", "3"))
+    FEED_MAX_PER_UPLOADER = int(os.getenv("FEED_MAX_PER_UPLOADER", "20"))
     FEED_MAX_CONSECUTIVE_PER_UPLOADER = int(
-        os.getenv("FEED_MAX_CONSECUTIVE_PER_UPLOADER", "1")
+        os.getenv("FEED_MAX_CONSECUTIVE_PER_UPLOADER", "5")
     )
     MOTD_ENABLED = os.getenv("MOTD_ENABLED", "True").lower() in ("1", "true", "yes")
     VERIFY_MAX_BYTES = int(os.getenv("VERIFY_MAX_BYTES", str(5 * 1024 * 1024)))
