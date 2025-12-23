@@ -25,7 +25,7 @@ from ..extensions import csrf_protect, db, limiter
 from ..forms import CATEGORY_CHOICES as FORM_CATEGORY_CHOICES
 from ..models import Comment, Favorite, Follow, Image, Like, Motd, MotdSeen, User
 from ..share_storage import create_share_token
-from ..storage import sha256_file, winjupos_label_from_metadata
+from ..storage import perceptual_hashes_for_bytes, sha256_file, winjupos_label_from_metadata
 from . import bp
 
 
@@ -77,6 +77,15 @@ def _extract_tags(notes: str | None) -> list[str]:
     if not notes:
         return []
     return re.findall(r"#([A-Za-z0-9_\-]+)", notes)
+
+
+def _hamming_distance(left: str | None, right: str | None) -> int | None:
+    if not left or not right:
+        return None
+    try:
+        return (int(left, 16) ^ int(right, 16)).bit_count()
+    except ValueError:
+        return None
 
 
 def _serialize_image(
@@ -192,6 +201,10 @@ def verify_file():
     data = file_storage.stream.read()
     file_storage.stream.seek(0)
     computed_hash = hashlib.sha256(data).hexdigest()
+    try:
+        phash_value, dhash_value = perceptual_hashes_for_bytes(data)
+    except Exception:
+        return jsonify({"error": "invalid image file"}), 400
     image = Image.query.filter_by(signature_sha256=computed_hash).first()
     current_app.logger.info(
         "Public verify-file request: matched=%s filename=%s",
@@ -199,16 +212,84 @@ def verify_file():
         file_storage.filename,
     )
     if not image:
+        if not current_app.config.get("VERIFY_SIMILARITY_ENABLED", True):
+            return jsonify(
+                {
+                    "valid": False,
+                    "computed_hash": computed_hash,
+                }
+            ), 200
+        candidates = (
+            db.session.query(
+                Image.id,
+                Image.signature_phash,
+                Image.signature_dhash,
+                Image.object_name,
+                Image.observer_name,
+                Image.category,
+                Image.observed_at,
+                Image.telescope,
+                Image.camera,
+                Image.filter,
+                Image.location,
+                Image.allow_scientific_use,
+                User.username,
+            )
+            .join(User, User.id == Image.user_id)
+            .filter(Image.signature_phash.isnot(None), Image.signature_dhash.isnot(None))
+            .all()
+        )
+        best = None
+        best_score = None
+        max_phash = current_app.config["VERIFY_PHASH_MAX_DISTANCE"]
+        max_dhash = current_app.config["VERIFY_DHASH_MAX_DISTANCE"]
+        for row in candidates:
+            phash_dist = _hamming_distance(phash_value, row.signature_phash)
+            dhash_dist = _hamming_distance(dhash_value, row.signature_dhash)
+            if phash_dist is None or dhash_dist is None:
+                continue
+            if phash_dist <= max_phash and dhash_dist <= max_dhash:
+                score = phash_dist + dhash_dist
+                if best_score is None or score < best_score:
+                    best_score = score
+                    best = (row, phash_dist, dhash_dist)
+        if not best:
+            return jsonify(
+                {
+                    "valid": False,
+                    "computed_hash": computed_hash,
+                    "similar": False,
+                    "phash": phash_value,
+                    "dhash": dhash_value,
+                }
+            ), 200
+        row, phash_dist, dhash_dist = best
         return jsonify(
             {
                 "valid": False,
                 "computed_hash": computed_hash,
+                "similar": True,
+                "phash_distance": phash_dist,
+                "dhash_distance": dhash_dist,
+                "image_id": row.id,
+                "object_name": row.object_name,
+                "observer_name": row.observer_name,
+                "category": row.category,
+                "observed_at": row.observed_at.isoformat() if row.observed_at else None,
+                "uploader": row.username,
+                "telescope": row.telescope,
+                "camera": row.camera,
+                "filter": row.filter,
+                "location": row.location,
+                "allow_scientific_use": row.allow_scientific_use,
             }
         ), 200
     return jsonify(
         {
             "valid": True,
             "computed_hash": computed_hash,
+            "phash": phash_value,
+            "dhash": dhash_value,
             "image_id": image.id,
             "object_name": image.object_name,
             "observer_name": image.observer_name,

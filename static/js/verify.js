@@ -95,7 +95,14 @@
             if (data.valid) {
                 renderMetadata(data);
             } else {
-                setResult(`No match found. SHA-256: ${data.computed_hash}.`, false);
+                if (data.similar) {
+                    const msg = `Similar match found. pHash Δ${data.phash_distance}, dHash Δ${data.dhash_distance}. SHA-256: ${data.computed_hash}`;
+                    result.innerHTML = `${msg}<br>Uploader: ${data.uploader || "Unknown"}<br>Object: ${data.object_name || "Unknown"}`;
+                    result.classList.add("text-warning");
+                    result.classList.remove("text-success", "text-danger", "text-white-50");
+                } else {
+                    setResult(`No match found. SHA-256: ${data.computed_hash}.`, false);
+                }
             }
         } catch (err) {
             setResult("Unable to verify right now.", false);

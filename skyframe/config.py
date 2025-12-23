@@ -46,6 +46,13 @@ class Config:
     )
     MOTD_ENABLED = os.getenv("MOTD_ENABLED", "True").lower() in ("1", "true", "yes")
     VERIFY_MAX_BYTES = int(os.getenv("VERIFY_MAX_BYTES", str(5 * 1024 * 1024)))
+    VERIFY_SIMILARITY_ENABLED = os.getenv("VERIFY_SIMILARITY_ENABLED", "True").lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+    VERIFY_PHASH_MAX_DISTANCE = int(os.getenv("VERIFY_PHASH_MAX_DISTANCE", "10"))
+    VERIFY_DHASH_MAX_DISTANCE = int(os.getenv("VERIFY_DHASH_MAX_DISTANCE", "12"))
     PREFERRED_URL_SCHEME = "https"
     CACHE_TYPE = "simple"
     REPORT_EMAIL = None
@@ -57,7 +64,7 @@ class Config:
     CSP_CONNECT_SRC = "'self' https://cdn.jsdelivr.net"
     SHARE_PATH = PROJECT_ROOT / "instance" / "shares"
     ARCHIVE_SUBDIR = "archives"
-    APP_VERSION = os.getenv("APP_VERSION", "v_5.2.5")
+    APP_VERSION = os.getenv("APP_VERSION", "v_5.2.7")
     WATERMARK_OPACITY = int(os.getenv("WATERMARK_OPACITY", "12"))
     WATERMARK_PADDING = int(os.getenv("WATERMARK_PADDING", "12"))
     LOG_DIR = PROJECT_ROOT / "logs"

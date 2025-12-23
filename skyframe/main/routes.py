@@ -458,9 +458,14 @@ def upload():
     form = UploadForm()
     if form.validate_on_submit():
         try:
-            image_path, thumb_path, watermark_hash, signature_sha256 = process_image_upload(
-                form.file.data, current_user.username
-            )
+            (
+                image_path,
+                thumb_path,
+                watermark_hash,
+                signature_sha256,
+                signature_phash,
+                signature_dhash,
+            ) = process_image_upload(form.file.data, current_user.username)
         except ValueError as exc:
             flash(str(exc), "danger")
         else:
@@ -482,6 +487,8 @@ def upload():
                 allow_scientific_use=form.allow_scientific_use.data or False,
                 watermark_hash=watermark_hash,
                 signature_sha256=signature_sha256,
+                signature_phash=signature_phash,
+                signature_dhash=signature_dhash,
                 seeing_rating=int(form.seeing_rating.data),
                 transparency_rating=int(form.transparency_rating.data),
                 bortle_rating=int(form.bortle_rating.data) if form.bortle_rating.data else None,

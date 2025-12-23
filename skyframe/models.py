@@ -111,6 +111,8 @@ class Image(db.Model):
     allow_scientific_use = db.Column(db.Boolean, default=False, nullable=False)
     watermark_hash = db.Column(db.String(64))
     signature_sha256 = db.Column(db.String(64))
+    signature_phash = db.Column(db.String(16))
+    signature_dhash = db.Column(db.String(16))
     seeing_rating = db.Column(db.Integer, nullable=True)
     transparency_rating = db.Column(db.Integer, nullable=True)
     bortle_rating = db.Column(db.Integer, nullable=True)

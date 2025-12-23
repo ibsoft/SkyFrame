@@ -5,7 +5,12 @@ from pathlib import Path
 from skyframe import create_app
 from skyframe.extensions import db
 from skyframe.models import Image
-from skyframe.storage import apply_watermark_to_file, regenerate_thumbnail, sha256_file
+from skyframe.storage import (
+    apply_watermark_to_file,
+    perceptual_hashes_for_file,
+    regenerate_thumbnail,
+    sha256_file,
+)
 
 
 def build_parser():
@@ -52,6 +57,8 @@ def main():
             updated = False
             watermark_hash = image.watermark_hash
             signature_sha256 = image.signature_sha256
+            signature_phash = image.signature_phash
+            signature_dhash = image.signature_dhash
 
             apply_watermark = not args.skip_watermark and (args.force or not watermark_hash)
             if apply_watermark:
@@ -59,8 +66,9 @@ def main():
                 regenerate_thumbnail(file_path, thumb_path)
                 updated = True
 
-            if args.force or not signature_sha256 or updated:
+            if args.force or not signature_sha256 or not signature_phash or not signature_dhash or updated:
                 signature_sha256 = sha256_file(file_path)
+                signature_phash, signature_dhash = perceptual_hashes_for_file(file_path)
                 updated = True
 
             if updated:
@@ -68,6 +76,8 @@ def main():
                 if not args.dry_run:
                     image.watermark_hash = watermark_hash
                     image.signature_sha256 = signature_sha256
+                    image.signature_phash = signature_phash
+                    image.signature_dhash = signature_dhash
                     db.session.add(image)
 
             if not args.dry_run and scanned % 50 == 0:
