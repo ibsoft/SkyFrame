@@ -337,6 +337,7 @@ def notifications():
         )
         .filter(
             Image.user_id == current_user.id,
+            Like.user_id != current_user.id,
             Like.created_at > last_read,
             NotificationRead.id.is_(None),
         )
@@ -356,6 +357,7 @@ def notifications():
         )
         .filter(
             Image.user_id == current_user.id,
+            Comment.user_id != current_user.id,
             Comment.created_at > last_read,
             NotificationRead.id.is_(None),
         )
@@ -376,6 +378,7 @@ def notifications():
         )
         .filter(
             Image.user_id == current_user.id,
+            Like.user_id != current_user.id,
             Like.created_at > last_read,
             NotificationRead.id.is_(None),
         )
@@ -397,6 +400,7 @@ def notifications():
         )
         .filter(
             Image.user_id == current_user.id,
+            Comment.user_id != current_user.id,
             Comment.created_at > last_read,
             NotificationRead.id.is_(None),
         )
