@@ -2,6 +2,7 @@ import os
 import re
 import uuid
 import hashlib
+import math
 from datetime import datetime
 from pathlib import Path
 
@@ -58,6 +59,66 @@ def _apply_invisible_watermark(image: Image.Image, text: str) -> Image.Image:
     return composited.convert("RGB")
 
 
+def _image_to_grayscale(image: Image.Image, size: tuple[int, int]) -> list[list[float]]:
+    resized = image.convert("L").resize(size, Image.LANCZOS)
+    pixels = list(resized.getdata())
+    width, height = resized.size
+    return [pixels[row * width : (row + 1) * width] for row in range(height)]
+
+
+def _dct_1d(values: list[float], cos_table: list[list[float]], alpha: list[float]) -> list[float]:
+    size = len(values)
+    output = [0.0] * size
+    for k in range(size):
+        total = 0.0
+        cos_row = cos_table[k]
+        for n in range(size):
+            total += values[n] * cos_row[n]
+        output[k] = total * alpha[k]
+    return output
+
+
+def _dct_2d(matrix: list[list[float]], cos_table: list[list[float]], alpha: list[float]) -> list[list[float]]:
+    size = len(matrix)
+    row_dct = [_dct_1d(row, cos_table, alpha) for row in matrix]
+    result = [[0.0] * size for _ in range(size)]
+    for col in range(size):
+        column = [row_dct[row][col] for row in range(size)]
+        column_dct = _dct_1d(column, cos_table, alpha)
+        for row in range(size):
+            result[row][col] = column_dct[row]
+    return result
+
+
+def _phash_from_image(image: Image.Image) -> str:
+    size = 32
+    small = _image_to_grayscale(image, (size, size))
+    cos_table = [
+        [math.cos((math.pi * (2 * n + 1) * k) / (2 * size)) for n in range(size)]
+        for k in range(size)
+    ]
+    alpha = [math.sqrt(1 / size)] + [math.sqrt(2 / size)] * (size - 1)
+    dct = _dct_2d(small, cos_table, alpha)
+    block = [dct[row][col] for row in range(8) for col in range(8)]
+    median_values = sorted(block[1:])
+    median = median_values[len(median_values) // 2]
+    hash_value = 0
+    for value in block:
+        hash_value = (hash_value << 1) | (1 if value > median else 0)
+    return f"{hash_value:016x}"
+
+
+def _dhash_from_image(image: Image.Image) -> str:
+    pixels = _image_to_grayscale(image, (9, 8))
+    hash_value = 0
+    for row in range(8):
+        for col in range(8):
+            left = pixels[row][col]
+            right = pixels[row][col + 1]
+            hash_value = (hash_value << 1) | (1 if left > right else 0)
+    return f"{hash_value:016x}"
+
+
 def _sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -68,6 +129,20 @@ def _sha256_file(path: Path) -> str:
 
 def sha256_file(path: Path) -> str:
     return _sha256_file(path)
+
+
+def perceptual_hashes_for_file(path: Path) -> tuple[str, str]:
+    image = Image.open(path)
+    image = image.convert("RGB")
+    return _phash_from_image(image), _dhash_from_image(image)
+
+
+def perceptual_hashes_for_bytes(data: bytes) -> tuple[str, str]:
+    from io import BytesIO
+
+    image = Image.open(BytesIO(data))
+    image = image.convert("RGB")
+    return _phash_from_image(image), _dhash_from_image(image)
 
 
 def apply_watermark_to_file(path: Path, owner_name: str | None) -> str:
@@ -136,7 +211,9 @@ def read_watermark_comment(path: Path) -> str | None:
     return read_watermark_comment_bytes(data)
 
 
-def process_image_upload(file_storage: FileStorage, owner_name: str | None = None) -> tuple[str, str, str, str]:
+def process_image_upload(
+    file_storage: FileStorage, owner_name: str | None = None
+) -> tuple[str, str, str, str, str, str]:
     if not _allowed_file(file_storage.filename or ""):
         raise ValueError("Unsupported image format.")
 
@@ -160,6 +237,7 @@ def process_image_upload(file_storage: FileStorage, owner_name: str | None = Non
     watermarked = _apply_invisible_watermark(image, watermark_text)
     watermarked.save(img_path, "JPEG", quality=90, progressive=True, comment=f"SkyFrame {watermark_hash}".encode())
     signature_sha256 = _sha256_file(img_path)
+    signature_phash, signature_dhash = perceptual_hashes_for_file(img_path)
 
     thumb = Image.open(img_path)
     thumb.thumbnail(Config.THUMB_SIZE, Image.LANCZOS)
@@ -170,6 +248,8 @@ def process_image_upload(file_storage: FileStorage, owner_name: str | None = Non
         str(thumb_path.relative_to(Config.UPLOAD_PATH)),
         watermark_hash,
         signature_sha256,
+        signature_phash,
+        signature_dhash,
     )
 
 
