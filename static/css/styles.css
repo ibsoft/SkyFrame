@@ -1141,7 +1141,16 @@ body.controls-hidden .action-column {
 input::placeholder,
 textarea::placeholder,
 select::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: #ffffff;
+    opacity: 1;
+}
+
+.verify-input {
+    color: #ffffff;
+}
+
+.verify-input::placeholder {
+    color: #ffffff;
     opacity: 1;
 }
 

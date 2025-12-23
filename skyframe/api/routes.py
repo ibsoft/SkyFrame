@@ -21,11 +21,11 @@ from werkzeug.utils import secure_filename
 from ..config import Config
 from ..feed import build_feed_selection, persist_seen_for_feed
 from ..astro import planetary_coordinates
-from ..extensions import db, limiter
+from ..extensions import csrf_protect, db, limiter
 from ..forms import CATEGORY_CHOICES as FORM_CATEGORY_CHOICES
 from ..models import Comment, Favorite, Follow, Image, Like, Motd, MotdSeen, User
 from ..share_storage import create_share_token
-from ..storage import winjupos_label_from_metadata
+from ..storage import sha256_file, winjupos_label_from_metadata
 from . import bp
 
 
@@ -140,6 +140,88 @@ def share_image(image_id):
     token = create_share_token(image)
     share_url = url_for("main.shared_image", token=token, _external=True)
     return jsonify({"share_url": share_url})
+
+
+@bp.route("/images/<int:image_id>/verify", methods=["GET"])
+def verify_image(image_id):
+    image = Image.query.get_or_404(image_id)
+    base_path = Path(Config.UPLOAD_PATH)
+    file_path = base_path / image.file_path
+    if not file_path.exists():
+        return jsonify({"error": "image file missing"}), 404
+    computed_hash = sha256_file(file_path)
+    stored_hash = image.signature_sha256
+    if not stored_hash:
+        return jsonify(
+            {
+                "valid": False,
+                "reason": "missing_signature",
+                "computed_hash": computed_hash,
+            }
+        )
+    return jsonify(
+        {
+            "valid": stored_hash == computed_hash,
+            "stored_hash": stored_hash,
+            "computed_hash": computed_hash,
+            "image_id": image.id,
+            "object_name": image.object_name,
+            "observer_name": image.observer_name,
+            "category": image.category,
+            "observed_at": image.observed_at.isoformat() if image.observed_at else None,
+            "uploader": image.uploader.username,
+            "telescope": image.telescope,
+            "camera": image.camera,
+            "filter": image.filter,
+            "location": image.location,
+            "allow_scientific_use": image.allow_scientific_use,
+        }
+    )
+
+
+@bp.route("/verify-file", methods=["POST"])
+@csrf_protect.exempt
+@limiter.limit("20 per minute")
+def verify_file():
+    if request.content_length and request.content_length > current_app.config["VERIFY_MAX_BYTES"]:
+        return jsonify({"error": "file too large"}), 413
+    file_storage = request.files.get("file")
+    if not file_storage or not file_storage.filename:
+        return jsonify({"error": "missing file"}), 400
+    file_storage.stream.seek(0)
+    data = file_storage.stream.read()
+    file_storage.stream.seek(0)
+    computed_hash = hashlib.sha256(data).hexdigest()
+    image = Image.query.filter_by(signature_sha256=computed_hash).first()
+    current_app.logger.info(
+        "Public verify-file request: matched=%s filename=%s",
+        bool(image),
+        file_storage.filename,
+    )
+    if not image:
+        return jsonify(
+            {
+                "valid": False,
+                "computed_hash": computed_hash,
+            }
+        ), 200
+    return jsonify(
+        {
+            "valid": True,
+            "computed_hash": computed_hash,
+            "image_id": image.id,
+            "object_name": image.object_name,
+            "observer_name": image.observer_name,
+            "category": image.category,
+            "observed_at": image.observed_at.isoformat() if image.observed_at else None,
+            "uploader": image.uploader.username,
+            "telescope": image.telescope,
+            "camera": image.camera,
+            "filter": image.filter,
+            "location": image.location,
+            "allow_scientific_use": image.allow_scientific_use,
+        }
+    )
 
 
 @bp.route("/motd/ack", methods=["POST"])

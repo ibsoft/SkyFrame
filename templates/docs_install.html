@@ -283,8 +283,9 @@
                 <div class="docs-card">
                     <h3 class="h5 fw-semibold">How SkyFrame signs images</h3>
                     <p class="text-white-50">
-                        Every upload receives a unique watermark hash. This invisible signature stays in the file and
-                        helps verify ownership without changing the visible image quality.
+                        Every upload receives a unique watermark hash plus a SHA-256 signature of the final file.
+                        The watermark stays invisible while the SHA-256 hash lets you verify the file has not been
+                        tampered with.
                     </p>
                     <div class="docs-tip">
                         <i class="fa-solid fa-fingerprint me-2" aria-hidden="true"></i>
@@ -307,6 +308,27 @@
                         <li>Use clear notes and tags for attribution.</li>
                         <li>Enable scientific-use only when ready to share openly.</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 mt-3 align-items-center">
+            <div class="col-lg-12 docs-animate docs-delay-25">
+                <div class="docs-card">
+                    <div class="docs-card-header">
+                        <i class="fa-solid fa-shield-check me-2" aria-hidden="true"></i>Verify an image signature
+                    </div>
+                    <p class="text-white-50 mb-3">
+                        Paste a shared SkyFrame link, an image ID, or upload a file to check the SHA-256 signature.
+                    </p>
+                    <div class="input-group">
+                        <input class="form-control bg-black border-secondary text-white verify-input" id="verify-input" placeholder="Share URL or image ID">
+                        <button class="btn btn-outline-light" type="button" id="verify-btn">Verify</button>
+                    </div>
+                    <div class="input-group mt-3">
+                        <input class="form-control bg-black border-secondary text-white" type="file" id="verify-file" accept="image/*">
+                        <button class="btn btn-outline-light" type="button" id="verify-file-btn">Verify file</button>
+                    </div>
+                    <div class="mt-3 small" id="verify-result" aria-live="polite"></div>
                 </div>
             </div>
         </div>
@@ -363,4 +385,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/docs_install.js') }}" nonce="{{ g.csp_nonce }}"></script>
+<script src="{{ url_for('static', filename='js/verify.js') }}" nonce="{{ g.csp_nonce }}"></script>
 {% endblock %}
