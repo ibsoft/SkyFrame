@@ -184,7 +184,7 @@
     };
 
     const fetchFeed = async () => {
-        if (isFetching || !sentinel) {
+        if (isFetching || !sentinel || !cursor) {
             return;
         }
         isFetching = true;
@@ -322,12 +322,33 @@
                       fetchFeed();
                   }
               },
-              { threshold: 0.5 }
+              { threshold: 0, rootMargin: "200px" }
           )
         : null;
 
     if (observer && sentinel) {
         observer.observe(sentinel);
+    }
+
+    let scrollThrottle = null;
+    const scrollFetchFallback = () => {
+        if (scrollThrottle) return;
+        scrollThrottle = window.setTimeout(() => {
+            scrollThrottle = null;
+            if (!cursor) return;
+            const scrollHeight =
+                document.documentElement?.scrollHeight || document.body.offsetHeight;
+            const nearBottom = window.innerHeight + window.scrollY >= scrollHeight - 300;
+            if (nearBottom) {
+                fetchFeed();
+            }
+        }, 200);
+    };
+
+    if (sentinel) {
+        window.addEventListener("scroll", scrollFetchFallback, { passive: true });
+        window.addEventListener("resize", scrollFetchFallback, { passive: true });
+        scrollFetchFallback();
     }
 
     const buildCard = (image) => {

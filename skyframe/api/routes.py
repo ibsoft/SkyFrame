@@ -24,7 +24,18 @@ from ..feed import build_feed_selection, persist_seen_for_feed
 from ..astro import planetary_coordinates
 from ..extensions import csrf_protect, db, limiter
 from ..forms import CATEGORY_CHOICES as FORM_CATEGORY_CHOICES
-from ..models import Comment, Favorite, Follow, Image, Like, Motd, MotdSeen, NotificationRead, User
+from ..models import (
+    Comment,
+    Favorite,
+    FeedSeen,
+    Follow,
+    Image,
+    Like,
+    Motd,
+    MotdSeen,
+    NotificationRead,
+    User,
+)
 from ..share_storage import create_share_token
 from ..storage import perceptual_hashes_for_bytes, sha256_file, winjupos_label_from_metadata
 from . import bp
@@ -937,6 +948,7 @@ def delete_image(image_id):
         except FileNotFoundError:
             pass
 
+    FeedSeen.query.filter_by(image_id=image.id).delete(synchronize_session=False)
     db.session.delete(image)
     db.session.commit()
     return jsonify({"deleted": True}), 200
