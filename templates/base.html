@@ -77,6 +77,20 @@
                 </div>
             </div>
         {% endif %}
+        <div class="pwa-prompt-center d-none" id="pwa-prompt-center" role="dialog" aria-modal="true" aria-label="Install SkyFrame">
+            <div class="pwa-prompt-card">
+                <button type="button" class="pwa-close" data-dismiss-pwa aria-label="Close">×</button>
+                <div class="pwa-icon">
+                    <i class="fa-solid fa-rocket" aria-hidden="true"></i>
+                </div>
+                <h4>Install SkyFrame</h4>
+                <p>Get the app-like experience. Fast launch, offline cache, and full-screen viewing.</p>
+                <div class="pwa-actions">
+                    <button type="button" class="btn btn-primary" data-install-pwa>Install</button>
+                    <a class="btn btn-outline-light" href="{{ url_for('main.docs_install') }}">How to install</a>
+                </div>
+            </div>
+        </div>
         <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content notifications-modal">
