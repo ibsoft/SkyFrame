@@ -445,10 +445,12 @@ body.controls-hidden .action-column .action-icon.action-toggle {
     transform: none;
 }
 
-body.metadata-open .action-column .action-icon {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(10px);
+@media (max-width: 991px) {
+    body.metadata-open .action-column .action-icon {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(10px);
+    }
 }
 
 .toggle-actions-btn {
