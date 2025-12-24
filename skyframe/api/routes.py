@@ -945,6 +945,7 @@ def delete_image(image_id):
             pass
 
     FeedSeen.query.filter_by(image_id=image.id).delete(synchronize_session=False)
+    NotificationRead.query.filter_by(image_id=image.id).delete(synchronize_session=False)
     db.session.delete(image)
     db.session.commit()
     return jsonify({"deleted": True}), 200
