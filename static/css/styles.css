@@ -925,7 +925,7 @@ body.metadata-open .action-column .action-icon {
         margin-top: auto;
         position: static;
         z-index: auto;
-        margin: 0 0.75rem 0.35rem;
+        margin: 0.6rem 0.75rem -0.6rem;
         border-radius: 0.9rem;
     }
 }

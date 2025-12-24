@@ -82,7 +82,7 @@
                 {% endif %}
                 <details class="metadata-sheet">
                     <summary>
-                        Metadata
+                        {{ image.object_name }} · {{ image.observer_name }}
                         {% if image.observed_at %}
                             <span class="metadata-summary-time">{{ image.observed_at.strftime('%Y-%m-%d %H:%M UTC') }}</span>
                         {% endif %}
