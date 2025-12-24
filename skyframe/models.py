@@ -182,7 +182,9 @@ class NotificationRead(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     event_type = db.Column(db.String(16), nullable=False)
-    image_id = db.Column(db.Integer, db.ForeignKey("images.id"), nullable=False)
+    image_id = db.Column(
+        db.Integer, db.ForeignKey("images.id", ondelete="CASCADE"), nullable=False
+    )
     actor_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     event_created_at = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -226,5 +228,7 @@ class FeedSeen(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    image_id = db.Column(db.Integer, db.ForeignKey("images.id"), nullable=False)
+    image_id = db.Column(
+        db.Integer, db.ForeignKey("images.id", ondelete="CASCADE"), nullable=False
+    )
     seen_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
