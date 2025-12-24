@@ -203,9 +203,6 @@
         document.querySelectorAll("[data-loaded-feeds-range]").forEach((el) => {
             el.textContent = rangeLabel;
         });
-        document.querySelectorAll("[data-total-feeds-count]").forEach((el) => {
-            el.textContent = totalFeeds;
-        });
     };
 
     function buildCard(image) {

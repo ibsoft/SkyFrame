@@ -149,17 +149,16 @@
             </article>
         {% endfor %}
     </div>
-    <div class="feed-footer-bar">
-        <div class="feed-counts-inline">
-            <span>Total Feeds: <strong data-total-feeds-count>{{ total_feeds }}</strong></span>
-            <span>Loaded Feeds: <strong data-loaded-feeds-range>{{ "1-%d"|format(feed_images|length) if feed_images else "0" }}</strong></span>
-        </div>
-        {% if current_user.is_authenticated %}
+    {% if current_user.is_authenticated %}
+        <div class="feed-footer-bar">
+            <div class="feed-counts-inline">
+                <span>Loaded Feeds: <strong data-loaded-feeds-range>{{ "1-%d"|format(feed_images|length) if feed_images else "0" }}</strong></span>
+            </div>
             <button type="button" class="toggle-actions-btn toggle-actions-inline" data-action="toggle-buttons" aria-label="Toggle controls">
                 <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
             </button>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
     <div class="feed-sentinel" data-feed-sentinel data-next-cursor="{{ next_cursor or '' }}"></div>
 </section>
 {% if not current_user.is_authenticated %}
