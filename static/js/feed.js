@@ -256,6 +256,10 @@
                         <i class="fa-solid fa-arrows-rotate"></i>
                         <span>Load</span>
                     </button>
+                    <button type="button" class="action-icon action-toggle" data-action="toggle-buttons">
+                        <i class="fa-solid fa-eye-slash"></i>
+                        <span>Hide</span>
+                    </button>
                 </div>
             `
             : "";
@@ -554,13 +558,18 @@
 
     const updateToggleIcon = (button, isHidden) => {
         const icon = button.querySelector("i");
-        if (!icon) return;
-        icon.className = isHidden ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
+        if (icon) {
+            icon.className = isHidden ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
+        }
+        const label = button.querySelector("span");
+        if (label) {
+            label.textContent = isHidden ? "Show" : "Hide";
+        }
     };
 
     const toggleControls = () => {
         if (!document.body) return;
-        const toggles = document.querySelectorAll(".toggle-actions-btn");
+        const toggles = document.querySelectorAll('[data-action="toggle-buttons"]');
         const shouldHide = !document.body.classList.contains("controls-hidden");
         document.body.classList.toggle("controls-hidden", shouldHide);
         toggles.forEach((btn) => {
@@ -571,7 +580,7 @@
 
     const initToggleIcons = () => {
         const isHidden = document.body.classList.contains("controls-hidden");
-        document.querySelectorAll(".toggle-actions-btn").forEach((btn) => {
+        document.querySelectorAll('[data-action="toggle-buttons"]').forEach((btn) => {
             updateToggleIcon(btn, isHidden);
         });
     };

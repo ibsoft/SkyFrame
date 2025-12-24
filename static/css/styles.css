@@ -433,10 +433,16 @@ body {
     display: block;
 }
 
-body.controls-hidden .action-column {
+body.controls-hidden .action-column .action-icon {
     opacity: 0;
     pointer-events: none;
     transform: translateX(10px);
+}
+
+body.controls-hidden .action-column .action-icon.action-toggle {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
 }
 
 .toggle-actions-btn {
@@ -468,6 +474,12 @@ body.controls-hidden .action-column {
     padding: 0.25rem 0.65rem;
     font-size: 0.65rem;
     letter-spacing: 0.05em;
+}
+
+.toggle-actions-btn.toggle-actions-ghost {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
 }
 
 .toggle-actions-btn:hover {
@@ -546,16 +558,29 @@ body.controls-hidden .action-column {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
 }
 
 .metadata-sheet summary::-webkit-details-marker {
     display: none;
 }
 
+.metadata-summary-time {
+    font-size: 0.65rem;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    margin-left: auto;
+}
+
 .metadata-sheet summary::after {
     content: "▾";
-    float: right;
     opacity: 0.7;
+    margin-left: 0.35rem;
 }
 
 .metadata-sheet[open] summary::after {
@@ -857,6 +882,17 @@ body.controls-hidden .action-column {
         position: static;
         max-height: none;
         overflow: visible;
+    }
+}
+
+@media (max-width: 991px) {
+    .feed-shell {
+        margin-bottom: -3rem;
+    }
+
+    .metadata-sheet {
+        margin-top: auto;
+        margin-bottom: 0;
     }
 }
 
