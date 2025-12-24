@@ -69,6 +69,14 @@
                                 <span>Edit</span>
                             </a>
                         {% endif %}
+                        <button type="button" class="action-icon action-reload" data-action="feed-reload">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                            <span>Reload</span>
+                        </button>
+                        <button type="button" class="action-icon action-view" data-action="view-fullscreen" data-image-id="{{ image.id }}" data-full-url="{{ url_for('api.download_image', image_id=image.id) }}">
+                            <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                            <span>View</span>
+                        </button>
                     </div>
                 {% endif %}
                 <details class="metadata-sheet">
@@ -144,6 +152,10 @@
             </article>
         {% endfor %}
     </div>
+    <div class="feed-counts" data-total-feeds="{{ total_feeds }}">
+        <span>Total Feeds: <strong data-total-feeds-count>{{ total_feeds }}</strong></span>
+        <span>Loaded Feeds: <strong data-loaded-feeds-count>{{ feed_images|length }}</strong></span>
+    </div>
     <div class="feed-sentinel" data-feed-sentinel data-next-cursor="{{ next_cursor or '' }}"></div>
 </section>
 {% if not current_user.is_authenticated %}
@@ -195,6 +207,26 @@
             </div>
             <div class="modal-body pt-0">
                 <div class="likes-list" data-likes-list></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="fullscreenModal" tabindex="-1" aria-labelledby="fullscreenModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-black text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="fullscreenModalLabel">View image</h5>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-zoom-out>-</button>
+                    <button type="button" class="btn btn-outline-light btn-sm" data-zoom-in>+</button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0">
+                <div class="fullscreen-stage">
+                    <img id="fullscreenImage" class="fullscreen-image" alt="Full image">
+                </div>
             </div>
         </div>
     </div>

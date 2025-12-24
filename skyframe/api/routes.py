@@ -596,12 +596,12 @@ def my_feed():
     query = Image.query.filter_by(user_id=current_user.id)
     if cursor_point:
         query = query.filter(
-            (Image.created_at < cursor_point)
-            | ((Image.created_at == cursor_point) & (Image.id < cursor_image_id))
+            (Image.observed_at < cursor_point)
+            | ((Image.observed_at == cursor_point) & (Image.id < cursor_image_id))
         )
 
     ordered = (
-        query.order_by(Image.created_at.desc(), Image.id.desc())
+        query.order_by(Image.observed_at.desc(), Image.id.desc())
         .limit(per_page + 1)
         .all()
     )
@@ -609,7 +609,7 @@ def my_feed():
     next_cursor = ""
     if len(ordered) > per_page and images:
         cursor_target = images[-1]
-        next_cursor = f"{cursor_target.created_at.isoformat()}_{cursor_target.id}"
+        next_cursor = f"{cursor_target.observed_at.isoformat()}_{cursor_target.id}"
 
     payload = [
         _serialize_image(image, liked_ids, favorited_ids, following_ids, current_user_id=current_user.id)
@@ -955,6 +955,7 @@ def delete_image(image_id):
 
 
 @bp.route("/images/<int:image_id>/download", methods=["GET"])
+@limiter.exempt
 def download_image(image_id):
     image = Image.query.get_or_404(image_id)
     base_path = Path(Config.UPLOAD_PATH)

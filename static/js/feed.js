@@ -10,10 +10,15 @@
     const likesModal = document.getElementById("likesModal");
     const likesList = likesModal?.querySelector("[data-likes-list]");
     const likesCount = likesModal?.querySelector("[data-likes-count]");
+    const fullscreenModal = document.getElementById("fullscreenModal");
+    const fullscreenImage = document.getElementById("fullscreenImage");
+    const zoomInButton = fullscreenModal?.querySelector("[data-zoom-in]");
+    const zoomOutButton = fullscreenModal?.querySelector("[data-zoom-out]");
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
     let cursor = sentinel?.dataset.nextCursor || null;
     let isFetching = false;
     let activeImage = null;
+    let zoomLevel = 1;
 
     const postAction = async (url) => {
         const resp = await fetch(url, {
@@ -183,6 +188,17 @@
         spinner?.classList.add("d-none");
     };
 
+    const updateFeedCounts = () => {
+        const totalEl = document.querySelector("[data-total-feeds-count]");
+        const loadedEl = document.querySelector("[data-loaded-feeds-count]");
+        if (!loadedEl || !feedContainer) return;
+        const loaded = feedContainer.querySelectorAll(".feed-card").length;
+        loadedEl.textContent = String(loaded);
+        if (!totalEl) return;
+        const total = totalEl.textContent || "0";
+        totalEl.textContent = total;
+    };
+
     const fetchFeed = async () => {
         if (isFetching || !sentinel || !cursor) {
             return;
@@ -210,6 +226,7 @@
                     lastImageId = entryId;
                     seenBatch.add(entryId);
                 });
+                updateFeedCounts();
             }
             cursor = data.next_cursor;
             if (sentinel) {
@@ -218,6 +235,46 @@
             if (!cursor) {
                 sentinel.textContent = "You're caught up for now.";
                 observer?.disconnect();
+            }
+        } finally {
+            isFetching = false;
+            hideSpinner();
+        }
+    };
+
+    const replaceFeed = (entries = []) => {
+        if (!feedContainer) return;
+        feedContainer.innerHTML = "";
+        const seenBatch = new Set();
+        entries.forEach((entry) => {
+            const entryId = String(entry.id);
+            if (seenBatch.has(entryId)) {
+                return;
+            }
+            const card = buildCard(entry);
+            feedContainer.appendChild(card);
+            syncMetadataSheets(card);
+            seenBatch.add(entryId);
+        });
+        updateFeedCounts();
+    };
+
+    const reloadFeed = async () => {
+        if (isFetching || !sentinel) return;
+        isFetching = true;
+        showSpinner();
+        try {
+            const resp = await fetch(feedEndpoint);
+            const data = await resp.json();
+            replaceFeed(data.images || []);
+            cursor = data.next_cursor || "";
+            sentinel.dataset.nextCursor = data.next_cursor || "";
+            sentinel.textContent = "";
+            const scrollHost = scrollContainer || document.scrollingElement || document.documentElement;
+            if ("scrollTo" in scrollHost) {
+                scrollHost.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+                scrollHost.scrollTop = 0;
             }
         } finally {
             isFetching = false;
@@ -351,6 +408,41 @@
         scrollFetchFallback();
     }
 
+    const scrollContainer = document.querySelector(".app-shell main");
+
+    const updateZoom = () => {
+        if (!fullscreenImage) return;
+        fullscreenImage.style.transform = `scale(${zoomLevel})`;
+    };
+
+    const openFullscreen = (url) => {
+        if (!fullscreenModal || !fullscreenImage) return;
+        zoomLevel = 1;
+        updateZoom();
+        fullscreenImage.src = url;
+        const modalApi = window.bootstrap?.Modal;
+        if (modalApi) {
+            modalApi.getOrCreateInstance(fullscreenModal).show();
+        }
+    };
+
+    zoomInButton?.addEventListener("click", () => {
+        zoomLevel = Math.min(4, zoomLevel + 0.25);
+        updateZoom();
+    });
+
+    zoomOutButton?.addEventListener("click", () => {
+        zoomLevel = Math.max(1, zoomLevel - 0.25);
+        updateZoom();
+    });
+
+    fullscreenModal?.addEventListener("hidden.bs.modal", () => {
+        if (!fullscreenImage) return;
+        fullscreenImage.src = "";
+        zoomLevel = 1;
+        updateZoom();
+    });
+
     const buildCard = (image) => {
         const card = document.createElement("article");
         card.className = "feed-card";
@@ -397,6 +489,14 @@
                             ? `<a class="action-icon" href="/images/${image.id}/edit"><i class="fa-solid fa-pen-to-square"></i><span>Edit</span></a>`
                             : ""
                     }
+                    <button type="button" class="action-icon action-reload" data-action="feed-reload">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>Reload</span>
+                    </button>
+                    <button type="button" class="action-icon action-view" data-action="view-fullscreen" data-full-url="${image.download_url}">
+                        <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                        <span>View</span>
+                    </button>
                 </div>
             `
             : "";
@@ -555,7 +655,10 @@
     const handleAction = async (element) => {
         const action = element.dataset.action;
         const imageId = element.dataset.imageId;
-        if (!action || (!imageId && action !== "follow")) return;
+        if (!action) return;
+        if (!imageId && !["follow", "feed-reload", "view-fullscreen"].includes(action)) {
+            return;
+        }
         if (action === "like" || action === "favorite") {
             const isActive = element.classList.contains("active");
             const verb = isActive ? "un" : "";
@@ -617,6 +720,12 @@
             if (!imageEl) return;
             const heading = imageEl.querySelector(".metadata-card h5");
             openComments(imageId, heading ? heading.textContent : "Comments");
+        } else if (action === "feed-reload") {
+            reloadFeed();
+        } else if (action === "view-fullscreen") {
+            const fullUrl = element.dataset.fullUrl;
+            if (!fullUrl) return;
+            openFullscreen(fullUrl);
         }
     };
 
@@ -740,6 +849,8 @@
         }
         textarea.value = "";
     });
+
+    updateFeedCounts();
 
     syncMetadataSheets();
     initToggleIcons();
