@@ -3,7 +3,7 @@
 {% block title %}Feed – SkyFrame{% endblock %}
 
 {% block content %}
-<section class="feed-shell" data-feed data-feed-endpoint="{{ feed_endpoint }}">
+<section class="feed-shell" data-feed data-feed-endpoint="{{ feed_endpoint }}" data-total-feeds="{{ total_feeds }}">
     <div id="feed-loading-overlay" class="feed-loading-overlay d-none">
         <div class="feed-spinner-border"></div>
     </div>
@@ -30,9 +30,6 @@
                     <img class="feed-image" src="{{ url_for('api.download_image', image_id=image.id, thumb=1) }}" alt="{{ image.object_name }}" loading="lazy" data-image-id="{{ image.id }}">
                 </div>
                 {% if current_user.is_authenticated %}
-                    <button type="button" class="toggle-actions-btn toggle-right" data-action="toggle-buttons" aria-label="Toggle controls">
-                        <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
-                    </button>
                     <div class="action-column" data-image-id="{{ image.id }}">
                         <button class="action-icon action-like {% if image.id in liked %}active{% endif %}" data-action="like" data-image-id="{{ image.id }}">
                             <i class="fa-solid fa-heart"></i>
@@ -69,13 +66,13 @@
                                 <span>Edit</span>
                             </a>
                         {% endif %}
-                        <button type="button" class="action-icon action-reload" data-action="feed-reload">
-                            <i class="fa-solid fa-arrows-rotate"></i>
-                            <span>Reload</span>
-                        </button>
                         <button type="button" class="action-icon action-view" data-action="view-fullscreen" data-image-id="{{ image.id }}" data-full-url="{{ url_for('api.download_image', image_id=image.id) }}">
                             <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
                             <span>View</span>
+                        </button>
+                        <button type="button" class="action-icon action-reload" data-action="feed-load">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                            <span>Load</span>
                         </button>
                     </div>
                 {% endif %}
@@ -152,9 +149,16 @@
             </article>
         {% endfor %}
     </div>
-    <div class="feed-counts" data-total-feeds="{{ total_feeds }}">
-        <span>Total Feeds: <strong data-total-feeds-count>{{ total_feeds }}</strong></span>
-        <span>Loaded Feeds: <strong data-loaded-feeds-count>{{ feed_images|length }}</strong></span>
+    <div class="feed-footer-bar">
+        <div class="feed-counts-inline">
+            <span>Total Feeds: <strong data-total-feeds-count>{{ total_feeds }}</strong></span>
+            <span>Loaded Feeds: <strong data-loaded-feeds-range>{{ "1-%d"|format(feed_images|length) if feed_images else "0" }}</strong></span>
+        </div>
+        {% if current_user.is_authenticated %}
+            <button type="button" class="toggle-actions-btn toggle-actions-inline" data-action="toggle-buttons" aria-label="Toggle controls">
+                <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
+            </button>
+        {% endif %}
     </div>
     <div class="feed-sentinel" data-feed-sentinel data-next-cursor="{{ next_cursor or '' }}"></div>
 </section>
