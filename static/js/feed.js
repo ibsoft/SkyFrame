@@ -127,6 +127,16 @@
             if (!sheet.dataset.toggleBound) {
                 sheet.addEventListener("toggle", () => {
                     sheet.dataset.userToggled = "true";
+                    const isOpen = sheet.hasAttribute("open");
+                    if (document.body) {
+                        document.body.classList.toggle("metadata-open", isOpen);
+                        if (isOpen) {
+                            document.body.classList.remove("controls-hidden");
+                        }
+                        document
+                            .querySelectorAll('[data-action="toggle-buttons"]')
+                            .forEach((btn) => updateToggleIcon(btn, false));
+                    }
                 });
                 sheet.dataset.toggleBound = "true";
             }
