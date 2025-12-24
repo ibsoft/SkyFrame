@@ -22,6 +22,10 @@
     let isFetching = false;
     let activeImage = null;
     let zoomLevel = 1;
+    let commentsPollTimer = null;
+    let lastCommentId = null;
+    let lastCommentsLength = null;
+    const COMMENTS_POLL_MS = 5000;
 
     const postAction = async (url) => {
         const resp = await fetch(url, {
@@ -199,6 +203,19 @@
         return escaped.replace(urlRegex, (match) => {
             const url = match.startsWith("www.") ? `https://${match}` : match;
             return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+        });
+    };
+
+    const formatCommentTime = (value) => {
+        if (!value) return "";
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return "";
+        return parsed.toLocaleString(undefined, {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
         });
     };
 
@@ -712,9 +729,45 @@
     const closeComments = () => {
         commentsSheet?.classList.add("d-none");
         activeImage = null;
+        lastCommentId = null;
+        lastCommentsLength = null;
+        if (commentsPollTimer) {
+            window.clearInterval(commentsPollTimer);
+            commentsPollTimer = null;
+        }
         if (commentsList) {
             commentsList.innerHTML = "";
         }
+    };
+
+    const renderComments = (data) => {
+        if (!commentsList) return;
+        commentsList.innerHTML = "";
+        const ordered = data.slice().reverse();
+        ordered.forEach((comment) => {
+            const row = document.createElement("div");
+            row.className = "comment-row";
+            const timestamp = formatCommentTime(comment.created_at);
+            row.innerHTML = `<strong>${escapeHtml(comment.user)}</strong><p class="mb-0 text-muted">${linkifyText(
+                comment.body
+            )}</p>${timestamp ? `<span class="comment-time">${escapeHtml(timestamp)}</span>` : ""}`;
+            commentsList.appendChild(row);
+        });
+        lastCommentId = data.length ? data[data.length - 1].id : null;
+        lastCommentsLength = data.length;
+    };
+
+    const loadComments = async (imageId) => {
+        if (!imageId || !commentsSheet || commentsSheet.classList.contains("d-none")) return;
+        const resp = await fetch(`/api/images/${imageId}/comments`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (!Array.isArray(data)) return;
+        const latestId = data.length ? data[data.length - 1].id : null;
+        if (latestId === lastCommentId && data.length === lastCommentsLength) {
+            return;
+        }
+        renderComments(data);
     };
 
     const openComments = async (imageId, label) => {
@@ -723,20 +776,15 @@
             commentsTarget.textContent = label;
         }
         commentsSheet?.classList.remove("d-none");
-        const resp = await fetch(`/api/images/${imageId}/comments`);
-        const data = await resp.json();
-        if (!commentsList) {
-            return;
+        lastCommentId = null;
+        lastCommentsLength = null;
+        await loadComments(imageId);
+        if (commentsPollTimer) {
+            window.clearInterval(commentsPollTimer);
         }
-        commentsList.innerHTML = "";
-        data.forEach((comment) => {
-            const row = document.createElement("div");
-            row.className = "comment-row";
-            row.innerHTML = `<strong>${escapeHtml(comment.user)}</strong><p class="mb-0 text-muted">${linkifyText(
-                comment.body
-            )}</p>`;
-            commentsList.appendChild(row);
-        });
+        commentsPollTimer = window.setInterval(() => {
+            loadComments(imageId);
+        }, COMMENTS_POLL_MS);
     };
 
     document.addEventListener("click", (event) => {
@@ -821,11 +869,25 @@
         const data = await resp.json();
         const row = document.createElement("div");
         row.className = "comment-row";
+        const timestamp = formatCommentTime(data.created_at);
         row.innerHTML = `<strong>${escapeHtml(data.user)}</strong><p class="mb-0 text-muted">${linkifyText(
             data.body
-        )}</p>`;
+        )}</p>${timestamp ? `<span class="comment-time">${escapeHtml(timestamp)}</span>` : ""}`;
         if (commentsList) {
             commentsList.prepend(row);
+        }
+        if (data?.id) {
+            lastCommentId = data.id;
+        }
+        if (typeof lastCommentsLength === "number") {
+            lastCommentsLength += 1;
+        }
+        const countTarget = document.querySelector(
+            `.action-comment[data-image-id="${activeImage}"] .action-count`
+        );
+        if (countTarget) {
+            const current = Number(countTarget.textContent || "0");
+            countTarget.textContent = String(current + 1);
         }
         textarea.value = "";
     });
