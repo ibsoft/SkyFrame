@@ -3,6 +3,8 @@
     const feedShell = document.querySelector(".feed-shell");
     const sentinel = document.querySelector("[data-feed-sentinel]");
     const feedEndpoint = feedShell?.dataset?.feedEndpoint || "/api/feed";
+    const scrollContainer = document.querySelector(".app-shell main");
+    const totalFeeds = feedShell?.dataset?.totalFeeds || "0";
     const commentsSheet = document.getElementById("comments-sheet");
     const commentsList = document.getElementById("comments-list");
     const commentsTarget = document.getElementById("comments-target");
@@ -15,6 +17,7 @@
     const zoomInButton = fullscreenModal?.querySelector("[data-zoom-in]");
     const zoomOutButton = fullscreenModal?.querySelector("[data-zoom-out]");
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+    const isAuthenticated = document.body?.dataset?.authenticated === "true";
     let cursor = sentinel?.dataset.nextCursor || null;
     let isFetching = false;
     let activeImage = null;
@@ -189,15 +192,175 @@
     };
 
     const updateFeedCounts = () => {
-        const totalEl = document.querySelector("[data-total-feeds-count]");
-        const loadedEl = document.querySelector("[data-loaded-feeds-count]");
-        if (!loadedEl || !feedContainer) return;
-        const loaded = feedContainer.querySelectorAll(".feed-card").length;
-        loadedEl.textContent = String(loaded);
-        if (!totalEl) return;
-        const total = totalEl.textContent || "0";
-        totalEl.textContent = total;
+        if (!feedContainer) return;
+        const ids = new Set();
+        feedContainer.querySelectorAll(".feed-card").forEach((card) => {
+            const id = card.dataset.imageId;
+            if (id) ids.add(id);
+        });
+        const loaded = ids.size;
+        const rangeLabel = loaded > 0 ? `1-${loaded}` : "0";
+        document.querySelectorAll("[data-loaded-feeds-range]").forEach((el) => {
+            el.textContent = rangeLabel;
+        });
+        document.querySelectorAll("[data-total-feeds-count]").forEach((el) => {
+            el.textContent = totalFeeds;
+        });
     };
+
+    function buildCard(image) {
+        const card = document.createElement("article");
+        card.className = "feed-card";
+        card.dataset.imageId = image.id;
+        const actionButtons = isAuthenticated
+            ? `
+                <div class="action-column" data-image-id="${image.id}">
+                <button class="action-icon action-like ${image.liked ? "active" : ""}" data-action="like" data-image-id="${image.id}">
+                        <i class="fa-solid fa-heart"></i>
+                        <span>Like</span>
+                        <span class="action-count">${image.like_count}</span>
+                    </button>
+                    <button class="action-icon action-save ${image.favorited ? "active" : ""}" data-action="favorite" data-image-id="${image.id}">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>Save</span>
+                        <span class="action-count">${image.favorite_count}</span>
+                    </button>
+                    <button class="action-icon action-download" data-action="download" data-image-id="${image.id}" data-download-url="${image.download_url}" data-download-name="${image.download_name}">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Download</span>
+                    </button>
+                    ${
+                        image.owned_by_current_user
+                            ? ""
+                            : `<button class="action-icon action-follow ${image.following_uploader ? "active" : ""}" data-action="follow" data-target-id="${image.uploader_id}">
+                                   <i class="fa-solid fa-user-plus"></i>
+                                   <span>${image.following_uploader ? "Following" : "Follow"}</span>
+                               </button>`
+                    }
+                    <button class="action-icon action-comment" data-action="comment" data-image-id="${image.id}">
+                        <i class="fa-solid fa-comment"></i>
+                        <span>Comment</span>
+                        <span class="action-count">${image.comment_count}</span>
+                    </button>
+                    <button type="button" class="action-icon share" data-action="share" data-image-id="${image.id}">
+                        <i class="fa-solid fa-share-nodes"></i>
+                        <span>Share</span>
+                    </button>
+                    ${
+                        image.owned_by_current_user
+                            ? `<a class="action-icon" href="/images/${image.id}/edit"><i class="fa-solid fa-pen-to-square"></i><span>Edit</span></a>`
+                            : ""
+                    }
+                    <button type="button" class="action-icon action-view" data-action="view-fullscreen" data-full-url="${image.download_url}">
+                        <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                        <span>View</span>
+                    </button>
+                    <button type="button" class="action-icon action-reload" data-action="feed-load">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>Load</span>
+                    </button>
+                </div>
+            `
+            : "";
+        const planetary = image.planetary_data;
+        let planetaryContent = "";
+        if (planetary) {
+            planetaryContent = `
+            <div class="post-metadata px-3 py-3">
+                <p class="meta-info small mb-0">
+                    RA: ${planetary.ra}° · Dec: ${planetary.dec}°
+                </p>
+                <p class="meta-info small mb-0">Distance: ${planetary.distance_au} AU</p>
+                ${
+                    planetary.altitude !== undefined && planetary.azimuth !== undefined
+                        ? `<p class="meta-info small mb-0">
+                             Altitude: ${planetary.altitude}° · Azimuth: ${planetary.azimuth}°
+                           </p>`
+                        : ""
+                }
+                ${
+                    !planetary.has_location
+                        ? `<p class="meta-info small mb-0 fst-italic text-white">
+                             Alt/Az unavailable – uploader has not provided observatory coordinates.
+                           </p>`
+                        : ""
+                }
+                ${
+                    planetary.jupiter_systems
+                        ? `<p class="meta-info small mb-0 mt-1">
+                             <strong>Jupiter System</strong>
+                             I: ${planetary.jupiter_systems.system_i}° ·
+                             II: ${planetary.jupiter_systems.system_ii}° ·
+                             III: ${planetary.jupiter_systems.system_iii}°
+                           </p>`
+                        : ""
+                }
+            </div>`;
+        }
+        const showExposureDetails =
+            ["Deep Sky", "Comets"].includes(image.category) && image.max_exposure_time;
+        card.innerHTML = `
+            <div class="image-wrap">
+                <img class="feed-image" src="${image.thumb_url}" alt="${image.object_name}" loading="lazy" data-image-id="${image.id}">
+            </div>
+            ${actionButtons}
+            <details class="metadata-sheet">
+                <summary>Metadata</summary>
+                <div class="metadata-stack">
+                    <div class="metadata-card px-3 py-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="small mb-1">${image.category} · ${image.observer_name}</p>
+                                <h5 class="mb-0">${image.object_name}</h5>
+                            </div>
+                            <span class="small">${new Date(image.observed_at).toLocaleString()}</span>
+                        </div>
+                        <p class="meta-info small mb-0">${image.telescope || "Telescope TBD"} · ${image.camera || "Camera TBD"}<br>Filter: ${
+            image.filter || "n/a"
+        }<br>Location: ${image.location || "Unknown"}</p>
+                        <p class="meta-info small mb-0">
+                            Seeing: ${image.seeing_rating || "N/A"} · Transparency: ${image.transparency_rating || "N/A"}
+                        </p>
+                        ${
+                            image.category === "Deep Sky" && image.bortle_rating
+                                ? `<p class="meta-info small mb-0">Bortle scale: ${image.bortle_rating}</p>`
+                                : ""
+                        }
+                        ${
+                            image.notes
+                                ? `<p class="meta-info small mb-0"><strong>Notes:</strong> ${escapeHtml(
+                                      image.notes
+                                  )}</p>`
+                                : ""
+                        }
+                        ${
+                            image.tags?.length
+                                ? `<div class="metadata-tags small">${image.tags
+                                      .map((tag) => `<span class="tag-pill">#${escapeHtml(tag)}</span>`)
+                                      .join("")}</div>`
+                            : ""
+                        }
+                        ${
+                            image.derotation_time
+                                ? `<p class="meta-info small mb-0">Derotation time: ${parseFloat(
+                                      image.derotation_time
+                                  ).toFixed(1)} min</p>`
+                                : ""
+                        }
+                        ${
+                            showExposureDetails
+                                ? `<p class="meta-info small mb-0">Max exposure: ${parseFloat(
+                                      image.max_exposure_time
+                                  ).toFixed(1)} s</p>`
+                                : ""
+                        }
+                    </div>
+                    ${planetaryContent}
+                </div>
+            </details>
+        `;
+        return card;
+    }
 
     const fetchFeed = async () => {
         if (isFetching || !sentinel || !cursor) {
@@ -213,17 +376,21 @@
             const resp = await fetch(`${feedEndpoint}?${params.toString()}`);
             const data = await resp.json();
             if (data.images?.length && feedContainer) {
-                let lastImageId = feedContainer.lastElementChild?.dataset.imageId || null;
+                const existingIds = new Set(
+                    Array.from(feedContainer.querySelectorAll(".feed-card")).map(
+                        (card) => card.dataset.imageId
+                    )
+                );
                 const seenBatch = new Set();
                 data.images.forEach((entry) => {
                     const entryId = String(entry.id);
-                    if (entryId === lastImageId || seenBatch.has(entryId)) {
+                    if (!entryId || existingIds.has(entryId) || seenBatch.has(entryId)) {
                         return;
                     }
                     const card = buildCard(entry);
                     feedContainer.appendChild(card);
                     syncMetadataSheets(card);
-                    lastImageId = entryId;
+                    existingIds.add(entryId);
                     seenBatch.add(entryId);
                 });
                 updateFeedCounts();
@@ -259,27 +426,8 @@
         updateFeedCounts();
     };
 
-    const reloadFeed = async () => {
-        if (isFetching || !sentinel) return;
-        isFetching = true;
-        showSpinner();
-        try {
-            const resp = await fetch(feedEndpoint);
-            const data = await resp.json();
-            replaceFeed(data.images || []);
-            cursor = data.next_cursor || "";
-            sentinel.dataset.nextCursor = data.next_cursor || "";
-            sentinel.textContent = "";
-            const scrollHost = scrollContainer || document.scrollingElement || document.documentElement;
-            if ("scrollTo" in scrollHost) {
-                scrollHost.scrollTo({ top: 0, behavior: "smooth" });
-            } else {
-                scrollHost.scrollTop = 0;
-            }
-        } finally {
-            isFetching = false;
-            hideSpinner();
-        }
+    const loadNextBatch = async () => {
+        await fetchFeed();
     };
 
     const renderObserverSuggestions = (items = []) => {
@@ -371,44 +519,7 @@
         }
     });
 
-    const isAuthenticated = document.body?.dataset?.authenticated === "true";
-    const observer = sentinel
-        ? new IntersectionObserver(
-              (entries) => {
-                  if (entries[0].isIntersecting) {
-                      fetchFeed();
-                  }
-              },
-              { threshold: 0, rootMargin: "200px" }
-          )
-        : null;
-
-    if (observer && sentinel) {
-        observer.observe(sentinel);
-    }
-
-    let scrollThrottle = null;
-    const scrollFetchFallback = () => {
-        if (scrollThrottle) return;
-        scrollThrottle = window.setTimeout(() => {
-            scrollThrottle = null;
-            if (!cursor) return;
-            const scrollHeight =
-                document.documentElement?.scrollHeight || document.body.offsetHeight;
-            const nearBottom = window.innerHeight + window.scrollY >= scrollHeight - 300;
-            if (nearBottom) {
-                fetchFeed();
-            }
-        }, 200);
-    };
-
-    if (sentinel) {
-        window.addEventListener("scroll", scrollFetchFallback, { passive: true });
-        window.addEventListener("resize", scrollFetchFallback, { passive: true });
-        scrollFetchFallback();
-    }
-
-    const scrollContainer = document.querySelector(".app-shell main");
+    const observer = null;
 
     const updateZoom = () => {
         if (!fullscreenImage) return;
@@ -443,162 +554,6 @@
         updateZoom();
     });
 
-    const buildCard = (image) => {
-        const card = document.createElement("article");
-        card.className = "feed-card";
-        card.dataset.imageId = image.id;
-        const actionButtons = isAuthenticated
-            ? `
-                <button type="button" class="toggle-actions-btn toggle-right" data-action="toggle-buttons" aria-label="Toggle controls">
-                    <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>
-                </button>
-                <div class="action-column" data-image-id="${image.id}">
-                <button class="action-icon action-like ${image.liked ? "active" : ""}" data-action="like" data-image-id="${image.id}">
-                        <i class="fa-solid fa-heart"></i>
-                        <span>Like</span>
-                        <span class="action-count">${image.like_count}</span>
-                    </button>
-                    <button class="action-icon action-save ${image.favorited ? "active" : ""}" data-action="favorite" data-image-id="${image.id}">
-                        <i class="fa-solid fa-bookmark"></i>
-                        <span>Save</span>
-                        <span class="action-count">${image.favorite_count}</span>
-                    </button>
-                    <button class="action-icon action-download" data-action="download" data-image-id="${image.id}" data-download-url="${image.download_url}" data-download-name="${image.download_name}">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Download</span>
-                    </button>
-                    ${
-                        image.owned_by_current_user
-                            ? ""
-                            : `<button class="action-icon action-follow ${image.following_uploader ? "active" : ""}" data-action="follow" data-target-id="${image.uploader_id}">
-                                   <i class="fa-solid fa-user-plus"></i>
-                                   <span>${image.following_uploader ? "Following" : "Follow"}</span>
-                               </button>`
-                    }
-                    <button class="action-icon action-comment" data-action="comment" data-image-id="${image.id}">
-                        <i class="fa-solid fa-comment"></i>
-                        <span>Comment</span>
-                        <span class="action-count">${image.comment_count}</span>
-                    </button>
-                    <button type="button" class="action-icon share" data-action="share" data-image-id="${image.id}">
-                        <i class="fa-solid fa-share-nodes"></i>
-                        <span>Share</span>
-                    </button>
-                    ${
-                        image.owned_by_current_user
-                            ? `<a class="action-icon" href="/images/${image.id}/edit"><i class="fa-solid fa-pen-to-square"></i><span>Edit</span></a>`
-                            : ""
-                    }
-                    <button type="button" class="action-icon action-reload" data-action="feed-reload">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                        <span>Reload</span>
-                    </button>
-                    <button type="button" class="action-icon action-view" data-action="view-fullscreen" data-full-url="${image.download_url}">
-                        <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
-                        <span>View</span>
-                    </button>
-                </div>
-            `
-            : "";
-        const planetary = image.planetary_data;
-        let planetaryContent = "";
-        if (planetary) {
-            planetaryContent = `
-            <div class="post-metadata px-3 py-3">
-                <p class="meta-info small mb-0">
-                    RA: ${planetary.ra}° · Dec: ${planetary.dec}°
-                </p>
-                <p class="meta-info small mb-0">Distance: ${planetary.distance_au} AU</p>
-                ${
-                    planetary.altitude !== undefined && planetary.azimuth !== undefined
-                        ? `<p class="meta-info small mb-0">
-                             Altitude: ${planetary.altitude}° · Azimuth: ${planetary.azimuth}°
-                           </p>`
-                        : ""
-                }
-                ${
-                    !planetary.has_location
-                        ? `<p class="meta-info small mb-0 fst-italic text-white">
-                             Alt/Az unavailable – uploader has not provided observatory coordinates.
-                           </p>`
-                        : ""
-                }
-                ${
-                    planetary.jupiter_systems
-                        ? `<p class="meta-info small mb-0 mt-1">
-                             <strong>Jupiter System</strong>
-                             I: ${planetary.jupiter_systems.system_i}° ·
-                             II: ${planetary.jupiter_systems.system_ii}° ·
-                             III: ${planetary.jupiter_systems.system_iii}°
-                           </p>`
-                        : ""
-                }
-            </div>`;
-        }
-        const showExposureDetails =
-            ["Deep Sky", "Comets"].includes(image.category) && image.max_exposure_time;
-        card.innerHTML = `
-            <div class="image-wrap">
-                <img class="feed-image" src="${image.thumb_url}" alt="${image.object_name}" loading="lazy" data-image-id="${image.id}">
-            </div>
-            ${actionButtons}
-            <details class="metadata-sheet">
-                <summary>Metadata</summary>
-                <div class="metadata-stack">
-                    <div class="metadata-card px-3 py-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="small mb-1">${image.category} · ${image.observer_name}</p>
-                                <h5 class="mb-0">${image.object_name}</h5>
-                            </div>
-                            <span class="small">${new Date(image.observed_at).toLocaleString()}</span>
-                        </div>
-                        <p class="meta-info small mb-0">${image.telescope || "Telescope TBD"} · ${image.camera || "Camera TBD"}<br>Filter: ${
-            image.filter || "n/a"
-        }<br>Location: ${image.location || "Unknown"}</p>
-                        <p class="meta-info small mb-0">
-                            Seeing: ${image.seeing_rating || "N/A"} · Transparency: ${image.transparency_rating || "N/A"}
-                        </p>
-                        ${
-                            image.category === "Deep Sky" && image.bortle_rating
-                                ? `<p class="meta-info small mb-0">Bortle scale: ${image.bortle_rating}</p>`
-                                : ""
-                        }
-                        ${
-                            image.notes
-                                ? `<p class="meta-info small mb-0"><strong>Notes:</strong> ${escapeHtml(
-                                      image.notes
-                                  )}</p>`
-                                : ""
-                        }
-                        ${
-                            image.tags?.length
-                                ? `<div class="metadata-tags small">${image.tags
-                                      .map((tag) => `<span class="tag-pill">#${escapeHtml(tag)}</span>`)
-                                      .join("")}</div>`
-                            : ""
-                        }
-                        ${
-                            image.derotation_time
-                                ? `<p class="meta-info small mb-0">Derotation time: ${parseFloat(
-                                      image.derotation_time
-                                  ).toFixed(1)} min</p>`
-                            : ""
-                        }
-                        ${
-                            showExposureDetails
-                                ? `<p class="meta-info small mb-0">Max exposure: ${parseFloat(
-                                      image.max_exposure_time
-                                  ).toFixed(1)} s</p>`
-                            : ""
-                        }
-                    </div>
-                    ${planetaryContent}
-                </div>
-            </details>
-        `;
-        return card;
-    };
 
     const updateToggleIcon = (button, isHidden) => {
         const icon = button.querySelector("i");
@@ -656,7 +611,7 @@
         const action = element.dataset.action;
         const imageId = element.dataset.imageId;
         if (!action) return;
-        if (!imageId && !["follow", "feed-reload", "view-fullscreen"].includes(action)) {
+        if (!imageId && !["follow", "feed-load", "view-fullscreen"].includes(action)) {
             return;
         }
         if (action === "like" || action === "favorite") {
@@ -720,8 +675,8 @@
             if (!imageEl) return;
             const heading = imageEl.querySelector(".metadata-card h5");
             openComments(imageId, heading ? heading.textContent : "Comments");
-        } else if (action === "feed-reload") {
-            reloadFeed();
+        } else if (action === "feed-load") {
+            loadNextBatch();
         } else if (action === "view-fullscreen") {
             const fullUrl = element.dataset.fullUrl;
             if (!fullUrl) return;

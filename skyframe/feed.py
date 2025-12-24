@@ -230,19 +230,12 @@ def build_feed_selection(
     per_page: int,
     cursor: str | None,
     fresh_days: int,
-    prioritized_pct: int,
-    candidate_multiplier: int,
-    max_per_uploader: int,
-    max_consecutive: int,
     seen_enabled: bool,
     seen_user_id: int | None,
     seen_retention_days: int,
     seen_max_ids: int,
 ) -> FeedSelection:
-    prioritized_pct = max(0, min(prioritized_pct, 100))
     use_seen = seen_enabled and seen_user_id is not None
-    prioritized_target = int(round(per_page * (prioritized_pct / 100.0)))
-    candidate_limit = max(per_page * candidate_multiplier, per_page)
 
     cursor_state = parse_feed_cursor(cursor)
     cutoff = _fresh_cutoff(fresh_days)
@@ -251,62 +244,33 @@ def build_feed_selection(
     if use_seen:
         seen_ids = _load_seen_ids(seen_user_id, seen_retention_days, seen_max_ids)
 
-    prioritized_filter = _prioritized_filter(liked_ids, following_ids)
-    prioritized_candidates: list[Image] = []
-    if prioritized_filter is not None:
-        query = Image.query.filter(prioritized_filter)
-        if cutoff:
-            query = query.filter(Image.observed_at >= cutoff)
-        if seen_ids:
-            query = query.filter(~Image.id.in_(seen_ids))
+    def _fetch_ordered(active_cutoff, active_seen_ids):
+        query = Image.query
+        if active_cutoff:
+            query = query.filter(Image.observed_at >= active_cutoff)
+        if active_seen_ids:
+            query = query.filter(~Image.id.in_(active_seen_ids))
         if not use_seen:
-            query = _apply_cursor(query, cursor_state.prioritized)
-        prioritized_candidates = (
+            query = _apply_cursor(query, cursor_state.global_new or cursor)
+        return (
             query.order_by(Image.observed_at.desc(), Image.id.desc())
-            .limit(candidate_limit)
+            .limit(per_page + 1)
             .all()
         )
 
-    prioritized_ids = {img.id for img in prioritized_candidates}
-
-    random_query = Image.query
-    if seen_ids:
-        random_query = random_query.filter(~Image.id.in_(seen_ids))
-    if prioritized_ids:
-        random_query = random_query.filter(~Image.id.in_(prioritized_ids))
-    random_candidates = (
-        random_query.order_by(func.random())
-        .limit(candidate_limit)
-        .all()
-    )
-    images, last_prioritized, last_global = _blend_feed(
-        prioritized_candidates,
-        random_candidates,
-        per_page,
-        prioritized_target,
-        max_per_uploader,
-        max_consecutive,
-    )
-
-    has_more = len(prioritized_candidates) + len(random_candidates) > len(images)
+    ordered = _fetch_ordered(cutoff, seen_ids)
+    if not ordered and cutoff:
+        ordered = _fetch_ordered(None, seen_ids)
+    if not ordered and seen_ids:
+        ordered = _fetch_ordered(cutoff, set())
+    images = ordered[:per_page]
+    has_more = len(ordered) > per_page
     if use_seen:
         next_cursor = "seen" if has_more else ""
     else:
-        prioritized_cursor = (
-            f"{last_prioritized.observed_at.isoformat()}_{last_prioritized.id}"
-            if last_prioritized and prioritized_filter is not None
-            else cursor_state.prioritized
+        next_cursor = (
+            f"{images[-1].observed_at.isoformat()}_{images[-1].id}" if has_more else ""
         )
-        global_cursor = "random" if random_candidates else cursor_state.global_new
-        next_cursor = format_feed_cursor(prioritized_cursor, global_cursor)
-        if not images:
-            next_cursor = ""
-
-    if not images:
-        fallback_images = Image.query.order_by(func.random()).limit(per_page).all()
-        images = fallback_images
-        next_cursor = "random" if images else ""
-        has_more = bool(images)
 
     return FeedSelection(images=images, next_cursor=next_cursor, seen_ids=seen_ids, has_more=has_more)
 
