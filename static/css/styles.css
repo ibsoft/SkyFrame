@@ -445,6 +445,12 @@ body.controls-hidden .action-column .action-icon.action-toggle {
     transform: none;
 }
 
+body.metadata-open .action-column .action-icon {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(10px);
+}
+
 .toggle-actions-btn {
     position: fixed;
     right: 16px;
@@ -903,7 +909,7 @@ body.controls-hidden .action-column .action-icon.action-toggle {
 
 @media (max-width: 991px) {
     .app-shell main {
-        padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+        padding-bottom: calc(var(--bottom-nav-height) + 0.5rem + env(safe-area-inset-bottom));
     }
 
     .feed-shell {
@@ -911,7 +917,7 @@ body.controls-hidden .action-column .action-icon.action-toggle {
     }
 
     .feed-card {
-        padding-bottom: env(safe-area-inset-bottom);
+        padding-bottom: calc(var(--bottom-nav-height) + 0.5rem + env(safe-area-inset-bottom));
         --action-column-bottom: calc(var(--bottom-nav-height) + 2.25rem + env(safe-area-inset-bottom));
     }
 
@@ -919,7 +925,7 @@ body.controls-hidden .action-column .action-icon.action-toggle {
         margin-top: auto;
         position: static;
         z-index: auto;
-        margin: 0 0.75rem 0;
+        margin: 0 0.75rem 0.35rem;
         border-radius: 0.9rem;
     }
 }
