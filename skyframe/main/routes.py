@@ -212,6 +212,7 @@ def feed():
         images=images,
         retention_days=current_app.config["FEED_SEEN_RETENTION_DAYS"],
     )
+    total_feeds = Image.query.count()
     return render_template(
         "feed.html",
         feed_images=images,
@@ -223,6 +224,7 @@ def feed():
         following=following_ids,
         next_cursor=next_cursor,
         next_page_url=url_for("main.feed", cursor=next_cursor) if next_cursor else "",
+        total_feeds=total_feeds,
         owned_ids=owned_ids,
         feed_endpoint="/api/feed",
     )
@@ -250,14 +252,15 @@ def my_feed():
             cursor_image_id = None
 
     query = Image.query.filter_by(user_id=current_user.id)
+    total_feeds = query.count()
     if cursor_point:
         query = query.filter(
-            (Image.created_at < cursor_point)
-            | ((Image.created_at == cursor_point) & (Image.id < cursor_image_id))
+            (Image.observed_at < cursor_point)
+            | ((Image.observed_at == cursor_point) & (Image.id < cursor_image_id))
         )
 
     ordered = (
-        query.order_by(Image.created_at.desc(), Image.id.desc())
+        query.order_by(Image.observed_at.desc(), Image.id.desc())
         .limit(per_page + 1)
         .all()
     )
@@ -265,7 +268,7 @@ def my_feed():
     next_cursor = ""
     if len(ordered) > per_page and images:
         cursor_target = images[-1]
-        next_cursor = f"{cursor_target.created_at.isoformat()}_{cursor_target.id}"
+        next_cursor = f"{cursor_target.observed_at.isoformat()}_{cursor_target.id}"
     owned_ids = {image.id for image in images}
     for img in images:
         img.download_name = f"{winjupos_label_from_metadata(img.object_name, img.observed_at, img.filter, img.uploader.username)}.jpg"
@@ -291,6 +294,7 @@ def my_feed():
         following=following_ids,
         next_cursor=next_cursor,
         next_page_url=url_for("main.my_feed", cursor=next_cursor) if next_cursor else "",
+        total_feeds=total_feeds,
         owned_ids=owned_ids,
         feed_endpoint="/api/my-feed",
     )

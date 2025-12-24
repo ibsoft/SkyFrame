@@ -62,8 +62,8 @@ def _apply_cursor(query, cursor_value: str | None):
     if cursor_point is None:
         return query
     return query.filter(
-        (Image.created_at < cursor_point)
-        | ((Image.created_at == cursor_point) & (Image.id < cursor_image_id))
+        (Image.observed_at < cursor_point)
+        | ((Image.observed_at == cursor_point) & (Image.id < cursor_image_id))
     )
 
 
@@ -256,13 +256,13 @@ def build_feed_selection(
     if prioritized_filter is not None:
         query = Image.query.filter(prioritized_filter)
         if cutoff:
-            query = query.filter(Image.created_at >= cutoff)
+            query = query.filter(Image.observed_at >= cutoff)
         if seen_ids:
             query = query.filter(~Image.id.in_(seen_ids))
         if not use_seen:
             query = _apply_cursor(query, cursor_state.prioritized)
         prioritized_candidates = (
-            query.order_by(Image.created_at.desc(), Image.id.desc())
+            query.order_by(Image.observed_at.desc(), Image.id.desc())
             .limit(candidate_limit)
             .all()
         )
@@ -293,7 +293,7 @@ def build_feed_selection(
         next_cursor = "seen" if has_more else ""
     else:
         prioritized_cursor = (
-            f"{last_prioritized.created_at.isoformat()}_{last_prioritized.id}"
+            f"{last_prioritized.observed_at.isoformat()}_{last_prioritized.id}"
             if last_prioritized and prioritized_filter is not None
             else cursor_state.prioritized
         )
