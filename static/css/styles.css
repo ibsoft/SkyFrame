@@ -1074,11 +1074,11 @@ body.controls-hidden .action-column .action-icon.action-toggle {
 }
 
 .shared-page {
-    min-height: 100%;
+    min-height: 100dvh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 3rem 1rem;
+    padding: calc(env(safe-area-inset-top) + 1.5rem) 1rem calc(env(safe-area-inset-bottom) + 1.5rem);
 }
 
 .shared-card {
@@ -1100,6 +1100,8 @@ body.controls-hidden .action-column .action-icon.action-toggle {
     height: auto;
     display: block;
     border-radius: 1rem;
+    max-height: 60vh;
+    object-fit: contain;
 }
 
 .shared-metadata {
