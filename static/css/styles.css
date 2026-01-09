@@ -1078,7 +1078,7 @@ body.controls-hidden .action-column .action-icon.action-toggle {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: calc(env(safe-area-inset-top) + 1.5rem) 1rem calc(env(safe-area-inset-bottom) + 1.5rem);
+    padding: calc(env(safe-area-inset-top) + 1.5rem) 1rem calc(env(safe-area-inset-bottom) + 3rem);
 }
 
 .shared-card {
